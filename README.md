@@ -8,6 +8,6 @@ Basic functions or classes for processing
     
 # bin/
 
-Running scripts for a specific purpose
+Running scripts for specific purposes
 
     gff3-sort.py: Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and feature relationship based on sequence ontology
