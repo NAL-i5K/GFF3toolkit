@@ -1,4 +1,8 @@
 # GFF3toolkit - Python programs for processing GFF3 files
+* Current functions
+    - [Detection of GFF format errors](https://github.com/NAL-i5K/GFF3toolkit#bin)
+    - [Sort a GFF3 file](https://github.com/NAL-i5K/GFF3toolkit#sort-a-gff3-file)
+    - [Genernate biological sequences from a GFF3 file](https://github.com/NAL-i5K/GFF3toolkit#genernate-biological-sequences-from-a-gff3-file)
 
 ## QC and OGS generation pipeline by I5K Workspace@NAL
 This project is to develop python tools for generating official gene set (OGS) by integrating manually curated and predicted gene annotations (GFF3 format). There are two phases involved: (1) QC phase and (2) Merge phase. A prototype of the whole pipeline has been done by I5K Workspace@NAL team. However, the source codes of the prototype program is not release for public, because it incorporated several components written by programming languages other than Python. Therefore, this project will re-implement those non-python components, and expects to deliver a complete python package for OGS generation. If you have urgent needs for OGS generation, you can send queries to I5K [at] ars.usda.gov. The i5k team can help to host your data, and apply OGS generation pipeline on your data for you.
@@ -7,7 +11,7 @@ This project is to develop python tools for generating official gene set (OGS) b
 
 ### bin/
 General script for running through different phases of the OGS pipeline.
-* gff-QC.py
+* gff-QC.py 
     - Detection of GFF format errors (~50 types of errors. Details can be found in [wiki page](https://github.com/NAL-i5K/I5KNAL_OGS/wiki/QC-phase))
 
 ### example_file/
@@ -33,7 +37,7 @@ Completed tools would be shown as under a specific directory. Tools under develo
 * [gff3_to_fasta](https://github.com/NAL-i5K/I5KNAL_OGS/tree/I5KNAL_OGS/lib/gff3_to_fasta)/
     - Extract specific sequeces from genome sequences accroding to gff file.
 
-## Sort a GFF3 file
+## Sort a GFF3 file ([back](https://github.com/NAL-i5K/GFF3toolkit#gff3toolkit---python-programs-for-processing-gff3-files))
 
 ### bin/
 
@@ -42,7 +46,7 @@ Completed tools would be shown as under a specific directory. Tools under develo
 ### lib/
 * gff3.py: This program was contributed by Han Lin (http://gff3-py.readthedocs.org/en/latest/readme.html). Codes were modified for customized usage.
  
-## Genernate biological sequences from a GFF3 file
+## Genernate biological sequences from a GFF3 file ([back](https://github.com/NAL-i5K/GFF3toolkit#gff3toolkit---python-programs-for-processing-gff3-files))
 
 ### bin/
 * gff3_to_fasta.py: The software is used to extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file. Please check the details [here](https://github.com/NAL-i5K/GFF3toolkit/tree/master/lib/gff3_to_fasta).
