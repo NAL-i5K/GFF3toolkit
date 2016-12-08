@@ -1,6 +1,6 @@
 # GFF3toolkit - Python programs for processing GFF3 files
 * Current functions
-    - [Detection of GFF format errors](https://github.com/NAL-i5K/GFF3toolkit#bin)
+    - [Detection of GFF3 format errors](https://github.com/NAL-i5K/GFF3toolkit#bin)
     - [Sort a GFF3 file](https://github.com/NAL-i5K/GFF3toolkit#sort-a-gff3-file-back)
     - [Genernate biological sequences from a GFF3 file](https://github.com/NAL-i5K/GFF3toolkit#genernate-biological-sequences-from-a-gff3-file-back)
 
