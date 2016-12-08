@@ -43,7 +43,7 @@ Completed tools would be shown as under a specific directory. Tools under develo
 ### lib/
 * gff3.py: This program was contributed by Han Lin (http://gff3-py.readthedocs.org/en/latest/readme.html). Codes were modified for customized usage.
  
-## gff3_to_fasta
+## Genernate biological sequences from a GFF3 file
 
 ### bin/
 * gff3_to_fasta.py: The software is used to extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file. Please check the details [here](https://github.com/NAL-i5K/GFF3toolkit/tree/master/lib/gff3_to_fasta).
