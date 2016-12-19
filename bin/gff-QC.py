@@ -100,10 +100,14 @@ if __name__ == '__main__':
     logger_stderr.info('Checking missing attributes: (%s)...\n', 'single_feature.FIX_MISSING_ATTR()')
 
     error_set = list()
-    error_set.extend(function4gff.extract_internal_detected_errors(gff3))
-    error_set.extend(intra_model.main(gff3, logger=logger_stderr))
-    error_set.extend(inter_model.main(gff3, logger=logger_stderr))
-    error_set.extend(single_feature.main(gff3, logger=logger_stderr))
+    if function4gff.extract_internal_detected_errors(gff3):
+        error_set.extend(function4gff.extract_internal_detected_errors(gff3))
+    if intra_model.main(gff3, logger=logger_stderr):
+        error_set.extend(intra_model.main(gff3, logger=logger_stderr))
+    if inter_model.main(gff3, logger=logger_stderr):
+        error_set.extend(inter_model.main(gff3, logger=logger_stderr))
+    if inter_model.main(gff3, logger=logger_stderr):
+        error_set.extend(single_feature.main(gff3, logger=logger_stderr))
 
     if args.output:
         logger_stderr.info('Print QC report at {0:s}'.format(args.output))
