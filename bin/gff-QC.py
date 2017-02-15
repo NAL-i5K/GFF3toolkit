@@ -93,19 +93,23 @@ if __name__ == '__main__':
 
     logger_stderr.info('Reading gff files: (%s)...\n', args.gff)
     gff3 = Gff3(gff_file=args.gff, fasta_external=args.fasta, logger=logger_null)
+    logger_stderr.info('Checking errors in the gff files: (%s)...\n', args.gff)
     gff3.check_unresolved_parents()
     gff3.check_parent_boundary()
     gff3.check_phase()
     gff3.check_reference()
-    logger_stderr.info('Checking missing attributes: (%s)...\n', 'single_feature.FIX_MISSING_ATTR()')
+    logger_stderr.info('\t- Checking missing attributes: (%s)...\n', 'single_feature.FIX_MISSING_ATTR()')
 
     error_set = list()
     if function4gff.extract_internal_detected_errors(gff3):
         error_set.extend(function4gff.extract_internal_detected_errors(gff3))
+    logger_stderr.info('\t- Checking intra-model errors: (%s)...\n', args.gff)
     if intra_model.main(gff3, logger=logger_stderr):
         error_set.extend(intra_model.main(gff3, logger=logger_stderr))
+    logger_stderr.info('\t- Checking inter-model errors: (%s)...\n', args.gff)
     if inter_model.main(gff3, logger=logger_stderr):
         error_set.extend(inter_model.main(gff3, logger=logger_stderr))
+    logger_stderr.info('\t- Checking single-feature errors: (%s)...\n', args.gff)
     if inter_model.main(gff3, logger=logger_stderr):
         error_set.extend(single_feature.main(gff3, logger=logger_stderr))
 
