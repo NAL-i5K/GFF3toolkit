@@ -8,6 +8,9 @@
 
 """
 Changelog:
+    * v0.0.2
+        - Sort the features grouped as 'others' by PositionSort
+        - Add comments 
 """
 
 import sys
@@ -22,53 +25,62 @@ else:
 sys.path.insert(1, bin_path)
 from gff3 import Gff3
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 
 def PositionSort(linelist):
+    # the input argument, 'linelist', is a python list collecting all the features you would like to sort by genomic coordinates
     id2line = {}
     id2start = {}
     seq2id = {}
     for line in linelist:
         id2line[str(line['line_raw'])] = line
         id2start[str(line['line_raw'])] = line['start']
-        tmp = re.search('(.+?)(\d+)',line['seqid'])
+        tmp = re.search('(.+?)(\d+)',line['seqid']) # Truncate the sequence ID, and only keep the sequence ID number
         seqnum = tmp.groups()[1]
+        # 'seq2id': a dictionary mapping sequence number to their features
         if seq2id.has_key(seqnum):
             seq2id[seqnum].append(str(line['line_raw']))
         else:
             seq2id[seqnum] = [str(line['line_raw'])]
+    # Sort by sequence ID number, and store them in 'keys'
     keys = sorted(seq2id, key=lambda i: int(i))
     newlinelist=[]
+    # Visit every sequence number in the sorted list
     for k in keys:
-        ids = seq2id[k]
+        ids = seq2id[k] # Collect features having the same sequence ID number
         d = {}
         for ID in ids:
-            d[ID] = id2start[ID]
-        id_sorted = sorted(d, key=lambda i: int(d[i]))
+            d[ID] = id2start[ID] # Collect the 'start' coordinate of each feature with the same seqeunce ID number
+        id_sorted = sorted(d, key=lambda i: int(d[i])) # Sort the features by their 'start' coordinates
         for i in id_sorted:
-            newlinelist.append(id2line[i])
-    return newlinelist
+            newlinelist.append(id2line[i]) # Collect the sorted features to the result parameter
+    return newlinelist # Return the sorted result
 
 def StrandSort(linelist):
+    # the input argument, 'linelist', is a python list collecting features with the same strand information and the same type! Please note that linelist has to be single feature type, eg. exon.
     strand = {}
     seq = {}
     id2line = {}
     id2start = {}
     id2end = {}
     for line in linelist:
-        #print(line['attributes']['ID'])
+        #print(line['attributes']['ID']) # debug
         strand[line['strand']] = 0
         seq[line['seqid']] = 0
         id2line[str(line['line_raw'])] = line
         id2start[str(line['line_raw'])] = line['start']
         id2end[str(line['line_raw'])] = line['end']
+
+    # Required conditions for the input line list
     if not len(seq) == 1:
         print('Not all lines located in the same sequence. Cannot process by StrandSort.')
         return
     if not len(strand) == 1:
         print('Strand is not consistet among all lines in the list or strand information is missing. Cannot process by StrandSort.')
         return
+
+    # Sort by ascending order of genomic coordinates if the stran is '+', and by descending order if '-'. If the strand information is unclear, report error.
     newlinelist=[]
     for k, v in strand.items():
         if k == '+':
@@ -80,10 +92,11 @@ def StrandSort(linelist):
             for i in id_sorted:
                 newlinelist.append(id2line[i])
         else:
-            print('Strand is not clear. Cannot process by StrandSort.')
+            print('[Error]\tStrand is not clear. Cannot process by StrandSort.')
     return newlinelist
 
 if __name__ == '__main__':
+    # Set up logger information
     logger_stderr = logging.getLogger(__name__+'stderr')
     logger_stderr.setLevel(logging.INFO)
     stderr_handler = logging.StreamHandler()
@@ -94,6 +107,7 @@ if __name__ == '__main__':
     logger_null.addHandler(null_handler)
     import argparse
     from textwrap import dedent
+    # Help information
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
     Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and feature relationship based on sequence ontology.
 
@@ -114,7 +128,7 @@ if __name__ == '__main__':
     parser.add_argument('-og', '--output_gff', type=str, help='Sorted GFF3 file')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     
- 
+    # Process the required arguments
     test_lv = 1 # debug
     if test_lv == 0:
         args = parser.parse_args(['-g', 'annotations.gff'])
@@ -132,30 +146,42 @@ if __name__ == '__main__':
     else:
         report_fh = sys.stdout
 
+    # Creat GFF3 object
     logger_stderr.info('Reading gff3 file...')
     gff3 = Gff3(gff_file=args.gff_file, logger=logger_null)
 
     logger_stderr.info('Sorting and printing out...')
+    
+    # Visit the GFF3 object through root-level features (eg. gene, pseudogene, and etc.)
     roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+
+    # Sort the root-level features based on the order of the genomic sequences
     roots_sorted = PositionSort(roots)
+
+    # Write the gff version
     report_fh.write('##gff-version 3\n')
+    
+    # Visit every root-level feature
     for root in roots_sorted:
         report_fh.write(root['line_raw'])
-        children = root['children']
+        children = root['children'] # Collect the second-level features (eg. mRNA, ncRNA, and etc.)
         children_sorted = PositionSort(children)
         otherlines=[]
         for child in children_sorted:
+            ## ID information is stored in child['attributes']['ID']
             #print('----------------')
             report_fh.write(child['line_raw'])
-            grandchildren = child['children']
+            grandchildren = child['children'] # Collect third-level features (eg. exon, CDS, and etc.)
             gchildgroup = {}
-            for grandchild in grandchildren:
+            # Visit every third-level feature, and collect a dictionary of 'type' to 'features'
+            for grandchild in grandchildren: # Visit each third-level feature
                 if gchildgroup.has_key(str(grandchild['type'])):
                     gchildgroup[str(grandchild['type'])].append(grandchild)
                 else:
                     gchildgroup[str(grandchild['type'])] = []
                     gchildgroup[str(grandchild['type'])].append(grandchild)
                 otherlines.extend(gff3.collect_descendants(grandchild))
+            # Seperate the third-level features into three groups: exon, cds, and others
             exons = []
             cdss = []
             others = []
@@ -166,19 +192,35 @@ if __name__ == '__main__':
                     cdss.extend(v)
                 else:
                     others.extend(v)
+
+            # Sort exons by considering strand information (StrandSort)
             if len(exons):
-                exons_sorted = StrandSort(exons)
-                for exon in exons_sorted:
-                    report_fh.write(exon['line_raw'])
+                exons_sorted = []
+                if StrandSort(exons):
+                    exons_sorted = StrandSort(exons)
+                    for exon in exons_sorted:
+                        report_fh.write(exon['line_raw'])
+            # Sort cds features by considering strand information (StrandSort)
             if len(cdss):
-                cdss_sorted = StrandSort(cdss)
-                for cds in cdss_sorted:
-                    report_fh.write(cds['line_raw'])
+                cdss_sorted = []
+                if StrandSort(cdss):
+                    cdss_sorted = StrandSort(cdss)
+                    for cds in cdss_sorted:
+                        report_fh.write(cds['line_raw'])
+            # Sort other features by PositionSort
             if len(others):
-                for other in others:
-                    report_fh.write(other['line_raw'])
+                others_sorted =[]
+                if PositionSort(others):
+                    others_sorted = PositionSort(others)
+                    for other in others:
+                        report_fh.write(other['line_raw'])
+
+        # Sort the features beyond the third-level by PositionSort
         unique = {}
-        for k in otherlines:
+        otherlines_sorted = []
+        if PositionSort(otherlines):
+            otherlines_sorted = PositionSort(otherlines)
+        for k in otherlines_sorted:
             unique[k['line_raw']] = 1
         for k,v in unique.items():
             report_fh.write(k)
