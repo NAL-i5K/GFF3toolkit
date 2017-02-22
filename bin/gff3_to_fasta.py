@@ -29,7 +29,12 @@ def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
 
 def get_subseq(gff, line):
-    string = gff.fasta_external[line['seqid']]['seq'][(line['start']-1):line['end']]
+    # it would give positive strand out as default, unless the strand information is given as '-'
+    start = line['start']-1
+    end = line['end']
+    string = gff.fasta_external[line['seqid']]['seq'][start:end]
+    #print(line['strand'], (line['start']-1), line['end'])
+    #print('-->', line['strand'], start, end)
     if line['strand'] == '-':
         string = complement(string[::-1])
     return string
@@ -107,8 +112,27 @@ def splicer(gff, ftype, dline):
                 sort_seg = function4gff.featureSort(segments, reverse=True)
 
             tmpseq = ''
+            count = 0
             for s in sort_seg:
+                if count == 0:
+                    start, end = int, int
+                    line = s
+                    if line['type'] == 'CDS':
+                        start = line['start']+line['phase']
+                        end = line['end']
+                        if line['strand'] == '-':
+                            start = line['start']
+                            end = line['end']-line['phase']
+                    else:
+                        start = line['start']
+                        end = line['end']
+                
+                    s['start'] = start
+                    s['end'] = end
+                    s['phase'] = 0
+                
                 tmpseq = tmpseq + get_subseq(gff, s)
+                count += 1
             
             seq[defline] = tmpseq
 
