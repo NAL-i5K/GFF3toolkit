@@ -286,24 +286,25 @@ if __name__ == '__main__':
     logger_null.addHandler(null_handler)
     import argparse
     from textwrap import dedent
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description=dedent("""\
     Extract sequences from specific regions of genome based on gff file.
     Testing enviroment:
     1. Python 2.7
 
-    Inputs:
-    1. GFF3: reads from STDIN by default, may specify the file name with the -g argument
-    2. fasta file: reads from STDIN by default, may specify the file name with the -f argument
+    Required inputs:
+    1. GFF3: specify the file name with the -g argument
+    2. Fasta file: specify the file name with the -f argument
+    3. Output prefix: specify with the -o argument
 
     Outputs:
-    1. Extract sequences from specific regions of genome based on gff file.
+    1. Fasta formatted sequence file based on the gff3 file.
 
     """))
-    parser.add_argument('-g', '--gff', type=str, help='Genome annotation file in GFF3 format (default: STDIN)') 
-    parser.add_argument('-f', '--fasta', type=str, help='Genome sequences in FASTA format (default: STDIN)')
-    parser.add_argument('-st', '--sequence_type', type=str, help='Type of seuqences you would like to extract: please select from "gene" - gene sequence for each record; "exon" - exon sequence for each record; "pre_trans" - genomic region of a transcript model (premature transcript); "trans" - spliced transcripts (only exons included); "cds" - coding sequences; "pep" - peptide seuqences.(default: STDIN)')
-    parser.add_argument('-d', '--defline', type=str, help='Specify defline format:"simple" - only ID would be shown in the defline; "complete" - complete information of the feature would be shown in the defline.')
-    parser.add_argument('-o', '--output_prefix', type=str, help='Prefix of output file name (default: STDIN)')
+    parser.add_argument('-g', '--gff', type=str, help='Genome annotation file in GFF3 format') 
+    parser.add_argument('-f', '--fasta', type=str, help='Genome sequences in FASTA format')
+    parser.add_argument('-st', '--sequence_type', type=str, help="{0:s}\n{1:s}\n{2:s}\n{3:s}\n{4:s}\n{5:s}\n{6:s}".format('Type of seuqences you would like to extract: ','"gene" - gene sequence for each record;', '"exon" - exon sequence for each record;', '"pre_trans" - genomic region of a transcript model (premature transcript);', '"trans" - spliced transcripts (only exons included);', '"cds" - coding sequences;', '"pep" - peptide seuqences.'))
+    parser.add_argument('-d', '--defline', type=str, help="{0:s}\n{1:s}\n{2:s}".format('Specify defline format:','"simple" - only ID would be shown in the defline;', '"complete" - complete information of the feature would be shown in the defline.'))
+    parser.add_argument('-o', '--output_prefix', type=str, help='Prefix of output file name')
     parser.add_argument('-noQC', '--quality_control', action='store_false', help='Specify this option if you do not want to excute quality control for gff file. (default: QC is excuted)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     
