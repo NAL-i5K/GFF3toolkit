@@ -224,10 +224,7 @@ class Gff3(object):
                         ok = True
                         break
                 if not ok:
-                    self.add_line_error(line, {'message': 'This feature is not contained within the feature boundaries of parent: {0:s}: {1:s}'.format(
-                        parent_feature[0]['attributes']['ID'],
-                        ','.join(['({0:s}, {1:d}, {2:d})'.format(line['seqid'], line['start'], line['end']) for line in parent_feature])
-                    ), 'error_type': 'BOUNDS', 'location': 'parent_boundary', 'eCode': 'Ema0003'})
+                    self.add_line_error(line, {'message': 'This feature is not contained within the feature boundaries of parent: {0:s}: {1:s}'.format(parent_feature[0]['attributes']['ID'], ','.join(['({0:s}, {1:d}, {2:d})'.format(line['seqid'], line['start'], line['end']) for line in parent_feature])), 'error_type': 'BOUNDS', 'location': 'parent_boundary', 'eCode': 'Ema0003'})
 
     def check_phase(self):
         """
@@ -771,10 +768,11 @@ class Gff3(object):
                                     self.add_line_error(line_data, {'message': 'Unknown reserved (uppercase) attribute: "%s"' % tag, 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0041'})
                                 elif tag == 'ID':
                                     # check for duplicate ID in non-adjacent lines
-                                    if value in features and lines[-1].has_key('attributes') and lines[-1]['attributes'][tag] == value:
-                                        pass
-                                    else:
+                                    if value in features and lines[-1].has_key('attributes') and lines[-1]['attributes'][tag] != value:
                                         self.add_line_error(line_data, {'message': 'Duplicate ID: "%s" in non-adjacent lines: %s' % (value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0005'}, log_level=logging.WARNING)
+                                    elif value in features and not lines[-1].has_key('attributes'):
+                                        self.add_line_error(line_data, {'message': 'Duplicate ID: "%s" in non-adjacent lines: %s' % (value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0005'}, log_level=logging.WARNING)
+
                                     features[value].append(line_data)
                 except IndexError:
                     pass

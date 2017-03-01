@@ -199,15 +199,11 @@ def extract_start_end(gff, stype, dline):
     return seq
     
 def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output_prefix=None, logger=None):
-    if logger == None:
-        logger = logging.getLogger(__name__+'stderr')
-        logger.setLevel(logging.INFO)
-        stderr_handler = logging.StreamHandler()
-        stderr_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
-        logger.addHandler(stderr_handler)
-        logger_null = logging.getLogger(__name__+'null')
-        null_handler = logging.NullHandler()
-        logger_null.addHandler(null_handler)
+    stderr_handler = logging.StreamHandler()
+    stderr_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
+    logger_null = logging.getLogger(__name__+'null')
+    null_handler = logging.NullHandler()
+    logger_null.addHandler(null_handler)
 
     if output_prefix:
         logger.info('Specifying prefix of output file name: (%s)...', output_prefix)
@@ -225,9 +221,10 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
         logger.error('Your sequence type is "{0:s}". Sequence type must be one of {1:s}!'.format(stype, str(type_set)))
         return
     logger.info('Reading files: {0:s}, {1:s}...'.format(gff_file, fasta_file))
-    gff = Gff3(gff_file=gff_file, fasta_external=fasta_file, logger=logger)
+    gff=None
 
     if qc:
+        gff = Gff3(gff_file=gff_file, fasta_external=fasta_file, logger=logger)
         logger.info('Checking errors...')
         gff.check_parent_boundary()
         gff.check_phase()
@@ -252,6 +249,8 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
                 for e in eSet:
                     tag = '[{0:s}]'.format(e['eTag'])
                     print e['ID'], e['eCode'], tag
+    else:
+        gff = Gff3(gff_file=gff_file, fasta_external=fasta_file, logger=logger_null)
     
     logger.info('Extract seqeunces for {0:s}...'.format(stype))
     seq=dict()
