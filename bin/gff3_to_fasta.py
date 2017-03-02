@@ -205,21 +205,24 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
 
-    if output_prefix:
+    if not gff_file or not fasta_file or not stype:
+        print('Gff file, fasta file, and type of extracted seuqences need to be specified')
+        sys.exit(1)
+    type_set=['gene','exon','pre_trans', 'trans', 'cds', 'pep', 'all']
+    if not stype in type_set:
+        logger.error('Your sequence type is "{0:s}". Sequence type must be one of {1:s}!'.format(stype, str(type_set)))
+        sys.exit(1)
+
+    if stype == 'all' and output_prefix:
+        pass
+    elif stype != 'all' and output_prefix:
         logger.info('Specifying prefix of output file name: (%s)...', output_prefix)
         fname = '{0:s}_{1:s}.fa'.format(output_prefix, stype)
         report_fh = open(fname, 'wb')
     else:
-        parser.print_help()
+        print('[Error] Please specify the prefix of output file name...')
         sys.exit(1)
 
-    if not gff_file or not fasta_file or not stype:
-        print('All of Gff file, fasta file, and type of extracted seuqences need to be specified')
-        return
-    type_set=['gene','exon','pre_trans', 'trans', 'cds', 'pep']
-    if not stype in type_set:
-        logger.error('Your sequence type is "{0:s}". Sequence type must be one of {1:s}!'.format(stype, str(type_set)))
-        return
     logger.info('Reading files: {0:s}, {1:s}...'.format(gff_file, fasta_file))
     gff=None
 
@@ -254,26 +257,106 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
     
     logger.info('Extract seqeunces for {0:s}...'.format(stype))
     seq=dict()
-    if stype == 'pre_trans' or stype == 'gene' or stype == 'exon':
-        seq = extract_start_end(gff, stype, dline)        
-    elif stype == 'trans':
+    if stype == 'all':
+        if output_prefix:
+            logger.info('Specifying prefix of output file name: (%s)...', output_prefix)
+            pass
+        else:
+            print('[Error] Please specify the prefix of output file name...')
+            sys.exit(1)
+
+        tmp_stype = 'pre_trans'
+        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        seq = extract_start_end(gff, tmp_stype, dline)
+        if len(seq):
+            fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
+            report_fh = open(fname, 'wb')
+            logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
+            for k,v in seq.items():
+                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+
+        seq=dict()
+        tmp_stype = 'gene'
+        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        seq = extract_start_end(gff, tmp_stype, dline)
+        if len(seq):
+            fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
+            report_fh = open(fname, 'wb')
+            logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
+            for k,v in seq.items():
+                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+
+        seq=dict()
+        tmp_stype = 'exon'
+        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        seq = extract_start_end(gff, tmp_stype, dline)
+        if len(seq):
+            fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
+            report_fh = open(fname, 'wb')
+            logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
+            for k,v in seq.items():
+                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+
+        seq=dict()
+        tmp_stype = 'trans'
         feature_type = ['exon', 'pseudogenic_exon']
-        seq = splicer(gff, feature_type,  dline)
-    elif stype == 'cds':
+        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        seq = splicer(gff, feature_type, dline)
+        if len(seq):
+            fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
+            report_fh = open(fname, 'wb')
+            logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
+            for k,v in seq.items():
+                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+
+        seq=dict()
+        tmp_stype = 'cds'
         feature_type = ['CDS']
-        seq = splicer(gff, feature_type,  dline)
-    elif stype == 'pep':
+        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        seq = splicer(gff, feature_type, dline)
+        if len(seq):
+            fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
+            report_fh = open(fname, 'wb')
+            logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
+            for k,v in seq.items():
+                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+
+        seq=dict()
+        tmp_stype = 'pep'
         feature_type = ['CDS']
-        tmpseq = splicer(gff, feature_type,  dline)
+        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        tmpseq = splicer(gff, feature_type, dline)
         for k,v in tmpseq.items():
             k = k.replace("|mRNA(CDS)|", "|peptide|").replace("-RA", "-PA")
             v = translator(v)
-            seq[k] = v
-            
-    if len(seq):
-        logger.info('Print out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, stype))
-        for k,v in seq.items():
-            report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+            seq[k] = v            
+        if len(seq):
+            fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
+            report_fh = open(fname, 'wb')
+            logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
+            for k,v in seq.items():
+                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+
+    else:
+        if stype == 'pre_trans' or stype == 'gene' or stype == 'exon':
+            seq = extract_start_end(gff, stype, dline)        
+        elif stype == 'trans':
+            feature_type = ['exon', 'pseudogenic_exon']
+            seq = splicer(gff, feature_type,  dline)
+        elif stype == 'cds':
+            feature_type = ['CDS']
+            seq = splicer(gff, feature_type,  dline)
+        elif stype == 'pep':
+            feature_type = ['CDS']
+            tmpseq = splicer(gff, feature_type,  dline)
+            for k,v in tmpseq.items():
+                k = k.replace("|mRNA(CDS)|", "|peptide|").replace("-RA", "-PA")
+                v = translator(v)
+                seq[k] = v            
+        if len(seq):
+            logger.info('Print out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, stype))
+            for k,v in seq.items():
+                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
 
 if __name__ == '__main__':
     logger_stderr = logging.getLogger(__name__+'stderr')
@@ -302,8 +385,8 @@ if __name__ == '__main__':
     """))
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file in GFF3 format') 
     parser.add_argument('-f', '--fasta', type=str, help='Genome sequences in FASTA format')
-    parser.add_argument('-st', '--sequence_type', type=str, help="{0:s}\n{1:s}\n{2:s}\n{3:s}\n{4:s}\n{5:s}\n{6:s}".format('Type of seuqences you would like to extract: ','"gene" - gene sequence for each record;', '"exon" - exon sequence for each record;', '"pre_trans" - genomic region of a transcript model (premature transcript);', '"trans" - spliced transcripts (only exons included);', '"cds" - coding sequences;', '"pep" - peptide seuqences.'))
-    parser.add_argument('-d', '--defline', type=str, help="{0:s}\n{1:s}\n{2:s}".format('Specify defline format:','"simple" - only ID would be shown in the defline;', '"complete" - complete information of the feature would be shown in the defline.'))
+    parser.add_argument('-st', '--sequence_type', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}\n\t{3:s}\n\t{4:s}\n\t{5:s}\n\t{6:s}\n\t{7:s}".format('Type of seuqences you would like to extract: ','"all" - FASTA files for all types of sequences listed below;','"gene" - gene sequence for each record;', '"exon" - exon sequence for each record;', '"pre_trans" - genomic region of a transcript model (premature transcript);', '"trans" - spliced transcripts (only exons included);', '"cds" - coding sequences;', '"pep" - peptide seuqences.'))
+    parser.add_argument('-d', '--defline', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}".format('Defline format in the output FASTA file:','"simple" - only ID would be shown in the defline;', '"complete" - complete information of the feature would be shown in the defline.'))
     parser.add_argument('-o', '--output_prefix', type=str, help='Prefix of output file name')
     parser.add_argument('-noQC', '--quality_control', action='store_false', help='Specify this option if you do not want to excute quality control for gff file. (default: QC is excuted)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
@@ -317,6 +400,7 @@ if __name__ == '__main__':
         logger_stderr.info('Reading from STDIN...')
     else: # no input
         parser.print_help()
+        logger_stderr.error('Required field -g missing...')
         sys.exit(1)
 
     if args.fasta:
@@ -326,6 +410,7 @@ if __name__ == '__main__':
         logger_stderr.info('Reading from STDIN...')
     else: # no input
         parser.print_help()
+        logger_stderr.error('Required field -f missing...')
         sys.exit(1)
 
     if args.sequence_type:
@@ -335,6 +420,7 @@ if __name__ == '__main__':
         logger_stderr.info('Reading from STDIN...')
     else: # no input
         parser.print_help()
+        logger_stderr.error('Required field -st missing...')
         sys.exit(1)
 
     if args.defline:
@@ -344,6 +430,7 @@ if __name__ == '__main__':
         logger_stderr.info('Reading from STDIN...')
     else: # no input
         parser.print_help()
+        logger_stderr.error('Required field -st missing...')
         sys.exit(1)
 
 
