@@ -770,10 +770,10 @@ class Gff3(object):
                                     self.add_line_error(line_data, {'message': 'Unknown reserved (uppercase) attribute: "%s"' % tag, 'error_type': 'FORMAT', 'location': ''})
                                 elif tag == 'ID':
                                     # check for duplicate ID in non-adjacent lines
-                                    if value in features and lines[-1].has_key('attributes') and lines[-1]['attributes'][tag] == value:
-                                        pass
-                                    else:
-                                        self.add_line_error(line_data, {'message': 'Duplicate ID: "%s" in non-adjacent lines: %s' % (value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': ''}, log_level=logging.WARNING)
+                                    if value in features and lines[-1].has_key('attributes') and lines[-1]['attributes'][tag] != value:
+                                        self.add_line_error(line_data, {'message': 'Duplicate ID: "%s" in non-adjacent lines: %s' % (value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0005'}, log_level=logging.WARNING)
+                                    elif value in features and not lines[-1].has_key('attributes'):
+                                        self.add_line_error(line_data, {'message': 'Duplicate ID: "%s" in non-adjacent lines: %s' % (value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0005'}, log_level=logging.WARNING)
                                     features[value].append(line_data)
                 except IndexError:
                     pass
