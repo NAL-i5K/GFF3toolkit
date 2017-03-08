@@ -37,21 +37,25 @@ if __name__ == '__main__':
     from textwrap import dedent
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
     
-    Testing enviroment:
+    Testing environment:
     1. Python 2.7
 
     Inputs:
-    1. GFF3: reads from STDIN by default, may specify the file name with the -g argument
-    2. fasta file: reads from STDIN by default, may specify the file name with the -f argument
+    1. GFF3: Specify the file name with the -g or --gff argument; Please note that this program requires gene/pseudogene, mRNA/pseudogenic_transcirpt, and exon/pseudogenic_exon to have an ID attribute in column 9. For those features without IDs, it would automatically generate IDs based on the corresponding parent information. However, the ID generation would fail, if a feature has multiple parents.
+    2. fasta file: Specify the file name with the -f or --fasta argument
 
     Outputs:
-    1. Extract sequences from specific regions of genome based on gff file.
+    1. Error report for the input GFF3 file.
+
+    Quick start:
+    python2.7 GFF3toolkit/bin/gff-QC.py -g small_files/annotations2.gff -f small_files/sample.fa -o test
+    or
+    python2.7 GFF3toolkit/bin/gff-QC.py --gff small_files/annotations2.gff --fasta small_files/sample.fa --output test
 
     """))
-    parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format (default: STDIN)') 
-    parser.add_argument('-f', '--fasta', type=str, help='Genome sequences, fasta format (default: STDIN)')
-    parser.add_argument('-sc', '--species_code', type=str, help='If the species is hosted by I5K Workspace@NAL, you can give the I5K species code to have a url link to Web Apollo in I5K Workspace@NAL. eg. "lepdec", which was abbreviated from Leptinotarsa decemlineata. (default: STDIN)')
-    parser.add_argument('-o', '--output', type=str, help='output file name (default: STDIN)')
+    parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format') 
+    parser.add_argument('-f', '--fasta', type=str, help='Genome sequences, fasta format')
+    parser.add_argument('-o', '--output', type=str, help='output file name (default: report.txt)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     
     args = parser.parse_args()
@@ -74,11 +78,6 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(1)
 
-    if args.species_code:
-        logger_stderr.info('Specifying species code: (%s)...', args.species_code)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
-        args.species_code = sys.stdin
-        logger_stderr.info('Reading from STDIN...')
 
     if args.output:
         logger_stderr.info('Specifying output file name: (%s)...\n', args.output)
