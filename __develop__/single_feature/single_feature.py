@@ -37,7 +37,7 @@ import function4gff
 __version__ = '0.0.1'
 
 ERROR_CODE = ['Esf0001', 'Esf0002']
-ERROR_TAG = ['pseudogene or not?', 'Negative/Zero start/end coordinate']
+ERROR_TAG = ['Feature type may need to be changed to pseudogene', '[Start/Stop] is not a valid 1-based integer coordinate: "[coordinate]"', ]
 ERROR_INFO = dict(zip(ERROR_CODE, ERROR_TAG))
 
 def FIX_PSEUDOGENE(gff):
@@ -77,6 +77,7 @@ def check_pseudogene(gff, line):
     if len(result):
         return [result]
 
+'''
 def check_negative_zero_coordinate(gff, line):
     eCode = 'Esf0002'
     result=dict()
@@ -88,6 +89,7 @@ def check_negative_zero_coordinate(gff, line):
         gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FORMAT', 'eCode': eCode})
     if len(result):
         return [result]
+'''
 
 def main(gff, logger=None):
     function4gff.FIX_MISSING_ATTR(gff, logger=logger)
@@ -100,9 +102,11 @@ def main(gff, logger=None):
         r = check_pseudogene(gff, f)
         if not r == None:
             error_set.extend(r)
+        '''
         r = check_negative_zero_coordinate(gff, f)
         if not r == None:
             error_set.extend(r)
+        '''
     '''
     for e in error_set:
         tag = '[{0:s}]'.format(ERROR_INFO[e['eCode']]) 
