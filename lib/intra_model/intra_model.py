@@ -36,8 +36,8 @@ import function4gff
 
 __version__ = '0.0.1'
 
-ERROR_CODE = ['Ema0005', 'Ema0001']
-ERROR_TAG = ['unusual child features in the type of pseudogene found', 'Redundant gene length']
+ERROR_CODE = ['Ema0001', 'Ema0005']
+ERROR_TAG = ['Parent feature start and end coordinates exceed those of child features', 'Pseudogene has invalid child feature type']
 ERROR_INFO = dict(zip(ERROR_CODE, ERROR_TAG))
 
 def check_boundary(gff, rootline):

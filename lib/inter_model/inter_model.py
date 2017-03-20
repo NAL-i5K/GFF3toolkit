@@ -32,13 +32,12 @@ else:
     lib_path = dirname(__file__) + '/../../lib'
 sys.path.insert(1, lib_path)
 from gff3_modified import Gff3
+import ERROR
 import function4gff
 
 __version__ = '0.0.1'
 
-ERROR_CODE = []
-ERROR_TAG = []
-ERROR_INFO = dict(zip(ERROR_CODE, ERROR_TAG))
+ERROR_INFO = ERROR.INFO
 
 
 def check_duplicate(gff, linelist):

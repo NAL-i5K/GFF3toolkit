@@ -34,6 +34,9 @@ if not logger.handlers:
     lh.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger.addHandler(lh)
 
+import ERROR
+
+ERROR_INFO = ERROR.INFO
 
 COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
 def complement(seq):
@@ -224,7 +227,7 @@ class Gff3(object):
                         ok = True
                         break
                 if not ok:
-                    self.add_line_error(line, {'message': 'This feature is not contained within the feature boundaries of parent: {0:s}: {1:s}'.format(parent_feature[0]['attributes']['ID'], ','.join(['({0:s}, {1:d}, {2:d})'.format(line['seqid'], line['start'], line['end']) for line in parent_feature])), 'error_type': 'BOUNDS', 'location': 'parent_boundary', 'eCode': 'Ema0003'})
+                    self.add_line_error(line, {'message': '{2:s}: {0:s}: {1:s}'.format(parent_feature[0]['attributes']['ID'], ','.join(['({0:s}, {1:d}, {2:d})'.format(line['seqid'], line['start'], line['end']) for line in parent_feature]), ERROR_INFO['Ema0003']), 'error_type': 'BOUNDS', 'location': 'parent_boundary', 'eCode': 'Ema0003'})
 
     def check_phase(self):
         """
@@ -242,7 +245,7 @@ class Gff3(object):
                 continue
             if len(cds_list) == 1:
                 if cds_list[0]['phase'] != 0:
-                    self.add_line_error(cds_list[0], {'message': 'Wrong phase {0:d}, should be {1:d}'.format(cds_list[0]['phase'], 0), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
+                    self.add_line_error(cds_list[0], {'message': '{0:s} {1:d}, should be {2:d}'.format(ERROR_INFO['Ema0006'], cds_list[0]['phase'], 0), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
                 continue
             strand = strand_set[0]
             if strand not in plus_minus:
@@ -356,7 +359,7 @@ class Gff3(object):
                         n_segments = [(m.start(), m.end() - m.start()) for m in n_segments_finditer(self.fasta_embedded[seqid]['seq'], line_data['start'] - 1, line_data['end'])]
                         n_segments_str = ['(%d, %d)' % (m[0], m[1]) for m in n_segments]
                         error_lines.add(line_data['line_index'])
-                        self.add_line_error(line_data, {'message': 'Found %d Ns in %s feature of length %d using the embedded ##FASTA, consists of %d segment (start, length): %s' % (n_count, line_data['type'], line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_embedded', 'eCode': 'Esf0009'})
+                        self.add_line_error(line_data, {'message': 'Caution: %s feature (length: %d) contains %d consecutive N\'s using the embedded ##FASTA (start, length): %s' % (line_data['type'], n_count, line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_embedded', 'eCode': 'Esf0009'})
         elif fasta_embedded:
             self.logger.debug('Embedded ##FASTA not found in GFF3')
         # check fasta_external
@@ -512,7 +515,7 @@ class Gff3(object):
                             try:
                                 line_data['start'] = int(tokens[1])
                                 if line_data['start'] < 1:
-                                    self.add_line_error(line_data, {'message': 'Start is not a valid 1-based integer coordinate: "%s"' % tokens[1], 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0002'})
+                                    self.add_line_error(line_data, {'message': '%s: "%s"' % (ERROR_INFO['Esf0002'], tokens[1]), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0002'})
                             except ValueError:
                                 all_good = False
                                 self.add_line_error(line_data, {'message': 'Start is not a valid integer: "%s"' % tokens[1], 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0017'})
@@ -520,7 +523,7 @@ class Gff3(object):
                             try:
                                 line_data['end'] = int(tokens[2])
                                 if line_data['end'] < 1:
-                                    self.add_line_error(line_data, {'message': 'End is not a valid 1-based integer coordinate: "%s"' % tokens[2], 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0002'})
+                                    self.add_line_error(line_data, {'message': '%s: "%s"' % (ERROR_INFO['Esf0002'], tokens[2]), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0002'})
                             except ValueError:
                                 all_good = False
                                 self.add_line_error(line_data, {'message': 'End is not a valid integer: "%s"' % tokens[2], 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0017'})
@@ -635,7 +638,7 @@ class Gff3(object):
                     try:
                         line_data['start'] = int(tokens[3])
                         if line_data['start'] < 1:
-                            self.add_line_error(line_data, {'message': 'Start is not a valid 1-based integer coordinate: "%s"' % tokens[3], 'error_type': 'FORMAT', 'location': 'start', 'eCode': 'Esf0002'})
+                            self.add_line_error(line_data, {'message': '%s: "%s"' % (ERROR_INFO['Esf0002'], tokens[3]), 'error_type': 'FORMAT', 'location': 'start', 'eCode': 'Esf0002'})
                     except ValueError:
                         all_good = False
                         line_data['start'] = tokens[3]
@@ -644,7 +647,7 @@ class Gff3(object):
                     try:
                         line_data['end'] = int(tokens[4])
                         if line_data['end'] < 1:
-                            self.add_line_error(line_data, {'message': 'End is not a valid 1-based integer coordinate: "%s"' % tokens[4], 'error_type': 'FORMAT', 'location': 'end', 'eCode': 'Esf0002'})
+                            self.add_line_error(line_data, {'message': '%s: "%s"' % (ERROR_INFO['Esf0002'], tokens[4]), 'error_type': 'FORMAT', 'location': 'end', 'eCode': 'Esf0002'})
                     except ValueError:
                         all_good = False
                         line_data['end'] = tokens[4]
@@ -691,11 +694,11 @@ class Gff3(object):
                             except ValueError:
                                 tag, value = a[0], ''
                             if not tag:
-                                self.add_line_error(line_data, {'message': 'Empty attribute tag: "%s"' % '='.join(a), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0030'})
+                                self.add_line_error(line_data, {'message': '%s: "%s"' % (ERROR_INFO['Esf0030'], '='.join(a)), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0030'})
                             if not value.strip():
-                                self.add_line_error(line_data, {'message': 'Empty attribute value: "%s"' % '='.join(a), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0031'}, log_level=logging.WARNING)
+                                self.add_line_error(line_data, {'message': '%s: "%s"' % (ERROR_INFO['Esf0031'], '='.join(a)), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0031'}, log_level=logging.WARNING)
                             if tag in line_data['attributes']:
-                                self.add_line_error(line_data, {'message': 'Found multiple attribute tags: "%s"' % tag, 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0032'})
+                                self.add_line_error(line_data, {'message': '%s: "%s"' % (ERROR_INFO['Esf0032'], tag), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0032'})
                             if tag in multi_value_attributes: # set(['replace', 'Parent', 'Alias', 'Note', 'Dbxref', 'Ontology_term']) # add 'replace on 05182015' by Mei-Ju May Chen
                                 if value.find(', ') >= 0 or value.find(' ,') >= 0:
                                     self.add_line_error(line_data, {'message': 'Found ", " in %s attribute, possible unescaped ",": "%s"' % (tag, value), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0033'}, log_level=logging.WARNING)
@@ -710,7 +713,7 @@ class Gff3(object):
                                 # check for duplicate values
                                 if tag != 'Note' and len(line_data['attributes'][tag]) != len(set(line_data['attributes'][tag])):
                                     count_values = [(len(list(group)), key) for key, group in groupby(sorted(line_data['attributes'][tag]))]
-                                    self.add_line_error(line_data, {'message': '%s attribute has identical values (count, value): %s' % (tag, ', '.join(['(%d, %s)' % (c, v) for c, v in count_values if c > 1])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0034'})
+                                    self.add_line_error(line_data, {'message': '%s %s: %s' % (tag, ERROR_INFO['Esf0034'],', '.join(['(%d, %s)' % (c, v) for c, v in count_values if c > 1])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0034'})
                                     # remove duplicate
                                     line_data['attributes'][tag] = list(set(line_data['attributes'][tag]))
 
@@ -769,9 +772,9 @@ class Gff3(object):
                                 elif tag == 'ID':
                                     # check for duplicate ID in non-adjacent lines
                                     if value in features and lines[-1].has_key('attributes') and lines[-1]['attributes'][tag] != value:
-                                        self.add_line_error(line_data, {'message': 'Duplicate ID: "%s" in non-adjacent lines: %s' % (value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0005'}, log_level=logging.WARNING)
+                                        self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0005'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0005'}, log_level=logging.WARNING)
                                     elif value in features and not lines[-1].has_key('attributes'):
-                                        self.add_line_error(line_data, {'message': 'Duplicate ID: "%s" in non-adjacent lines: %s' % (value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0005'}, log_level=logging.WARNING)
+                                        self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0005'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0005'}, log_level=logging.WARNING)
 
                                     features[value].append(line_data)
                 except IndexError:
