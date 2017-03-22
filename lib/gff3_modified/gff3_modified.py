@@ -359,7 +359,8 @@ class Gff3(object):
                         n_segments = [(m.start(), m.end() - m.start()) for m in n_segments_finditer(self.fasta_embedded[seqid]['seq'], line_data['start'] - 1, line_data['end'])]
                         n_segments_str = ['(%d, %d)' % (m[0], m[1]) for m in n_segments]
                         error_lines.add(line_data['line_index'])
-                        self.add_line_error(line_data, {'message': 'Caution: %s feature (length: %d) contains %d consecutive N\'s using the embedded ##FASTA (start, length): %s' % (line_data['type'], n_count, line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_embedded', 'eCode': 'Esf0009'})
+                        self.add_line_error(line_data, {'message': 'Found %d Ns in %s feature of length %d using the embedded ##FASTA, consists of %d segment (start, length): %s' % (n_count, line_data['type'], line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_embedded', 'eCode': 'Esf0009'})
+
         elif fasta_embedded:
             self.logger.debug('Embedded ##FASTA not found in GFF3')
         # check fasta_external

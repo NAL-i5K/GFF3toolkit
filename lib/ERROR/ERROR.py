@@ -22,10 +22,10 @@ __version__ = '0.0.1'
 INFO = {
     'Ema0001': 'Parent feature start and end coordinates exceed those of child features',
     'Ema0002': 'Protein sequence contains stop codons',
-    'Ema0003': 'This feature is not contained within the parent feature coordinates', # Error message has to be modified in gff3_modified.py
+    'Ema0003': 'This feature is not contained within the parent feature coordinates', 
     'Ema0004': 'Incomplete gene feature that should contain at least one mRNA, exon, and CDS',
     'Ema0005': 'Pseudogene has invalid child feature type',
-    'Ema0006': 'Wrong phase', # Error message has to be modified in gff3_modified.py
+    'Ema0006': 'Wrong phase', 
     'Ema0007': 'CDS and parent feature on different strands',
     'Emr0001': 'Duplicate transcript found', # Error message has to be modified in lib/inter_model/inter_model.py
     'Emr0002': 'Incorrectly merged gene parent?',
@@ -33,17 +33,17 @@ INFO = {
     'Emr0004': 'Isoforms that do not share coding sequence',
     'Emr0005': 'Duplicate ID',
     'Esf0001': 'Feature type may need to be changed to pseudogene',
-    'Esf0002': 'Start/Stop is not a valid 1-based integer coordinate', # Error message has to be modified in gff3_modified.py
+    'Esf0002': 'Start/Stop is not a valid 1-based integer coordinate', 
     'Esf0003': 'strand information missing',
     'Esf0004': 'Seqid not found in any ##sequence-region',
     'Esf0005': 'Start is less than the ##sequence-region start',
     'Esf0006': 'End is greater than the ##sequence-region end',
     'Esf0007': 'Seqid not found in the embedded ##FASTA',
     'Esf0008': 'End is greater than the embedded ##FASTA sequence length',
-    #'Esf0009': 'Caution: [type] feature (length: [N]) contains [X] consecutive N\'s (start, length): ([Y], [X])', # Error message has to be modified in gff3_modified.py
+    #'Esf0009': 'Found Ns in a feature using the embedded ##FASTA', # Error message has to be modified in gff3_modified.py
     'Esf0010': 'Seqid not found in the external FASTA file',
     'Esf0011': 'End is greater than the external FASTA sequence length',
-    #'Esf0012': 'Caution: [type] feature (length: [N]) contains [X] consecutive N\'s (start, length): ([Y], [X])', # Error message has to be modified in gff3_modified.py
+    #'Esf0012': 'Found Ns in a feature using the external FASTA', # Error message has to be modified in gff3_modified.py
     'Esf0013': 'White chars not allowed at the start of a line',
     'Esf0014': '##gff-version" missing from the first line',
     'Esf0015': 'Expecting certain fields in the feature',
@@ -61,11 +61,11 @@ INFO = {
     'Esf0027': 'Phase is required for all CDS features',
     'Esf0028': 'Attributes must escape the percent (%) sign and any control characters',
     'Esf0029': 'Attributes must contain one and only one equal (=) sign',
-    'Esf0030': 'Empty attribute tag',  # Error message has to be modified in gff3_modified.py
-    'Esf0031': 'Empty attribute value', # Error message has to be modified in gff3_modified.py
+    'Esf0030': 'Empty attribute tag',  
+    'Esf0031': 'Empty attribute value', 
     'Esf0032': 'Found multiple attribute tags',
     'Esf0033': 'Found ", " in a attribute, possible unescaped',
-    'Esf0034': 'attribute has identical values (count, value)', # Error message has to be modified in gff3_modified.py
+    'Esf0034': 'attribute has identical values (count, value)', 
     'Esf0035': 'attribute has unresolved forward reference',
     'Esf0036': 'Value of a attribute contains unescaped ","',
     'Esf0037': 'Target attribute should have 3 or 4 values',
