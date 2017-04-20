@@ -94,6 +94,16 @@ def StrandSort(linelist):
         else:
             print('[Error]\tStrand is not clear. Cannot process by StrandSort.')
     return newlinelist
+def TwoParent(Child_id,third):
+    #the input argument, Child_id is the id of second-level features (eg. mRNA, ncRNA, and etc.) and third is third-level features (eg. exon, CDS, and etc.)
+    attributes = third['attributes'].copy()
+    attributes['Parent'] = Child_id
+    attributes_line = ";".join("=".join((str(k),str(v))) for k,v in attributes.iteritems())
+    line_new = third['line_raw'].split('\t')
+    line_new[8] = attributes_line + "\n"
+    line_update = "\t".join(line_new)
+
+    return line_update
 
 if __name__ == '__main__':
     # Set up logger information
@@ -199,21 +209,39 @@ if __name__ == '__main__':
                 if StrandSort(exons):
                     exons_sorted = StrandSort(exons)
                     for exon in exons_sorted:
-                        report_fh.write(exon['line_raw'])
+                        if exon['attributes'].has_key('Parent'):
+                            if type(exon['attributes']['Parent']) == type([]) and len(exon['attributes']['Parent']) > 1:
+                                report_fh.write(TwoParent(child['attributes']['ID'],exon))
+                            else:
+                                report_fh.write(exon['line_raw'])
+                        else:
+                            report_fh.write(exon['line_raw'])
             # Sort cds features by considering strand information (StrandSort)
             if len(cdss):
                 cdss_sorted = []
                 if StrandSort(cdss):
                     cdss_sorted = StrandSort(cdss)
                     for cds in cdss_sorted:
-                        report_fh.write(cds['line_raw'])
+                        if cds['attributes'].has_key('Parent'):
+                            if type(cds['attributes']['Parent']) == type([]) and len(cds['attributes']['Parent']) > 1:                 
+                                report_fh.write(TwoParent(child['attributes']['ID'],cds))
+                            else:
+                                report_fh.write(cds['line_raw'])
+                        else:            
+                            report_fh.write(cds['line_raw'])
             # Sort other features by PositionSort
             if len(others):
                 others_sorted =[]
                 if PositionSort(others):
                     others_sorted = PositionSort(others)
                     for other in others:
-                        report_fh.write(other['line_raw'])
+                        if other['attributes'].has_key('Parent'):
+                            if type(other['attributes']['Parent']) == type([]) and len(other['attributes']['Parent']) > 1:
+                                report_fh.write(TwoParent(child['attributes']['ID'],other))
+                            else:
+                                report_fh.write(other['line_raw'])
+                        else:
+                            report_fh.write(other['line_raw'])
 
         # Sort the features beyond the third-level by PositionSort
         unique = {}
