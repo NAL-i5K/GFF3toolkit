@@ -18,6 +18,8 @@ from textwrap import wrap
 import sys
 import re
 import logging
+import string
+import random
 logger = logging.getLogger(__name__)
 #log.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
 logger.setLevel(logging.INFO)
@@ -35,6 +37,9 @@ from gff3_modified import Gff3
 
 __version__ = '0.0.1'
 
+def randomID(size=32, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
 def FIX_MISSING_ATTR(gff, logger=None): 
     features = [line for line in gff.lines if line['line_type']=='feature']
     flag = 0
@@ -42,16 +47,17 @@ def FIX_MISSING_ATTR(gff, logger=None):
         if not f['attributes'].has_key('owner'):
             f['attributes']['owner'] = 'Unassigned'
         if not f['attributes'].has_key('ID'):
-            IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript', 'exon', 'pseudogenic_exon']
+            IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript']
             if f['type'] in IDrequired:
                 logger.error('[Missing ID] A model needs to have a unique ID, but not. Please fix it before running the program.\n{0:s}'.format(f['line_raw']))
                 flag += 1
             else:
-                if len(f['parents'])== 1:
-                    tid = f['parents'][0][0]['attributes']['ID'] + '-' + f['type']
-                    f['attributes']['ID'] = tid
-                else:
-                    logger.warning('[Missing ID] The program try to automatically generate ID for this model, but failed becuase this model has multiple parent features.\n{0:s}'.format(f['line_raw']))
+                #tid = f['parents'][0][0]['attributes']['ID'] + '-' + f['type']
+                tid = randomID()
+                while (tid in gff.features):
+                    tid = randomID()
+                f['attributes']['ID'] = tid
+                gff.features[tid].append(f)
     if flag != 0:
         sys.exit()
 
