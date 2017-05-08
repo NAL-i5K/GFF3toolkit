@@ -42,7 +42,7 @@ if __name__ == '__main__':
     1. Python 2.7
 
     Inputs:
-    1. GFF3: Specify the file name with the -g or --gff argument; Please note that this program requires gene/pseudogene, mRNA/pseudogenic_transcirpt, and exon/pseudogenic_exon to have an ID attribute in column 9. For those features without IDs, it would automatically generate IDs based on the corresponding parent information. However, the ID generation would fail, if a feature has multiple parents.
+    1. GFF3: Specify the file name with the -g or --gff argument; Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcirpt to have an ID attribute in column 9. 
     2. fasta file: Specify the file name with the -f or --fasta argument
 
     Outputs:
