@@ -93,7 +93,8 @@ if __name__ == '__main__':
     gff3.check_parent_boundary()
     gff3.check_phase()
     gff3.check_reference()
-    logger_stderr.info('\t- Checking missing attributes: (%s)...\n', 'single_feature.FIX_MISSING_ATTR()')
+    logger_stderr.info('\t- Checking missing attributes: (%s)...\n', 'function4gff.FIX_MISSING_ATTR()')
+    function4gff.FIX_MISSING_ATTR(gff3)
 
     error_set = list()
     if function4gff.extract_internal_detected_errors(gff3):

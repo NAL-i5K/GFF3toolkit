@@ -113,14 +113,17 @@ def extract_internal_detected_errors(gff):
 
     eSet = list()
     for line in error_lines:
-        for e in line['line_errors']:
-            result = dict()
-            result['ID'] = [line['attributes']['ID']]
-            result['eCode'] = e['eCode']
-            result['eLines'] = [line]
-            result['eTag'] = e['message']
-            #print('{0:s}\t{1:s}\t[{2:s}]'.format(result['ID'], result['eCode'], result['eTag']))
-            eSet.append(result)
+        try:
+            for e in line['line_errors']:
+                result = dict()
+                result['ID'] = [line['attributes']['ID']]
+                result['eCode'] = e['eCode']
+                result['eLines'] = [line]
+                result['eTag'] = e['message']
+                #print('{0:s}\t{1:s}\t[{2:s}]'.format(result['ID'], result['eCode'], result['eTag']))
+                eSet.append(result)
+        except:
+            logger.error(line['line_raw'])
 
     if len(eSet):
         return eSet
