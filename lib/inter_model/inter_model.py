@@ -82,6 +82,8 @@ def check_duplicate(gff, linelist):
         if same_target:
             key = [pair['source']['attributes']['ID'], pair['target']['attributes']['ID']]
             result['ID'] = key
+            lnum = ['Line {0:s}'.format(str(pair['source']['line_index']+1)),'Line {0:s}'.format(str(pair['target']['line_index']+1))]
+            result['line_num'] = lnum
             result['eCode'] = eCode
             result['eLines'] = [pair['source'], pair['target']]
             result['eTag'] = 'Duplicate transcripts found between {0:s} and {1:s}'.format(pair['source']['attributes']['ID'], pair['target']['attributes']['ID'])

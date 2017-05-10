@@ -38,6 +38,9 @@ import ERROR
 
 ERROR_INFO = ERROR.INFO
 
+IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript']
+
+
 COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
 def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
@@ -219,6 +222,16 @@ class Gff3(object):
 
         :return:
         """
+        check = 0
+        flag = True
+        for line in self.lines:
+            if line.has_key('attributes') and not line['attributes'].has_key('ID') and line['type'] in IDrequired:
+                logger.error('[Missing ID] A model needs to have a unique ID, but not. Please fix it before running the program.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                check += 1
+        if check > 0:
+            flag = False
+            return flag
+
         for line in self.lines:
             for parent_feature in line['parents']:
                 ok = False
@@ -228,6 +241,7 @@ class Gff3(object):
                         break
                 if not ok:
                     self.add_line_error(line, {'message': '{2:s}: {0:s}: {1:s}'.format(parent_feature[0]['attributes']['ID'], ','.join(['({0:s}, {1:d}, {2:d})'.format(line['seqid'], line['start'], line['end']) for line in parent_feature]), ERROR_INFO['Ema0003']), 'error_type': 'BOUNDS', 'location': 'parent_boundary', 'eCode': 'Ema0003'})
+        return flag
 
     def check_phase(self):
         """

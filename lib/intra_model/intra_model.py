@@ -60,6 +60,7 @@ def check_pseudo_child_type(gff, rootline):
                     result['eLines'].append(child)
                 else:
                     result['ID'] = [rootline['attributes']['ID']]
+                    result['line_num'] = ['Line {0:s}'.format(str(rootline['line_index'] + 1))]
                     result['eCode'] = eCode
                     result['eLines'] = [child]
                     result['eTag'] = ERROR_INFO[eCode]

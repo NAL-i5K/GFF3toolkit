@@ -117,6 +117,7 @@ def extract_internal_detected_errors(gff):
             for e in line['line_errors']:
                 result = dict()
                 result['ID'] = [line['attributes']['ID']]
+                result['line_num'] = ['Line {0:s}'.format(str(line['line_index'] + 1))]
                 result['eCode'] = e['eCode']
                 result['eLines'] = [line]
                 result['eTag'] = e['message']

@@ -80,17 +80,14 @@ if __name__ == '__main__':
         sys.exit(1)
 
 
-    if args.output:
-        logger_stderr.info('Specifying output file name: (%s)...\n', args.output)
-        report_fh = open(args.output, 'wb')
-    else:
-        report_fh = open('report.txt', 'wb')
 
     logger_stderr.info('Reading gff files: (%s)...\n', args.gff)
     gff3 = Gff3(gff_file=args.gff, fasta_external=args.fasta, logger=logger_null)
     logger_stderr.info('Checking errors in the gff files: (%s)...\n', args.gff)
+    if not gff3.check_parent_boundary():
+        sys.exit()
+
     gff3.check_unresolved_parents()
-    gff3.check_parent_boundary()
     gff3.check_phase()
     gff3.check_reference()
     logger_stderr.info('\t- Checking missing attributes: (%s)...\n', 'function4gff.FIX_MISSING_ATTR()')
@@ -106,17 +103,20 @@ if __name__ == '__main__':
     if inter_model.main(gff3, logger=logger_stderr):
         error_set.extend(inter_model.main(gff3, logger=logger_stderr))
     logger_stderr.info('\t- Checking single-feature errors: (%s)...\n', args.gff)
-    if inter_model.main(gff3, logger=logger_stderr):
+    if single_feature.main(gff3, logger=logger_stderr):
         error_set.extend(single_feature.main(gff3, logger=logger_stderr))
 
     if args.output:
         logger_stderr.info('Print QC report at {0:s}'.format(args.output))
+        report_fh = open(args.output, 'wb')
     else:
         logger_stderr.info('Print QC report at {0:s}'.format('report.txt'))
+        report_fh = open('report.txt', 'wb')
+
 
     ERROR_INFO = ERROR.INFO
 
-    report_fh.write('ID\tError_code\tError_tag\n')
+    report_fh.write('Line_num\tID\tError_code\tError_tag\n')
     for e in error_set:
         tag = '[{0:s}]'.format(e['eTag'])
-        report_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(e['ID']), str(e['eCode']), str(tag)))
+        report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\n'.format(str(e['line_num']),str(e['ID']), str(e['eCode']), str(tag)))

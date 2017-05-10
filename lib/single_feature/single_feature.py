@@ -65,31 +65,22 @@ def check_pseudogene(gff, line):
     eCode = 'Esf0001'
     flag = 0
     result=dict()
-    for k,v in line['attributes'].items():
-        if re.search(r"[Pp][Ss][EUeu][EUeu][Dd][Oo][Gg][Ee][Nn]*", str(v)):
-            flag += 1
-    if flag and not re.search(r"pseudogen*", line['type']):
-        result['ID'] = [line['attributes']['ID']]
-        result['eCode'] = eCode
-        result['eLines'] = [line]
-        result['eTag'] = ERROR_INFO[eCode]
-        gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+    try:
+        for k,v in line['attributes'].items():
+            if re.search(r"[Pp][Ss][EUeu][EUeu][Dd][Oo][Gg][Ee][Nn]*", str(v)):
+                flag += 1
+        if flag and not re.search(r"pseudogen*", line['type']):
+            result['ID'] = [line['attributes']['ID']]
+            result['line_num'] = ['Line {0:s}'.format(str(line['line_index'] + 1))]
+            result['eCode'] = eCode
+            result['eLines'] = [line]
+            result['eTag'] = ERROR_INFO[eCode]
+            gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+    except:
+        logger.error('Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
     if len(result):
         return [result]
 
-'''
-def check_negative_zero_coordinate(gff, line):
-    eCode = 'Esf0002'
-    result=dict()
-    if line['start'] <= 0 or line['end'] <= 0:
-        result['ID'] = [line['attributes']['ID']]
-        result['eCode'] = eCode
-        result['eLines'] = [line]
-        result['eTag'] = ERROR_INFO[eCode]
-        gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FORMAT', 'eCode': eCode})
-    if len(result):
-        return [result]
-'''
 
 def main(gff, logger=None):
     function4gff.FIX_MISSING_ATTR(gff, logger=logger)
@@ -102,16 +93,6 @@ def main(gff, logger=None):
         r = check_pseudogene(gff, f)
         if not r == None:
             error_set.extend(r)
-        '''
-        r = check_negative_zero_coordinate(gff, f)
-        if not r == None:
-            error_set.extend(r)
-        '''
-    '''
-    for e in error_set:
-        tag = '[{0:s}]'.format(ERROR_INFO[e['eCode']]) 
-        print(e['ID'], e['eCode'], tag)
-    '''
     if len(error_set): 
         return(error_set)
 
