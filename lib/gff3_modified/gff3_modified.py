@@ -226,7 +226,7 @@ class Gff3(object):
         flag = True
         for line in self.lines:
             if line.has_key('attributes') and not line['attributes'].has_key('ID') and line['type'] in IDrequired:
-                logger.error('[Missing ID] A model needs to have a unique ID, but not. Please fix it before running the program.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                 check += 1
         if check > 0:
             flag = False
