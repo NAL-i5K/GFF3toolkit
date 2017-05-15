@@ -40,10 +40,10 @@ INFO = {
     'Esf0006': 'End is greater than the ##sequence-region end',
     'Esf0007': 'Seqid not found in the embedded ##FASTA',
     'Esf0008': 'End is greater than the embedded ##FASTA sequence length',
-    #'Esf0009': 'Found Ns in a feature using the embedded ##FASTA', # Error message has to be modified in gff3_modified.py
+    #'Esf0009': 'Found Ns in a feature using the embedded ##FASTA', # This error would be detected by the program as well, but the error message has to be modified in gff3_modified.py
     'Esf0010': 'Seqid not found in the external FASTA file',
     'Esf0011': 'End is greater than the external FASTA sequence length',
-    #'Esf0012': 'Found Ns in a feature using the external FASTA', # Error message has to be modified in gff3_modified.py
+    #'Esf0012': 'Found Ns in a feature using the external FASTA', # This error would be detected by the program as well, but the error message has to be modified in gff3_modified.py
     'Esf0013': 'White chars not allowed at the start of a line',
     'Esf0014': '##gff-version" missing from the first line',
     'Esf0015': 'Expecting certain fields in the feature',

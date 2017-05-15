@@ -42,16 +42,19 @@ if __name__ == '__main__':
     1. Python 2.7
 
     Inputs:
-    1. GFF3: Specify the file name with the -g or --gff argument; Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcirpt to have an ID attribute in column 9. 
+    1. GFF3: Specify the file name with the -g or --gff argument; Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcript to have an ID attribute in column 9.
     2. fasta file: Specify the file name with the -f or --fasta argument
 
     Outputs:
-    1. Error report for the input GFF3 file.
+    1. Error report for the input GFF3 file
+	* Line_num: Line numbers of the found problematic models in the input GFF3 file.
+	* Error_code: Error codes for the found problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
+        * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
 
     Quick start:
-    python2.7 GFF3toolkit/bin/gff-QC.py -g small_files/annotations2.gff -f small_files/sample.fa -o test
+    python2.7 bin/gff-QC.py -g example_file/annotations2.gff -f example_file/sample.fa -o test
     or
-    python2.7 GFF3toolkit/bin/gff-QC.py --gff small_files/annotations2.gff --fasta small_files/sample.fa --output test
+    python2.7 bin/gff-QC.py --gff example_file/annotations2.gff --fasta example_file/sample.fa --output test
 
     """))
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format') 
@@ -116,7 +119,7 @@ if __name__ == '__main__':
 
     ERROR_INFO = ERROR.INFO
 
-    report_fh.write('Line_num\tID\tError_code\tError_tag\n')
+    report_fh.write('Line_num\tError_code\tError_tag\n')
     for e in error_set:
         tag = '[{0:s}]'.format(e['eTag'])
-        report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\n'.format(str(e['line_num']),str(e['ID']), str(e['eCode']), str(tag)))
+        report_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(e['line_num']), str(e['eCode']), str(tag)))

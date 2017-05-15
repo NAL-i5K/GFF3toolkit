@@ -10,9 +10,10 @@ This project is to develop python tools for generating official gene set (OGS) b
 [Wiki page for QC and OGS generation pipeline by I5K Workspace@NAL](https://github.com/NAL-i5K/I5KNAL_OGS/wiki)
 
 ### bin/
-General script for running through different phases of the OGS pipeline.
 * gff-QC.py 
     - Detection of GFF format errors (~50 types of errors. Details can be found in [wiki page](https://github.com/NAL-i5K/I5KNAL_OGS/wiki/QC-phase))
+    - Quick start
+        `python2.7 GFF3toolkit/bin/gff-QC.py -g GFF3toolkit/example_file/annotations2.gff -f GFF3toolkit/example_file/sample.fa -o test2.txt`
 
 ### example_file/
 * Example files for testing

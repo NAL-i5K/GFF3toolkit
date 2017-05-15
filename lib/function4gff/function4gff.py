@@ -49,7 +49,7 @@ def FIX_MISSING_ATTR(gff, logger=None):
         if not f['attributes'].has_key('ID'):
             IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript']
             if f['type'] in IDrequired:
-                logger.error('[Missing ID] A model needs to have a unique ID, but not. Please fix it before running the program.\n{0:s}'.format(f['line_raw']))
+                logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n{0:s}'.format(f['line_raw']))
                 flag += 1
             else:
                 #tid = f['parents'][0][0]['attributes']['ID'] + '-' + f['type']
