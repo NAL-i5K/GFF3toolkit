@@ -118,6 +118,8 @@ def splicer(gff, ftype, dline):
                     start, end = int, int
                     line = s
                     if line['type'] == 'CDS':
+                        if not type(line['phase']) == int:
+                            sys.exit('[Error] No phase informatin!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                         start = line['start']+line['phase']
                         end = line['end']
                         if line['strand'] == '-':
