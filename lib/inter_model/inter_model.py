@@ -57,8 +57,8 @@ def check_duplicate(gff, linelist):
         for j in range(i+1, len(linelist)):
             source, target = linelist[i], linelist[j]
             if source['seqid'] == target['seqid']:
-                s7 = '{0:s}\t{1:s}\t{2:s}\t{3:d}\t{4:d}\t{5:s}\t{6:s}'.format(source['seqid'], source['source'], source['type'], source['start'], source['end'], source['score'], source['strand'], source['phase'])
-                t7 = '{0:s}\t{1:s}\t{2:s}\t{3:d}\t{4:d}\t{5:s}\t{6:s}'.format(target['seqid'], target['source'], target['type'], target['start'], target['end'], target['score'], target['strand'], target['phase'])
+                s7 = '{0:s}\t{1:s}\t{2:s}\t{3:d}\t{4:d}\t{5:s}\t{6:s}\t{7:s}'.format(source['seqid'], source['source'], source['type'], source['start'], source['end'], str(source['score']), source['strand'], str(source['phase']))
+                t7 = '{0:s}\t{1:s}\t{2:s}\t{3:d}\t{4:d}\t{5:s}\t{6:s}\t{7:s}'.format(target['seqid'], target['source'], target['type'], target['start'], target['end'], str(target['score']), target['strand'], str(target['phase']))
                 if s7 == t7:
                     pairs.append({'source':source, 'target':target})
 
@@ -72,8 +72,8 @@ def check_duplicate(gff, linelist):
                 sort_schildren = function4gff.featureSort(schildren, reverse=True if pair['source']['strand'] == '-' else False)
                 sort_tchildren = function4gff.featureSort(tchildren, reverse=True if pair['source']['strand'] == '-' else False)
                 for i in range(len(sort_schildren)):
-                    s7 = '{0:s}\t{1:s}\t{2:s}\t{3:d}\t{4:d}\t{5:s}\t{6:s}'.format(sort_schildren[i]['seqid'], sort_schildren[i]['source'], sort_schildren[i]['type'], sort_schildren[i]['start'], sort_schildren[i]['end'], sort_schildren[i]['score'], sort_schildren[i]['strand'], sort_schildren[i]['phase'])
-                    t7 = '{0:s}\t{1:s}\t{2:s}\t{3:d}\t{4:d}\t{5:s}\t{6:s}'.format(sort_tchildren[i]['seqid'], sort_tchildren[i]['source'], sort_tchildren[i]['type'], sort_tchildren[i]['start'], sort_tchildren[i]['end'], sort_tchildren[i]['score'], sort_tchildren[i]['strand'], sort_tchildren[i]['phase'])
+                    s7 = '{0:s}\t{1:s}\t{2:s}\t{3:d}\t{4:d}\t{5:s}\t{6:s}\t{7:s}'.format(sort_schildren[i]['seqid'], sort_schildren[i]['source'], sort_schildren[i]['type'], sort_schildren[i]['start'], sort_schildren[i]['end'], str(sort_schildren[i]['score']), sort_schildren[i]['strand'], str(sort_schildren[i]['phase']))
+                    t7 = '{0:s}\t{1:s}\t{2:s}\t{3:d}\t{4:d}\t{5:s}\t{6:s}\t{7:s}'.format(sort_tchildren[i]['seqid'], sort_tchildren[i]['source'], sort_tchildren[i]['type'], sort_tchildren[i]['start'], sort_tchildren[i]['end'], str(sort_tchildren[i]['score']), sort_tchildren[i]['strand'], str(sort_tchildren[i]['phase']))
                     if s7 == t7:
                         same_target=True
                     else:
