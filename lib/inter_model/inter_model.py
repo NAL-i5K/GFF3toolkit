@@ -43,10 +43,10 @@ ERROR_INFO = ERROR.INFO
 def check_duplicate(gff, linelist):
     '''
     This function assumes that,
-    1. Each gnee is unique
+    1. Each gene is unique
     2. Children features such as Exons/CDSs do not contain multiple Parent IDs
 
-    Note: If there are additional transcript type in the input gfff, then you should go to intra_model.featureSort, and add the new transcript type to the dict of  FEATURECODE.
+    Note: If there are additional transcript type in the input gff, then you should go to intra_model.featureSort, and add the new transcript type to the dict of FEATURECODE.
     '''
 
     eCode = 'Emr0001'
