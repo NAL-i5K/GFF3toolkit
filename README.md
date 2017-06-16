@@ -8,7 +8,7 @@
 
 The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md) (Generic Feature Format Version 3) is one of the standard formats to describe and represent genomic features. It is an incredibly flexible, 9-column format, which is easily manipulated by biologists. This flexibility, however, makes it very easy to break the format. We have developed the GFF3toolkit to help identify common problems with GFF3 files; sort GFF3 files (which can aid in using down-stream processing programs and custom parsing); and generate FASTA files from a GFF3 file for many use cases (e.g. feature types beyond mRNA).
 
-## Detect GFF3 format errors ([back](https://github.com/NAL-i5K/GFF3toolkit#gff3toolkit---python-programs-for-processing-gff3-files))
+## Detect GFF3 format errors ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * bin/gff-QC.py 
     - Detection of GFF format errors (~50 types of errors. Details can be found in [wiki page](https://github.com/NAL-i5K/I5KNAL_OGS/wiki/QC-phase))
@@ -16,26 +16,26 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
         `python2.7 GFF3toolkit/bin/gff-QC.py -g GFF3toolkit/example_file/annotations2.gff -f GFF3toolkit/example_file/sample.fa -o test2.txt`
     - Note - Longer GFF3 files will take longer to process.
 
-## Sort a GFF3 file ([back](https://github.com/NAL-i5K/GFF3toolkit#gff3toolkit---python-programs-for-processing-gff3-files))
+## Sort a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * bin/gff3-sort.py
     - Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and feature relationship based on sequence ontology
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff3-sort.py -g GFF3toolkit/example_file/annotations2.gff -og annotations2-sorted.gff`
 
-## Generate biological sequences from a GFF3 file ([back](https://github.com/NAL-i5K/GFF3toolkit#gff3toolkit---python-programs-for-processing-gff3-files))
+## Generate biological sequences from a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * bin/gff3_to_fasta.py
     - The software is used to extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file. Please check the details [here](https://github.com/NAL-i5K/GFF3toolkit/tree/master/lib/gff3_to_fasta).
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff3_to_fasta.py -g GFF3toolkit/example_file/annotations2.gff -f GFF3toolkit/example_file/sample.fa -st all -d simple -o test_sequences`
 
-## Example Files ([back](https://github.com/NAL-i5K/GFF3toolkit#gff3toolkit---python-programs-for-processing-gff3-files))
+## Example Files ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * example_file/
     - Example files for testing
 
-## Internal Dependencies ([back](https://github.com/NAL-i5K/GFF3toolkit#gff3toolkit---python-programs-for-processing-gff3-files))
+## Internal Dependencies ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 * [lib/gff3_modified](lib/gff3_modified)/
     - Basic data structure used for nesting the information of genome annotations in GFF3 format.
 * [lib/gff3_to_fasta](lib/gff3_to_fasta)/
