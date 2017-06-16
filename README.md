@@ -11,7 +11,9 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 ## Detect GFF3 format errors ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * bin/gff-QC.py 
-    - Detection of GFF format errors (~50 types of errors. Details can be found in [wiki page](https://github.com/NAL-i5K/I5KNAL_OGS/wiki/QC-phase))
+    - [Documentation page](gff-QC.md)
+    - Detection of GFF format errors (~50 types of errors. Details can be found in [wiki page](https://github.com/NAL-i5K/I5KNAL_OGS/wiki/QC-phase)
+    - Please refer to lib/ERROR/ERROR.py to see the full list of Error codes and the corresponding Error tags.
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff-QC.py -g GFF3toolkit/example_file/annotations2.gff -f GFF3toolkit/example_file/sample.fa -o test2.txt`
     - Note - Longer GFF3 files will take longer to process.
@@ -19,6 +21,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 ## Sort a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * bin/gff3-sort.py
+    - [Documentation page](gff3-sort.md)
     - Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and feature relationship based on sequence ontology
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff3-sort.py -g GFF3toolkit/example_file/annotations2.gff -og annotations2-sorted.gff`
@@ -26,6 +29,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 ## Generate biological sequences from a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * bin/gff3_to_fasta.py
+    - [Documentation page](gff3_to_fasta.md)
     - The software is used to extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file. Please check the details [here](https://github.com/NAL-i5K/GFF3toolkit/tree/master/lib/gff3_to_fasta).
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff3_to_fasta.py -g GFF3toolkit/example_file/annotations2.gff -f GFF3toolkit/example_file/sample.fa -st all -d simple -o test_sequences`
@@ -41,6 +45,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 * [lib/gff3_to_fasta](lib/gff3_to_fasta)/
     - Extract specific sequences from genome sequences according to the GFF3 file.
 * [lib/ERROR](lib/ERROR)
+    - Contains the full list of Error codes and the corresponding Error tag
 * [lib/function4gff](lib/function4gff)/
     - Functions for gff3 processing
 * lib/gff3.py
