@@ -77,7 +77,7 @@ def StrandSort(linelist):
         print('Not all lines located in the same sequence. Cannot process by StrandSort.')
         return
     if not len(strand) == 1:
-        print('Strand is not consistet among all lines in the list or strand information is missing. Cannot process by StrandSort.')
+        print('Strand is not consistent among all lines in the list or strand information is missing. Cannot process by StrandSort.')
         return
 
     # Sort by ascending order of genomic coordinates if the stran is '+', and by descending order if '-'. If the strand information is unclear, report error.
@@ -129,9 +129,9 @@ if __name__ == '__main__':
 
     Examples:
     1. Specify the input, output file names and options using short arguments:
-       python2.7 %(prog)s -g GFF3toolkit/__develop__/example_file/annotations.gff -og GFF3toolkit/__develop__/example_file/annotations_sorted.gff
+       python2.7 %(prog)s -g example_file/annotations.gff -og example_file/annotations_sorted.gff
     2. Specify the input, output file names and options using long arguments:
-       python2.7 %(prog)s --gff_file GFF3toolkit/__develop__/example_file/annotations.gff --output_gff GFF3toolkit/__develop__/example_file/annotations_sorted.gff
+       python2.7 %(prog)s --gff_file example_file/annotations.gff --output_gff example_file/annotations_sorted.gff
 
     """))
     parser.add_argument('-g', '--gff_file', type=str, help='GFF3 file that you would like to sort.')
