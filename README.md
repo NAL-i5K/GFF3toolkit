@@ -29,7 +29,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 ## Generate biological sequences from a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * bin/gff3_to_fasta.py
-    - [Documentation page](tree/master/lib/gff3_to_fasta)
+    - [Documentation page](lib/gff3_to_fasta)
     - The software is used to extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file. Please check the details [here](https://github.com/NAL-i5K/GFF3toolkit/tree/master/lib/gff3_to_fasta).
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff3_to_fasta.py -g GFF3toolkit/example_file/annotations2.gff -f GFF3toolkit/example_file/sample.fa -st all -d simple -o test_sequences`
