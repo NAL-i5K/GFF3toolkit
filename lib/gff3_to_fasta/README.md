@@ -1,7 +1,7 @@
 # gff3_to_fasta
 
 This software extracts biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of a genomic fasta file based on a given [`GFF3`] file.
-* Free software: [license](blob/master/LICENCE.md)
+* Free software: [license](LICENCE.md)
 
 ## Features
 
