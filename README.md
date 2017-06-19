@@ -8,6 +8,8 @@
 
 The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md) (Generic Feature Format Version 3) is one of the standard formats to describe and represent genomic features. It is an incredibly flexible, 9-column format, which is easily manipulated by biologists. This flexibility, however, makes it very easy to break the format. We have developed the GFF3toolkit to help identify common problems with GFF3 files; sort GFF3 files (which can aid in using down-stream processing programs and custom parsing); and generate FASTA files from a GFF3 file for many use cases (e.g. feature types beyond mRNA).
 
+[Frequently Asked Questions/FAQ](https://github.com/NAL-i5K/GFF3toolkit/wiki/FAQ) 
+
 ## Detect GFF3 format errors ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * bin/gff-QC.py 
