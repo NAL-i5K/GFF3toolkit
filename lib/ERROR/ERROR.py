@@ -21,7 +21,7 @@ __version__ = '0.0.1'
 
 INFO = {
     'Ema0001': 'Parent feature start and end coordinates exceed those of child features',
-    'Ema0002': 'Protein sequence contains stop codons',
+    'Ema0002': 'Protein sequence contains internal stop codons',
     'Ema0003': 'This feature is not contained within the parent feature coordinates', 
     'Ema0004': 'Incomplete gene feature that should contain at least one mRNA, exon, and CDS',
     'Ema0005': 'Pseudogene has invalid child feature type',

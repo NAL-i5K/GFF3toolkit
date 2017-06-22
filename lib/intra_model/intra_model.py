@@ -34,6 +34,12 @@ sys.path.insert(1, lib_path)
 from gff3_modified import Gff3
 import function4gff
 import ERROR
+if dirname(__file__) == '':
+    bin_path = '../../bin'
+else:
+    bin_path = dirname(__file__) + '/../../bin'
+sys.path.insert(1, bin_path)
+import gff3_to_fasta
 
 __version__ = '0.0.1'
 
@@ -75,6 +81,80 @@ def check_redundant_length(gff, rootline):
         gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
     if len(result):
         return [result]
+
+def check_internal_stop(gff, rootline):
+    eCode = 'Ema0002'
+    result = list()
+   
+    children = rootline['children']
+    for child in children:
+        r = dict()
+        flag = 0
+        segments = []
+        gchildren = child['children']
+        for gchild in gchildren:
+            if gchild['type'] == 'CDS':
+                segments.append(gchild)
+
+        sort_seg = function4gff.featureSort(segments)
+        if gchild['strand'] == '-':
+            sort_seg = function4gff.featureSort(segments, reverse=True)
+
+        tmpseq = ''
+        tmpindex = list()
+        count = 0
+        for s in sort_seg:
+            if count == 0:
+                start, end = int, int
+                line = s
+                if line['type'] == 'CDS':
+                    if not type(line['phase']) == int:
+                        sys.exit('[Error] No phase informatin!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                    start = line['start']+line['phase']
+                    end = line['end']
+                    if line['strand'] == '-':
+                        start = line['start']
+                        end = line['end']-line['phase']
+                else:
+                    start = line['start']
+                    end = line['end']
+             
+                s['start'] = start
+                s['end'] = end
+                s['phase'] = 0
+            tmpseq = tmpseq + gff3_to_fasta.get_subseq(gff, s)
+            index = list(range(s['start']+s['phase'], s['end']+1, 3))
+            if line['strand'] == '-':
+                index = list(range(s['end']-s['phase'], s['start']-1, -3))
+            tmpindex.extend(index)
+            #print(s['start'], s['end'], s['phase'])
+            count += 1
+        aa = gff3_to_fasta.translator(tmpseq)
+        stop = [m.start() for m in re.finditer('\*', aa)]
+        bp = list()
+        for i in stop:
+            if i < len(aa)-1:
+                bp.append(str(tmpindex[i]))
+
+
+        if len(bp):
+#            print(tmpindex, len(tmpindex), tmpseq, len(tmpseq), aa, len(aa), stop, bp)
+ #           print(' ,and '.join(bp))
+            r['ID'] = [child['attributes']['ID']]
+            r['line_num'] = ['Line {0:s}'.format(str(child['line_index'] + 1))]
+            r['eCode'] = eCode
+            r['eLines']=list()
+            r['eLines'].append(child)
+            r['eTag'] = '{0:s} at bp {1:s}'.format(ERROR_INFO[eCode], ', and '.join(bp))
+            flag += 1
+
+        if flag > 0:
+            result.append(r)
+            gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+
+    if len(result):
+        return result
+ 
 
 def check_incomplete(gff, rootline):
     eCode = 'Ema0004'
@@ -164,6 +244,11 @@ def main(gff, logger=None):
         if not r == None:
             error_set.extend(r)
         r = None
+        r = check_internal_stop(gff, root)
+        if not r == None:
+            error_set.extend(r)
+        r = None
+
 
 #    for e in error_set:
 #        print('{0:s}\t{1:s}\t{2:s}\n'.format(e['ID'], e['eCode'], e['eTag']))
@@ -197,6 +282,7 @@ if __name__ == '__main__':
 
     """))
     parser.add_argument('-g', '--gff', type=str, help='Summary Report from Monica (default: STDIN)') 
+    parser.add_argument('-f', '--fasta', type=str, help='Genome sequences in FASTA format')
     parser.add_argument('-o', '--output', type=str, help='Output file name (default: STDIN)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     
@@ -211,11 +297,21 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(1)
 
+    if args.fasta:
+        logger_stderr.info('Checking genome fasta (%s)...', args.fasta)
+    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
+        args.fasta = sys.stdin
+        logger_stderr.info('Reading from STDIN...')
+    else: # no input
+        parser.print_help()
+        logger_stderr.error('Required field -f missing...')
+        sys.exit(1)
+
     if args.output:
         logger_stderr.info('Specifying output file name: (%s)...\n', args.output)
         report_fh = open(args.output, 'wb')
     else:
         report_fh = open('intra_model_report.txt', 'wb')
-    
-    gff3 = Gff3(gff_file=args.gff, logger=logger_null)
+   
+    gff3 = Gff3(gff_file=args.gff, fasta_external=args.fasta, logger=logger_null)
     main(gff3, logger=logger_stderr)

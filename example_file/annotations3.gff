@@ -13,6 +13,7 @@ Scaffold8844	WebApollo	CDS	3674	3956	.	+	0	Name=63518F45912FF56829EFB771A5C5FC2C
 Scaffold8844	WebApollo	CDS	12128	12696	.	+	2	Name=63518F45912FF56829EFB771A5C5FC2C;date_creation=2014-09-9;Parent=29C8B6ADC46FB89C61B1DF5A443644BF;owner=kaat.cappelle@ugent.be;ID=63518F45912FF56829EFB771A5C5FC2C;Note=Manually set translation start;date_last_modified=2014-09-9
 Scaffold8844	WebApollo	exon	12128	12696	.	+	.	Name=9BFE92988F0731F5415B6D27ADF069F3;date_creation=2014-09-9;Parent=29C8B6ADC46FB89C61B1DF5A443644BF;owner=kaat.cappelle@ugent.be;ID=9BFE92988F0731F5415B6D27ADF069F3;date_last_modified=2014-09-9
 Scaffold8844	WebApollo	exon	3674	3956	.	+	.	Name=7F4183110EBA04C2E4A8776E05376C55;date_creation=2014-09-9;Parent=29C8B6ADC46FB89C61B1DF5A443644BF;owner=kaat.cappelle@ugent.be;ID=7F4183110EBA04C2E4A8776E05376C55;date_last_modified=2014-09-9
+Scaffold8844	WebApollo	mRNA	3674	12696	.	+	.	replace=LdecTmpS023815-RA;Name=Pasha (part 2 of 2);date_creation=2014-09-9;Parent=2B202240AA675374D119CB494F671049;symbol=Pasha;status=Approved;description=Pasha%2C partner of drosha;owner=kaat.cappelle@ugent.be;ID=29C8B6ADC46FB89C61B1DF5A443644BF;Note=Result of: Merging of two or more gene models across scaffolds. Gene involved in merge: start of pasha in scaffold21;date_last_modified=2015-05-16
 ###
 ##sequence-region Scaffold1881 1 133839
 Scaffold1881	WebApollo	gene	10613	17867	.	-	.	Name=B94D28BBA724B1549FA5463437A61964;date_creation=2015-04-28;owner=alessandro.grapputo@unipd.it;ID=B94D28BBA724B1549FA5463437A61964;date_last_modified=2015-04-28
