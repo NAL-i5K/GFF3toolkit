@@ -25,7 +25,7 @@ else:
 sys.path.insert(1, bin_path)
 from gff3 import Gff3
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 
 def PositionSort(linelist):
@@ -105,6 +105,113 @@ def TwoParent(Child_id,third):
 
     return line_update
 
+def main(gff, output=None, logger=None):
+    logger_null = logging.getLogger(__name__+'null')
+    null_handler = logging.NullHandler()
+    logger_null.addHandler(null_handler)
+
+    gff3 = Gff3(gff_file=gff, logger=logger_null)
+
+    if output:
+        report = open(output, 'wb')
+    else:
+        report = sys.stdout
+
+
+    logger.info('Sorting and printing out...')
+    
+    # Visit the GFF3 object through root-level features (eg. gene, pseudogene, and etc.)
+    roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+
+    # Sort the root-level features based on the order of the genomic sequences
+    roots_sorted = PositionSort(roots)
+
+    # Write the gff version
+    report.write('##gff-version 3\n')
+    
+    # Visit every root-level feature
+    for root in roots_sorted:
+        report.write(root['line_raw'])
+        children = root['children'] # Collect the second-level features (eg. mRNA, ncRNA, and etc.)
+        children_sorted = PositionSort(children)
+        otherlines=[]
+        for child in children_sorted:
+            ## ID information is stored in child['attributes']['ID']
+            #print('----------------')
+            report.write(child['line_raw'])
+            grandchildren = child['children'] # Collect third-level features (eg. exon, CDS, and etc.)
+            gchildgroup = {}
+            # Visit every third-level feature, and collect a dictionary of 'type' to 'features'
+            for grandchild in grandchildren: # Visit each third-level feature
+                if gchildgroup.has_key(str(grandchild['type'])):
+                    gchildgroup[str(grandchild['type'])].append(grandchild)
+                else:
+                    gchildgroup[str(grandchild['type'])] = []
+                    gchildgroup[str(grandchild['type'])].append(grandchild)
+                otherlines.extend(gff3.collect_descendants(grandchild))
+            # Seperate the third-level features into three groups: exon, cds, and others
+            exons = []
+            cdss = []
+            others = []
+            for k, v in gchildgroup.items():
+                if k == 'exon' or k == 'pseudogenic_exon':
+                    exons.extend(v)
+                elif k == 'CDS':
+                    cdss.extend(v)
+                else:
+                    others.extend(v)
+
+            # Sort exons by considering strand information (StrandSort)
+            if len(exons):
+                exons_sorted = []
+                if StrandSort(exons):
+                    exons_sorted = StrandSort(exons)
+                    for exon in exons_sorted:
+                        if exon['attributes'].has_key('Parent'):
+                            if type(exon['attributes']['Parent']) == type([]) and len(exon['attributes']['Parent']) > 1:
+                                report.write(TwoParent(child['attributes']['ID'],exon))
+                            else:
+                                report.write(exon['line_raw'])
+                        else:
+                            report.write(exon['line_raw'])
+            # Sort cds features by considering strand information (StrandSort)
+            if len(cdss):
+                cdss_sorted = []
+                if StrandSort(cdss):
+                    cdss_sorted = StrandSort(cdss)
+                    for cds in cdss_sorted:
+                        if cds['attributes'].has_key('Parent'):
+                            if type(cds['attributes']['Parent']) == type([]) and len(cds['attributes']['Parent']) > 1:                 
+                                report.write(TwoParent(child['attributes']['ID'],cds))
+                            else:
+                                report.write(cds['line_raw'])
+                        else:            
+                            report.write(cds['line_raw'])
+            # Sort other features by PositionSort
+            if len(others):
+                others_sorted =[]
+                if PositionSort(others):
+                    others_sorted = PositionSort(others)
+                    for other in others:
+                        if other['attributes'].has_key('Parent'):
+                            if type(other['attributes']['Parent']) == type([]) and len(other['attributes']['Parent']) > 1:
+                                report.write(TwoParent(child['attributes']['ID'],other))
+                            else:
+                                report.write(other['line_raw'])
+                        else:
+                            report.write(other['line_raw'])
+
+        # Sort the features beyond the third-level by PositionSort
+        unique = {}
+        otherlines_sorted = []
+        if PositionSort(otherlines):
+            otherlines_sorted = PositionSort(otherlines)
+        for k in otherlines_sorted:
+            unique[k['line_raw']] = 1
+        for k,v in unique.items():
+            report.write(k)
+        report.write('###\n')
+
 if __name__ == '__main__':
     # Set up logger information
     logger_stderr = logging.getLogger(__name__+'stderr')
@@ -151,105 +258,7 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(1)
 
-    if args.output_gff:
-        report_fh = open(args.output_gff, 'wb')
-    else:
-        report_fh = sys.stdout
-
     # Creat GFF3 object
     logger_stderr.info('Reading gff3 file...')
-    gff3 = Gff3(gff_file=args.gff_file, logger=logger_null)
+    main(args.gff_file, output=args.output_gff, logger=logger_stderr)
 
-    logger_stderr.info('Sorting and printing out...')
-    
-    # Visit the GFF3 object through root-level features (eg. gene, pseudogene, and etc.)
-    roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
-
-    # Sort the root-level features based on the order of the genomic sequences
-    roots_sorted = PositionSort(roots)
-
-    # Write the gff version
-    report_fh.write('##gff-version 3\n')
-    
-    # Visit every root-level feature
-    for root in roots_sorted:
-        report_fh.write(root['line_raw'])
-        children = root['children'] # Collect the second-level features (eg. mRNA, ncRNA, and etc.)
-        children_sorted = PositionSort(children)
-        otherlines=[]
-        for child in children_sorted:
-            ## ID information is stored in child['attributes']['ID']
-            #print('----------------')
-            report_fh.write(child['line_raw'])
-            grandchildren = child['children'] # Collect third-level features (eg. exon, CDS, and etc.)
-            gchildgroup = {}
-            # Visit every third-level feature, and collect a dictionary of 'type' to 'features'
-            for grandchild in grandchildren: # Visit each third-level feature
-                if gchildgroup.has_key(str(grandchild['type'])):
-                    gchildgroup[str(grandchild['type'])].append(grandchild)
-                else:
-                    gchildgroup[str(grandchild['type'])] = []
-                    gchildgroup[str(grandchild['type'])].append(grandchild)
-                otherlines.extend(gff3.collect_descendants(grandchild))
-            # Seperate the third-level features into three groups: exon, cds, and others
-            exons = []
-            cdss = []
-            others = []
-            for k, v in gchildgroup.items():
-                if k == 'exon' or k == 'pseudogenic_exon':
-                    exons.extend(v)
-                elif k == 'CDS':
-                    cdss.extend(v)
-                else:
-                    others.extend(v)
-
-            # Sort exons by considering strand information (StrandSort)
-            if len(exons):
-                exons_sorted = []
-                if StrandSort(exons):
-                    exons_sorted = StrandSort(exons)
-                    for exon in exons_sorted:
-                        if exon['attributes'].has_key('Parent'):
-                            if type(exon['attributes']['Parent']) == type([]) and len(exon['attributes']['Parent']) > 1:
-                                report_fh.write(TwoParent(child['attributes']['ID'],exon))
-                            else:
-                                report_fh.write(exon['line_raw'])
-                        else:
-                            report_fh.write(exon['line_raw'])
-            # Sort cds features by considering strand information (StrandSort)
-            if len(cdss):
-                cdss_sorted = []
-                if StrandSort(cdss):
-                    cdss_sorted = StrandSort(cdss)
-                    for cds in cdss_sorted:
-                        if cds['attributes'].has_key('Parent'):
-                            if type(cds['attributes']['Parent']) == type([]) and len(cds['attributes']['Parent']) > 1:                 
-                                report_fh.write(TwoParent(child['attributes']['ID'],cds))
-                            else:
-                                report_fh.write(cds['line_raw'])
-                        else:            
-                            report_fh.write(cds['line_raw'])
-            # Sort other features by PositionSort
-            if len(others):
-                others_sorted =[]
-                if PositionSort(others):
-                    others_sorted = PositionSort(others)
-                    for other in others:
-                        if other['attributes'].has_key('Parent'):
-                            if type(other['attributes']['Parent']) == type([]) and len(other['attributes']['Parent']) > 1:
-                                report_fh.write(TwoParent(child['attributes']['ID'],other))
-                            else:
-                                report_fh.write(other['line_raw'])
-                        else:
-                            report_fh.write(other['line_raw'])
-
-        # Sort the features beyond the third-level by PositionSort
-        unique = {}
-        otherlines_sorted = []
-        if PositionSort(otherlines):
-            otherlines_sorted = PositionSort(otherlines)
-        for k in otherlines_sorted:
-            unique[k['line_raw']] = 1
-        for k,v in unique.items():
-            report_fh.write(k)
-        report_fh.write('###\n')
