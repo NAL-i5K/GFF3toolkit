@@ -234,13 +234,19 @@ class Gff3(object):
 
         for line in self.lines:
             for parent_feature in line['parents']:
-                ok = False
-                for parent_line in parent_feature:
-                    if parent_line['start'] <= line['start'] and line['end'] <= parent_line['end']:
-                        ok = True
-                        break
-                if not ok:
-                    self.add_line_error(line, {'message': '{2:s}: {0:s}: {1:s}'.format(parent_feature[0]['attributes']['ID'], ','.join(['({0:s}, {1:d}, {2:d})'.format(line['seqid'], line['start'], line['end']) for line in parent_feature]), ERROR_INFO['Ema0003']), 'error_type': 'BOUNDS', 'location': 'parent_boundary', 'eCode': 'Ema0003'})
+                if len(parent_feature):
+                    ok = False
+                    for parent_line in parent_feature:
+                        if parent_line['start'] <= line['start'] and line['end'] <= parent_line['end']:
+                            ok = True
+                            break
+                    if not ok:
+                        try:
+                            self.add_line_error(line, {'message': '{2:s}: {0:s}: {1:s}'.format(parent_feature[0]['attributes']['ID'], ','.join(['({0:s}, {1:d}, {2:d})'.format(line['seqid'], line['start'], line['end']) for line in parent_feature]), ERROR_INFO['Ema0003']), 'error_type': 'BOUNDS', 'location': 'parent_boundary', 'eCode': 'Ema0003'})
+                        except:
+                            logger.warning('Fail to check the boundary relationship between parent and child features (Ema0003)...\n\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                else:
+                    logger.warning('[Parent feature missing] Cannot find the parents of this feature. Fail to check the boundary relationship (Ema0003).\n\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         return flag
 
     def check_phase(self):
