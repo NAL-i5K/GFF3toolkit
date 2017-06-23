@@ -77,7 +77,7 @@ def StrandSort(linelist):
         print('Not all lines located in the same sequence. Cannot process by StrandSort.')
         return
     if not len(strand) == 1:
-        print('Strand is not consistet among all lines in the list or strand information is missing. Cannot process by StrandSort.')
+        print('Strand is not consistent among all lines in the list or strand information is missing. Cannot process by StrandSort.')
         return
 
     # Sort by ascending order of genomic coordinates if the stran is '+', and by descending order if '-'. If the strand information is unclear, report error.
