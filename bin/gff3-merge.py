@@ -44,10 +44,13 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None
     if not logger:
         logger = logger_null
 
+    path, gff_file1_name = re.search(r'(\S+)/(\S+)$',gff_file1).groups()
+#    print(path, gff_file1_name)
+
     if auto:
         autoDIR = 'auto_replace_tag'
         autoFILE = '{0:s}/check1.txt'.format(autoDIR)
-        autoReviseGff = '{0:s}/Revised_{1:s}'.format(autoDIR, gff_file1)
+        autoReviseGff = '{0:s}/Revised_{1:s}'.format(autoDIR, gff_file1_name)
         autoReviseReport = '{0:s}/replace_tag_report.txt'.format(autoDIR)
 
         logger.info('========== Auto-assignment of replace tags for each transcrip models ==========')
@@ -85,6 +88,7 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None
 
         logger.info('========== Merge the two gff files ==========')
         gff3_merge.merge.main(gff_file1, gff_file2, output_gff, report, logger)
+
 
 if __name__ == '__main__':
     logger_stderr = logging.getLogger(__name__+'stderr')
