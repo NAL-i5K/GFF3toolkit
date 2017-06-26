@@ -135,7 +135,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.gff_file1:
-        logger_stderr.info('Checking Web Apollo GFF3 file (%s)...', args.gff_file1)
+        logger_stderr.info('Checking Update GFF3 file (%s)...', args.gff_file1)
     elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
         args.gff_file1 = sys.stdin
         logger_stderr.info('Reading from STDIN...')
@@ -144,7 +144,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if args.gff_file2:
-        logger_stderr.info('Checking Predicted GFF3 file (%s)...', args.gff_file2)
+        logger_stderr.info('Checking Reference GFF3 file (%s)...', args.gff_file2)
     elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
         args.gff_file2 = sys.stdin
         logger_stderr.info('Reading from STDIN...')
