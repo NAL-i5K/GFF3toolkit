@@ -1,7 +1,7 @@
 # GFF3toolkit - Python programs for processing GFF3 files
 * Current functions
     - [Detect GFF3 format errors](#detect-gff3-format-errors-back)
-    - [Merge two GFF3 files]()
+    - [Merge two GFF3 files](#merge-two-gff3-files-back)
     - [Sort a GFF3 file](#sort-a-gff3-file-back)
     - [Generate biological sequences from a GFF3 file](#generate-biological-sequences-from-a-gff3-file-back)
 
