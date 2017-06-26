@@ -1,6 +1,7 @@
 # GFF3toolkit - Python programs for processing GFF3 files
 * Current functions
     - [Detect GFF3 format errors](#detect-gff3-format-errors-back)
+    - [Merge two GFF3 files]()
     - [Sort a GFF3 file](#sort-a-gff3-file-back)
     - [Generate biological sequences from a GFF3 file](#generate-biological-sequences-from-a-gff3-file-back)
 
@@ -14,19 +15,30 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 * bin/gff-QC.py 
     - [Documentation page](gff-QC.md)
-    - Detection of GFF format errors (~50 types of errors. Details can be found in [wiki page](https://github.com/NAL-i5K/I5KNAL_OGS/wiki/QC-phase)
+    - Detection of GFF format errors (~50 types of errors. Details can be found in [wiki page](https://github.com/NAL-i5K/GFF3toolkit/wiki/QC-phase).)
     - Please refer to lib/ERROR/ERROR.py to see the full list of Error codes and the corresponding Error tags.
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff-QC.py -g GFF3toolkit/example_file/annotations2.gff -f GFF3toolkit/example_file/sample.fa -o test2.txt`
     - Note - Longer GFF3 files will take longer to process.
 
+## Merge two GFF3 files ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
+
+* bin/gff3-merge.py
+    - [Documentation page](gff3-merge.md)
+    - Merge two GFF3 files (Details can be found in [wiki page](https://github.com/NAL-i5K/GFF3toolkit/wiki/Merge-phase))
+    - Quick start:
+        - Merge the two file with auto-assignment of replace tags (default)
+            `python2.7 GFF3toolkit/bin/gff3-merge.py -g1 GFF3toolkit/example_file/gff3-merge_example/new_models.gff3 -g2 GFF3toolkit/example_file/gff3-merge_example/reference.gff3 -f GFF3toolkit/example_file/gff3-merge_example/reference.fa -og merged.gff -r merged_report.txt`
+        - If your gff files have assigned proper replace tags at column 9 (Format: replace=[Transcript ID]), you could merge the two gff files wihtout auto-assignment of tags.
+            `python2.7 GFF3toolkit/bin/gff3-merge.py -g1 GFF3toolkit/example_file/gff3-merge_example/new_models.gff3 -g2 GFF3toolkit/example_file/gff3-merge_example/reference.gff3 -f GFF3toolkit/example_file/gff3-merge_example/reference.fa -og merged.gff -r merged_report.txt -noAuto`
+
 ## Sort a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
-* bin/gff3-sort.py
-    - [Documentation page](gff3-sort.md)
+* bin/gff3_sort.py
+    - [Documentation page](gff3_sort.md)
     - Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and feature relationship based on sequence ontology
     - Quick start:
-        `python2.7 GFF3toolkit/bin/gff3-sort.py -g GFF3toolkit/example_file/annotations2.gff -og annotations2-sorted.gff`
+        `python2.7 GFF3toolkit/bin/gff3_sort.py -g GFF3toolkit/example_file/annotations2.gff -og annotations2-sorted.gff`
 
 ## Generate biological sequences from a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
