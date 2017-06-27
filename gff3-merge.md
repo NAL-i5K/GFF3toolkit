@@ -20,10 +20,10 @@ gff3-merge.py [-h] [-g1 GFF_FILE1] [-g2 GFF_FILE2] [-f FASTA] [-og OUTPUT_GFF] [
 
 ## Quick start
 * Merge the two files with auto-assignment of replace tags (default)
-    `python2.7 GFF3toolkit/bin/gff3-merge.py -g1 GFF3toolkit/example_file/gff3-merge_example/new_models.gff3 -g2 GFF3toolkit/example_file/gff3-merge_example/reference.gff3 -f GFF3toolkit/example_file/gff3-merge_example/reference.fa -og merged.gff -r merged_report.txt`
+    `python2.7 GFF3toolkit/bin/gff3-merge.py -g1 GFF3toolkit/example_file/new_models.gff3 -g2 GFF3toolkit/example_file/reference.gff3 -f GFF3toolkit/example_file/reference.fa -og merged.gff -r merged_report.txt`
 
 * If your GFF3 files have proper replace tags at column 9 (Format: replace=[Transcript ID]), you can merge the two GFF3 files without auto-assignment of replace tags.
-    `python2.7 GFF3toolkit/bin/gff3-merge.py -g1 GFF3toolkit/example_file/gff3-merge_example/new_models.gff3 -g2 GFF3toolkit/example_file/gff3-merge_example/reference.gff3 -f GFF3toolkit/example_file/gff3-merge_example/reference.fa -og merged.gff -r merged_report.txt -noAuto`
+    `python2.7 GFF3toolkit/bin/gff3-merge.py -g1 GFF3toolkit/example_file/new_models.gff3 -g2 GFF3toolkit/example_file/reference.gff3 -f GFF3toolkit/example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto`
 
 ## Optional arguments
 
@@ -32,9 +32,9 @@ gff3-merge.py [-h] [-g1 GFF_FILE1] [-g2 GFF_FILE2] [-f FASTA] [-og OUTPUT_GFF] [
 2.  -og OUTPUT_GFF, --output_gff OUTPUT_GFF
     - The merged GFF3 file (default: merged.gff)
 3.  -r REPORT_FILE, --report_file REPORT_FILE
-    - Log file for the intergration (default: merge_report.txt)
+    - Log file for the integration (default: merge_report.txt)
 4.  -noAuto, --auto_assignment
-    - Turn off the auto-assignemnt of replace tags, if you have had the replace tags in your update gff (default: Automatically assign replace tags and then merge the gff files)
+    - Turn off the auto-assignment of replace tags, if you have had the replace tags in your update gff (default: Automatically assign replace tags and then merge the gff files)
 5.  -v, --version         
     - show program's version number and exit
 
