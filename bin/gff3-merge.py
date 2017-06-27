@@ -53,7 +53,7 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None
         autoReviseGff = '{0:s}/Revised_{1:s}'.format(autoDIR, gff_file1_name)
         autoReviseReport = '{0:s}/replace_tag_report.txt'.format(autoDIR)
 
-        logger.info('========== Auto-assignment of replace tags for each transcript models ==========')
+        logger.info('========== Auto-assignment of replace tags for each transcript model ==========')
         gff3_merge.auto_replace_tag.main(gff_file1, gff_file2, fasta, autoDIR, 'TEMP', logger)
         gff3_merge.revision.main(gff_file1, autoFILE, autoReviseGff, autoReviseReport, logger)
 
@@ -65,7 +65,7 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None
             logger.error('Please check the below models in {0:s}\n'.format(autoReviseGff))
             for line in error_models:
                 print(line['line_raw'])
-            logger.error('Please specify the proper replaced models at colulumn 9. For example, \'replace=[Transcript ID]\'. If this is a newly added model, please put it as \'replace=NA\'. Then, re-execute the program.')
+            logger.error('Please specify the proper replaced models at column 9. For example, \'replace=[Transcript ID]\'. If this is a newly added model, please put it as \'replace=NA\'. Then, re-execute the program.')
             return
         else:
             logger.info('- All models have replace tags.')
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     3. FASTA: Genomic sequences in the FASTA format with the -f argument
 
     Outputs:
-    1. Merged GFF3: Models from GFF3 file 1 replace Models from GFF3 file 2 based on their replace tag, are appended to the end of GFF3 file 2. Specify the output file name with the -og argument
+    1. Merged GFF3: Models from GFF3 file 1 replace Models from GFF3 file 2 based on their replace tag. Specify the output file name with the -og argument
     2. Log report for the integration: specify the file name with the -r argument
 
     Examples:
