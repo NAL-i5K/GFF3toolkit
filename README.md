@@ -15,7 +15,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 * bin/gff-QC.py 
     - [Documentation page](gff-QC.md)
-    - Detection of GFF format errors (~50 types of errors. Details can be found in [wiki page](https://github.com/NAL-i5K/GFF3toolkit/wiki/QC-phase).)
+    - Detection of GFF format errors (~50 types of errors).
     - Please refer to lib/ERROR/ERROR.py to see the full list of Error codes and the corresponding Error tags.
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff-QC.py -g GFF3toolkit/example_file/example.gff3 -f GFF3toolkit/example_file/reference.fa -o test2.txt`
