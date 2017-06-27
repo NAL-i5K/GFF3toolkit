@@ -14,8 +14,12 @@ gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-d DEFLINE] [-o O
 2. Fasta file: specify the file name with the -f argument. This file **must** be the Fasta file that the GFF3 seqids and coordinates refer to. For more information, refer to the [GFF3 specification](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md).
 3. Output prefix: specify with the -o argument. All resulting fasta files will contain this prefix. 
 
-# Outputs
+## Outputs
 1. Fasta formatted sequence file based on the gff3 file.
+
+## Example command
+1. Specify the input, output file names and options using short arguments:
+    - `python2.7 bin/gff3_to_fasta.py -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences`
 
 ## Optional arguments
     
