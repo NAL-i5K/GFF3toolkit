@@ -44,10 +44,13 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None
     if not logger:
         logger = logger_null
 
+    path, gff_file1_name = re.search(r'(\S+)/(\S+)$',gff_file1).groups()
+#    print(path, gff_file1_name)
+
     if auto:
         autoDIR = 'auto_replace_tag'
         autoFILE = '{0:s}/check1.txt'.format(autoDIR)
-        autoReviseGff = '{0:s}/Revised_{1:s}'.format(autoDIR, gff_file1)
+        autoReviseGff = '{0:s}/Revised_{1:s}'.format(autoDIR, gff_file1_name)
         autoReviseReport = '{0:s}/replace_tag_report.txt'.format(autoDIR)
 
         logger.info('========== Auto-assignment of replace tags for each transcript models ==========')
@@ -85,6 +88,7 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None
 
         logger.info('========== Merge the two gff files ==========')
         gff3_merge.merge.main(gff_file1, gff_file2, output_gff, report, logger)
+
 
 if __name__ == '__main__':
     logger_stderr = logging.getLogger(__name__+'stderr')
@@ -131,7 +135,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.gff_file1:
-        logger_stderr.info('Checking Web Apollo GFF3 file (%s)...', args.gff_file1)
+        logger_stderr.info('Checking Update GFF3 file (%s)...', args.gff_file1)
     elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
         args.gff_file1 = sys.stdin
         logger_stderr.info('Reading from STDIN...')
@@ -140,7 +144,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if args.gff_file2:
-        logger_stderr.info('Checking Predicted GFF3 file (%s)...', args.gff_file2)
+        logger_stderr.info('Checking Reference GFF3 file (%s)...', args.gff_file2)
     elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
         args.gff_file2 = sys.stdin
         logger_stderr.info('Reading from STDIN...')
