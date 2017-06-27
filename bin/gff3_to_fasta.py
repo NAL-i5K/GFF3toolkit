@@ -119,7 +119,7 @@ def splicer(gff, ftype, dline):
                     line = s
                     if line['type'] == 'CDS':
                         if not type(line['phase']) == int:
-                            sys.exit('[Error] No phase informatin!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                            sys.exit('[Error] No phase information!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                         start = line['start']+line['phase']
                         end = line['end']
                         if line['strand'] == '-':
@@ -141,7 +141,7 @@ def splicer(gff, ftype, dline):
     return seq
             
 def extract_start_end(gff, stype, dline):
-    '''Extract seqeuces for a feature only use the Start and End information. The relationship between parent and children would be ignored.'''
+    '''Extract sequences for a feature only use the Start and End information. The relationship between parent and children would be ignored.'''
     seq=dict()
     roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     if stype == 'pre_trans':
@@ -208,7 +208,7 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
     logger_null.addHandler(null_handler)
 
     if not gff_file or not fasta_file or not stype:
-        print('Gff file, fasta file, and type of extracted seuqences need to be specified')
+        print('Gff file, fasta file, and type of extracted sequences need to be specified')
         sys.exit(1)
     type_set=['gene','exon','pre_trans', 'trans', 'cds', 'pep', 'all']
     if not stype in type_set:
@@ -268,7 +268,7 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
             sys.exit(1)
 
         tmp_stype = 'pre_trans'
-        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
         seq = extract_start_end(gff, tmp_stype, dline)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
@@ -279,7 +279,7 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
 
         seq=dict()
         tmp_stype = 'gene'
-        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
         seq = extract_start_end(gff, tmp_stype, dline)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
@@ -290,7 +290,7 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
 
         seq=dict()
         tmp_stype = 'exon'
-        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
         seq = extract_start_end(gff, tmp_stype, dline)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
@@ -302,7 +302,7 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
         seq=dict()
         tmp_stype = 'trans'
         feature_type = ['exon', 'pseudogenic_exon']
-        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
         seq = splicer(gff, feature_type, dline)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
@@ -314,7 +314,7 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
         seq=dict()
         tmp_stype = 'cds'
         feature_type = ['CDS']
-        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
         seq = splicer(gff, feature_type, dline)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
@@ -326,7 +326,7 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
         seq=dict()
         tmp_stype = 'pep'
         feature_type = ['CDS']
-        logger.info('\t- Extract seqeunces for {0:s}...'.format(tmp_stype))
+        logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
         tmpseq = splicer(gff, feature_type, dline)
         for k,v in tmpseq.items():
             k = k.replace("|mRNA(CDS)|", "|peptide|").replace("-RA", "-PA")
@@ -384,10 +384,13 @@ if __name__ == '__main__':
     Outputs:
     1. Fasta formatted sequence file based on the gff3 file.
 
+    Example command: 
+    python2.7 bin/gff3_to_fasta.py -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
+
     """))
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file in GFF3 format') 
     parser.add_argument('-f', '--fasta', type=str, help='Genome sequences in FASTA format')
-    parser.add_argument('-st', '--sequence_type', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}\n\t{3:s}\n\t{4:s}\n\t{5:s}\n\t{6:s}\n\t{7:s}".format('Type of seuqences you would like to extract: ','"all" - FASTA files for all types of sequences listed below;','"gene" - gene sequence for each record;', '"exon" - exon sequence for each record;', '"pre_trans" - genomic region of a transcript model (premature transcript);', '"trans" - spliced transcripts (only exons included);', '"cds" - coding sequences;', '"pep" - peptide seuqences.'))
+    parser.add_argument('-st', '--sequence_type', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}\n\t{3:s}\n\t{4:s}\n\t{5:s}\n\t{6:s}\n\t{7:s}".format('Type of sequences you would like to extract: ','"all" - FASTA files for all types of sequences listed below;','"gene" - gene sequence for each record;', '"exon" - exon sequence for each record;', '"pre_trans" - genomic region of a transcript model (premature transcript);', '"trans" - spliced transcripts (only exons included);', '"cds" - coding sequences;', '"pep" - peptide sequences.'))
     parser.add_argument('-d', '--defline', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}".format('Defline format in the output FASTA file:','"simple" - only ID would be shown in the defline;', '"complete" - complete information of the feature would be shown in the defline.'))
     parser.add_argument('-o', '--output_prefix', type=str, help='Prefix of output file name')
     parser.add_argument('-noQC', '--quality_control', action='store_false', help='Specify this option if you do not want to excute quality control for gff file. (default: QC is excuted)')
