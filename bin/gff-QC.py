@@ -97,17 +97,25 @@ if __name__ == '__main__':
     function4gff.FIX_MISSING_ATTR(gff3, logger=logger_stderr)
 
     error_set = list()
-    if function4gff.extract_internal_detected_errors(gff3):
-        error_set.extend(function4gff.extract_internal_detected_errors(gff3))
+    cmd = None
+    cmd = function4gff.extract_internal_detected_errors(gff3)
+    if cmd:
+        error_set.extend(cmd)
+    cmd = None
     logger_stderr.info('\t- Checking intra-model errors: (%s)...\n', args.gff)
-    if intra_model.main(gff3, logger=logger_stderr):
-        error_set.extend(intra_model.main(gff3, logger=logger_stderr))
+    cmd = intra_model.main(gff3, logger=logger_stderr)
+    if cmd:
+        error_set.extend(cmd)
+    cmd = None
     logger_stderr.info('\t- Checking inter-model errors: (%s)...\n', args.gff)
-    if inter_model.main(gff3, logger=logger_stderr):
-        error_set.extend(inter_model.main(gff3, logger=logger_stderr))
+    cmd = inter_model.main(gff3, logger=logger_stderr)
+    if cmd:
+        error_set.extend(cmd)
+    cmd = None
     logger_stderr.info('\t- Checking single-feature errors: (%s)...\n', args.gff)
-    if single_feature.main(gff3, logger=logger_stderr):
-        error_set.extend(single_feature.main(gff3, logger=logger_stderr))
+    cmd = single_feature.main(gff3, logger=logger_stderr)
+    if cmd:
+        error_set.extend(cmd)
 
     if args.output:
         logger_stderr.info('Print QC report at {0:s}'.format(args.output))

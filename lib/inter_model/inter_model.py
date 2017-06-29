@@ -108,8 +108,9 @@ def main(gff, logger=None):
             trans_list.append(child)
 
     r = check_duplicate(gff, trans_list)
-    if not r == None:
+    if r is not None:
         error_set.extend(r)
+    r = None
 
     '''
     for e in error_set:
