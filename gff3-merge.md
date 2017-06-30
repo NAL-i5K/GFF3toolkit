@@ -11,7 +11,7 @@ gff3-merge.py [-h] [-g1 GFF_FILE1] [-g2 GFF_FILE2] [-f FASTA] [-og OUTPUT_GFF] [
 
 ## Inputs
 1. GFF3 file with new or modified annotations, to be merged into GFF3 file 2. Specify the file name with the -g1 or --gff_file1 argument. Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcript to have an ID attribute in column 9. If replace tags are present (see below), these tags **must** refer to transcript/mRNA model IDs in the reference GFF3 file, specified by -g2. 
-2. Reference models in GFF3 format: Specify the file name with the -g2 or --gff_file2 argument. The models from -g1 will be merged into this file, replacing models in -g2. Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcript to have an ID attribute in column 9. If the reference GFF3 file contains gene models with multiple isoforms, please review the section "Notes on multiple isoforms" below prior to running the program.
+2. Reference models in GFF3 format: Specify the file name with the -g2 or --gff_file2 argument. The models from -g1 will be merged into this file, replacing models in -g2. Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcript to have an ID attribute in column 9. If the reference GFF3 file contains gene models with multiple isoforms, please review the section "[Odd use cases](#odd-use-cases-when-manually-adding-replace-tags-is-necessary)" below prior to running the program.
 3. Fasta file: Specify the file name with the -f or --fasta argument. This file **must** be the Fasta file that the GFF3 seqids and coordinates in both GFF3 files refer to. For more information, refer to the [GFF3 specification](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md).
 
 ## Outputs
@@ -58,7 +58,7 @@ The program gff3-merge.py can be conceptually separated into 3 steps:
 
 3. Models from modified GFF3 file replace models from reference GFF3 file based on merge actions in step 2.
 
-Note that all information, including functional information (e.g. Name, Dbxrefs, etc.), from the modified GFF3 file replace the corresponding reference inforation in the merged GFF3 file, meaning that any functional information in models slated to be replaced in the reference GFF3 file will NOT be carried over into the merged GFF3 file. 
+Note that all information, including functional information (e.g. Name, Dbxrefs, etc.), from the modified GFF3 file replace the corresponding reference information in the merged GFF3 file, meaning that any functional information in models slated to be replaced in the reference GFF3 file will NOT be carried over into the merged GFF3 file. 
 
 ### Replace Tags
 The replace tag is a custom GFF3 attribute in the new or modified GFF3 file that specifies which mRNA(s) or transcript(s) from a single reference GFF3 file should be replaced by the new annotation. The replace tag follows this format: replace=[Name or ID attribute of reference mRNA or transcript to be replaced]. 
@@ -100,7 +100,7 @@ You can choose to have the program auto-assign replace tags for you. (This is th
 - **Deleting a reference model**: Use the 'status' attribute with value 'delete' to indicate whether a model from the original gff3 should be deleted. The model that carries the status attribute will NOT be used in the merged gff3. `status=delete`
 - **Merging a reference model**: If multiple reference models need to be merged into one, then the modified, merged model should carry replace tags with IDs or Names of all models to be merged. `replace=CLEC00001-RA,CLEC00002-RA`
 - **Splitting a reference model**: If a reference model needs to be split, you will need to add a replace tag with the model ID or Name of the split reference model to BOTH models in the modified GFF3. E.g. split model 1: `replace=CLEC00001-RA`, split model 2: `replace=CLEC00001-RA` 
-- The merge program will check your replace tags, and will throw an error if your replace tag does not meet these assumptions. You will need update your replace tags according to the error message, and run the program again after fixing.  
+- The merge program will check your replace tags, and will throw an error if your replace tag does not meet these assumptions. You will need to update your replace tags according to the error message, and run the program again after fixing.  
 - If you are using the Apollo manual annotation program at the i5k Workspace to generate the modified GFF3 file, there will be a 'Replaced Models' field in the information editor where you should enter the replace tag information. See https://i5k.nal.usda.gov/apollo-replaced-models-field-explanations-and-examples.
 
 ### Replacing and adding multi-isoform models
@@ -161,5 +161,5 @@ LGIB01000001.1	.	CDS	1267818	1268263	.	-	2	Parent=mRNAID2
 LGIB01000001.1	.	exon	1267752	1268263	.	-	.	Parent=mRNAID2
 ```
 
-### Odd use cases (when manually adding replace tags is necessary)
+### Odd use cases (when manually adding replace tags is necessary) ([back](#Inputs))
 - It is possible for a modified model to have multiple isoforms that do not share CDS with each other - for example with partial models due to a poor genome assembly. In this case, the auto-assignment program will assign different replace tags to each isoform, but will then reject these auto-assigned replace tags because it expects isoforms of a gene model to have the same replace tags (see section "Some notes on multi-isoform models", above). You'll need to add the replace tags manually - all isoforms should carry the replace tags of all models to be replaced by the whole gene model. 
