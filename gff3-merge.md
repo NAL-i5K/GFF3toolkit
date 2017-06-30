@@ -161,5 +161,5 @@ LGIB01000001.1	.	CDS	1267818	1268263	.	-	2	Parent=mRNAID2
 LGIB01000001.1	.	exon	1267752	1268263	.	-	.	Parent=mRNAID2
 ```
 
-### Odd use cases (when manually adding replace tags is necessary) ([back](#Inputs))
+### Odd use cases (when manually adding replace tags is necessary) ([back](#inputs))
 - It is possible for a modified model to have multiple isoforms that do not share CDS with each other - for example with partial models due to a poor genome assembly. In this case, the auto-assignment program will assign different replace tags to each isoform, but will then reject these auto-assigned replace tags because it expects isoforms of a gene model to have the same replace tags (see section "Some notes on multi-isoform models", above). You'll need to add the replace tags manually - all isoforms should carry the replace tags of all models to be replaced by the whole gene model. 
