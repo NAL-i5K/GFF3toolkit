@@ -58,7 +58,7 @@ The program gff3-merge.py can be conceptually separated into 3 steps:
 
 3. Models from modified GFF3 file replace models from reference GFF3 file based on merge actions in step 2.
 
-Note that all information, including functional information (e.g. Name, Dbxrefs, etc.), from the modified GFF3 file replace the corresponding reference inforation in the merged GFF3 file, meaning that any functional information in models slated to be replaced in the reference GFF3 file will NOT be carried over into the merged GFF3 file. 
+Note that all information, including functional information (e.g. Name, Dbxrefs, etc.), from the modified GFF3 file replaces the corresponding reference information in the merged GFF3 file, meaning that any functional information in models slated to be replaced in the reference GFF3 file will NOT be carried over into the merged GFF3 file. 
 
 ### Replace Tags
 The replace tag is a custom GFF3 attribute in the new or modified GFF3 file that specifies which mRNA(s) or transcript(s) from a single reference GFF3 file should be replaced by the new annotation. The replace tag follows this format: replace=[Name or ID attribute of reference mRNA or transcript to be replaced]. 
@@ -87,14 +87,14 @@ LGIB01000001.1  Gnomon  CDS     362164  362815  .       -       2       ID=cds33
 LGIB01000001.1  Gnomon  CDS     359515  359920  .       -       1       ID=cds33;Parent=rna33;
 ```
 ### How does gff3-merge.py auto-assign replace tags? 
-You can choose to have the program auto-assign replace tags for you. (This is the default behavior.) The program will identify which mRNA models from the modified GFF3 file overlap in coding sequence with models from the reference GFF3 file. If the models are non-coding, transcript sequence will be used. The program will add a 'replace' attribute with the IDs of overlapping models. Specifically, the program will do the following: 
-- Extract CDS and protein sequences (mRNA features) or transcript sequence (non-coding features) from both GFF3 files. 
-- Use blastn and blastp (blastp for mRNA only) to determine which sequences from the modified and reference GFF3 file align to each other. 
-- For those sequences that align, determine whether their coordinates overlap in the GFF3 files. 
-- If two models have sequence alignment and coordinate overlap, the program will add a 'replace' attribute with the ID of each overlapping model to the modified gff3 file.  
+You can choose to have the program auto-assign replace tags for you. (This is the default behavior.) **The auto-assignment program ONLY works for mRNA features.** For all other feature types, if there is no replace tag, the program will add 'replace=NA'.  The program will identify which mRNA models from the modified GFF3 file overlap in coding sequence with models from the reference GFF3 file. The program will add a 'replace' attribute with the IDs of overlapping models. Specifically, the program will do the following: 
+- Extract CDS and pre-mRNA sequences from mRNA features from both GFF3 files. 
+- Use blastn to determine which sequences from the modified and reference GFF3 file align to each other. These parameters are used:  
+- If two models pass the alignment step, the program will add a 'replace' attribute with the ID of each overlapping model to the modified gff3 file.  
 - If no reference model overlaps with a new model, then the program will add 'replace=NA'. 
 
 ### Rules for adding a replace tag on your own
+- **If you are replacing non-coding features, and/or replacing coding features with non-coding features, then you must manually include a replace tag for these replacement actions.**   
 - **Replacing a model**: Use the Name or ID attribute of the mRNA or transcript to be replaced. (Don't use the ID or Name of the gene, exon, CDS, or other child features). `replace=CLEC00001-RA`
 - **Adding a new model**: Use 'NA' as the replace tag value. `replace=NA`
 - **Deleting a reference model**: Use the 'status' attribute with value 'delete' to indicate whether a model from the original gff3 should be deleted. The model that carries the status attribute will NOT be used in the merged gff3. `status=delete`
@@ -162,4 +162,5 @@ LGIB01000001.1	.	exon	1267752	1268263	.	-	.	Parent=mRNAID2
 ```
 
 ### Odd use cases (when manually adding replace tags is necessary)
+- If you are replacing non-coding features, and/or replacing coding features with non-coding features, then you must manually include a replace tag for these replacement actions.
 - It is possible for a modified model to have multiple isoforms that do not share CDS with each other - for example with partial models due to a poor genome assembly. In this case, the auto-assignment program will assign different replace tags to each isoform, but will then reject these auto-assigned replace tags because it expects isoforms of a gene model to have the same replace tags (see section "Some notes on multi-isoform models", above). You'll need to add the replace tags manually - all isoforms should carry the replace tags of all models to be replaced by the whole gene model. 
