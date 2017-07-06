@@ -89,7 +89,7 @@ LGIB01000001.1  Gnomon  CDS     359515  359920  .       -       1       ID=cds33
 ### How does gff3-merge.py auto-assign replace tags? 
 You can choose to have the program auto-assign replace tags for you. (This is the default behavior.) **The auto-assignment program ONLY works for mRNA features.** For all other feature types, if there is no replace tag, the program will add 'replace=NA'.  The program will identify which mRNA models from the modified GFF3 file overlap in coding sequence with models from the reference GFF3 file. The program will add a 'replace' attribute with the IDs of overlapping models. Specifically, the program will do the following: 
 - Extract CDS and pre-mRNA sequences from mRNA features from both GFF3 files. 
-- Use blastn to determine which sequences from the modified and reference GFF3 file align to each other. These parameters are used:  
+- Use blastn to determine which sequences from the modified and reference GFF3 file align to each other. These parameters are used: `-evalue 1e-10 -penalty -15 -ungapped` 
 - If two models pass the alignment step, the program will add a 'replace' attribute with the ID of each overlapping model to the modified gff3 file.  
 - If no reference model overlaps with a new model, then the program will add 'replace=NA'. 
 
