@@ -13,19 +13,18 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 ## Detect GFF3 format errors ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
-* bin/gff-QC.py 
-    - [Documentation page](gff-QC.md)
-    - Detection of GFF format errors (~50 types of errors).
-    - Please refer to lib/ERROR/ERROR.py to see the full list of Error codes and the corresponding Error tags.
+* bin/gff-QC.py - Detection of GFF format errors (~50 types of errors).
+    - [gff-QC.py readme](gff-QC.md)
+    - [gff-QC.py full documentation](https://github.com/mpoelchau/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff-QC.py -g GFF3toolkit/example_file/example.gff3 -f GFF3toolkit/example_file/reference.fa -o test2.txt`
-    - Note - Longer GFF3 files will take longer to process.
+    - Please refer to lib/ERROR/ERROR.py to see the full list of Error codes and the corresponding Error tags.
 
 ## Merge two GFF3 files ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
-* bin/gff3-merge.py
-    - [Documentation page](gff3-merge.md)
-    - Merge two GFF3 files 
+* bin/gff3-merge.py - Merge two GFF3 files
+    - [gff3-merge.py readme](gff3-merge.md)
+    - [gff3-merge.py full documentation](https://github.com/mpoelchau/GFF3toolkit/wiki/Merge-two-GFF3-files)
     - Quick start:
         - Merge the two file with auto-assignment of replace tags (default)
             `python2.7 GFF3toolkit/bin/gff3-merge.py -g1 GFF3toolkit/example_file/new_models.gff3 -g2 GFF3toolkit/example_file/reference.gff3 -f GFF3toolkit/example_file/reference.fa -og merged.gff -r merged_report.txt`
@@ -34,17 +33,15 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 ## Sort a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
-* bin/gff3_sort.py
-    - [Documentation page](gff3-sort.md)
-    - Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and parent-child feature relationships
+* bin/gff3_sort.py - Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and parent-child feature relationships
+    - [gff3_sort.py readme](gff3-sort.md)
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff3_sort.py -g GFF3toolkit/example_file/example.gff3 -og example-sorted.gff3`
 
 ## Generate biological sequences from a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
-* bin/gff3_to_fasta.py
-    - [Documentation page](lib/gff3_to_fasta)
-    - The software is used to extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file. Please check the details [here](https://github.com/NAL-i5K/GFF3toolkit/tree/master/lib/gff3_to_fasta).
+* bin/gff3_to_fasta.py - extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file
+    - [gff3_to_fasta.py readme](gff3_to_fasta.md)
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff3_to_fasta.py -g GFF3toolkit/example_file/example.gff3 -f GFF3toolkit/example_file/reference.fa -st all -d simple -o test_sequences`
 
