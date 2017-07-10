@@ -82,8 +82,6 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(1)
 
-
-
     logger_stderr.info('Reading gff files: (%s)...\n', args.gff)
     gff3 = Gff3(gff_file=args.gff, fasta_external=args.fasta, logger=logger_null)
     logger_stderr.info('Checking errors in the gff files: (%s)...\n', args.gff)
@@ -108,7 +106,7 @@ if __name__ == '__main__':
         error_set.extend(cmd)
     cmd = None
     logger_stderr.info('\t- Checking inter-model errors: (%s)...\n', args.gff)
-    cmd = inter_model.main(gff3, logger=logger_stderr)
+    cmd = inter_model.main(gff3, args.gff, args.fasta, logger=logger_stderr)
     if cmd:
         error_set.extend(cmd)
     cmd = None
@@ -128,6 +126,6 @@ if __name__ == '__main__':
     ERROR_INFO = ERROR.INFO
 
     report_fh.write('Line_num\tError_code\tError_tag\n')
-    for e in error_set:
+    for e in sorted(error_set):
         tag = '[{0:s}]'.format(e['eTag'])
         report_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(e['line_num']), str(e['eCode']), str(tag)))

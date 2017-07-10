@@ -94,10 +94,54 @@ def check_duplicate(gff, linelist):
     if len(eSet):
         return eSet
 
+def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
+    import gff3_to_fasta
+    import subprocess
+    eCode = 'Emr0002'
+    eSet = list()
 
-def main(gff, logger=None):
+    gff3_to_fasta.main(gff_file=gff_file, fasta_file=fasta_file, stype='cds', dline='complete', qc=False, output_prefix='tmp', logger=logger)
+    cmd = lib_path + '/ncbi-blast+/bin/makeblastdb'
+    logger.info('Making blast database... ({0:s})'.format(cmd))
+    subprocess.Popen([cmd, '-in', 'tmp_cds.fa', '-dbtype', 'nucl']).wait()
+    cmd = lib_path + '/ncbi-blast+/bin/blastn'
+    logger.info('Aligning sequences... ({0:s})'.format(cmd))
+    subprocess.Popen([cmd, '-db', 'tmp_cds.fa', '-query', 'tmp_cds.fa', '-out', 'blastn.out', '-outfmt', '6', '-penalty', '-15', '-ungapped']).wait()
+    cmd = lib_path + '/check_gene_parent/find_wrongly_split_gene_parent.pl'
+    logger.info('Finding mRNAs with wrongly split gene parents... ({0:s})'.format(cmd))
+    subprocess.Popen(['perl', cmd, gff_file, 'blastn.out', 'lepdec', 'ck_wrong_split.report']).wait()
+
+    p = subprocess.Popen(['cat', 'ck_wrong_split.report'], stdout=subprocess.PIPE)
+    wrongly_split_gene_parent = p.communicate()[0].split('\n')
+    pairs = list()
+    for i in wrongly_split_gene_parent[1:(len(wrongly_split_gene_parent)-1)]:
+        tokens = i.split('\t')
+        source = gff.features[tokens[2]][0]
+        target = gff.features[tokens[3]][0]
+        pairs.append({'source':source, 'target':target})
+
+    for pair in pairs:
+        result = dict()
+        key = [pair['source']['attributes']['ID'], pair['target']['attributes']['ID']]
+        result['ID'] = key
+        lnum = ['Line {0:s}'.format(str(pair['source']['line_index']+1)),'Line {0:s}'.format(str(pair['target']['line_index']+1))]
+        result['line_num'] = lnum
+        result['eCode'] = eCode
+        result['eLines'] = [pair['source'], pair['target']]
+        result['eTag'] = ERROR_INFO[eCode]
+        eSet.append(result)       
+        gff.add_line_error(pair['source'], {'message': '{0:s} between {1:s} and {2:s}'.format(ERROR_INFO[eCode], pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode})
+        gff.add_line_error(pair['target'], {'message': '{0:s} between {1:s} and {2:s}'.format(ERROR_INFO[eCode], pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode})
+
+    logger.info('Removing unnecessary files...')
+    subprocess.Popen(['rm', 'tmp_cds.fa.nhr', 'tmp_cds.fa.nin', 'tmp_cds.fa.nsq', 'blastn.out', 'GeneModelwithMultipleIsoforms.txt','ck_wrong_split.report']) #debug 07082015
+
+    if len(eSet):
+        return eSet
+
+
+def main(gff, gff_file, fasta_file, logger=None):
     function4gff.FIX_MISSING_ATTR(gff, logger=logger)
-
 
     roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
     error_set=list()
@@ -108,6 +152,11 @@ def main(gff, logger=None):
             trans_list.append(child)
 
     r = check_duplicate(gff, trans_list)
+    if r is not None:
+        error_set.extend(r)
+    r = None
+
+    r = check_incorrectly_split_genes(gff, gff_file, fasta_file, logger)
     if r is not None:
         error_set.extend(r)
     r = None
@@ -149,6 +198,7 @@ if __name__ == '__main__':
 
     """))
     parser.add_argument('-g', '--gff', type=str, help='Summary Report from Monica (default: STDIN)') 
+    parser.add_argument('-f', '--fasta', type=str, help='Genomic sequences in the fasta format')
     parser.add_argument('-o', '--output', type=str, help='Output file name (default: STDIN)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     
@@ -163,9 +213,18 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(1)
 
+    if args.fasta:
+        logger_stderr.info('Checking genome fasta (%s)...', args.fasta)
+    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
+        args.fasta = sys.stdin
+        logger_stderr.info('Reading from STDIN...')
+    else: # no input
+        parser.print_help()
+        sys.exit(1)
+
     if args.output:
         logger_stderr.info('Specifying output file name: (%s)...\n', args.output)
         report_fh = open(args.output, 'wb')
     
-    gff3 = Gff3(gff_file=args.gff, logger=logger_null)
-    main(gff3, logger=logger_stderr)
+    gff3 = Gff3(gff_file=args.gff, fasta_external=args.fasta, logger=logger_null)
+    main(gff3, args.gff, args.fasta, logger=logger_stderr)
