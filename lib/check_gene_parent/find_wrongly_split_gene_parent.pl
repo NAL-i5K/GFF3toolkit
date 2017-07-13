@@ -59,7 +59,7 @@ while (<FI>){
 						$id2owner{$id} = $1;
 					}else{
 						$id2owner{$id} = 'Unassigned';
-						print "Warning: $id: owner is missing!\n";
+						#print "Warning: $id: owner is missing!\n";
 					}
 				}else{
 					print "Warning: $id: Parent is missing!\n";
