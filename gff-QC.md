@@ -39,4 +39,4 @@ or
     - show program's version number and exit
 
 ## More information
-- [gff-QC.py full documentation](https://github.com/mpoelchau/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)
+- [gff-QC.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)

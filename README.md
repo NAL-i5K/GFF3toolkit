@@ -15,7 +15,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 * bin/gff-QC.py - Detection of GFF format errors (~50 types of errors).
     - [gff-QC.py readme](gff-QC.md)
-    - [gff-QC.py full documentation](https://github.com/mpoelchau/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)
+    - [gff-QC.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff-QC.py -g GFF3toolkit/example_file/example.gff3 -f GFF3toolkit/example_file/reference.fa -o test2.txt`
     - Please refer to lib/ERROR/ERROR.py to see the full list of Error codes and the corresponding Error tags.
@@ -24,7 +24,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 * bin/gff3-merge.py - Merge two GFF3 files
     - [gff3-merge.py readme](gff3-merge.md)
-    - [gff3-merge.py full documentation](https://github.com/mpoelchau/GFF3toolkit/wiki/Merge-two-GFF3-files)
+    - [gff3-merge.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Merge-two-GFF3-files)
     - Quick start:
         - Merge the two file with auto-assignment of replace tags (default)
             `python2.7 GFF3toolkit/bin/gff3-merge.py -g1 GFF3toolkit/example_file/new_models.gff3 -g2 GFF3toolkit/example_file/reference.gff3 -f GFF3toolkit/example_file/reference.fa -og merged.gff -r merged_report.txt`

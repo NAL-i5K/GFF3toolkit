@@ -39,4 +39,4 @@ gff3-merge.py [-h] [-g1 GFF_FILE1] [-g2 GFF_FILE2] [-f FASTA] [-og OUTPUT_GFF] [
     - show program's version number and exit
 
 ## More information 
-- [gff3-merge.py full documentation](https://github.com/mpoelchau/GFF3toolkit/wiki/merge-two-gff3-files)
+- [gff3-merge.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Merge-two-GFF3-files)
