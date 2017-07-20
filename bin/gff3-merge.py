@@ -44,7 +44,11 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None
     if not logger:
         logger = logger_null
 
-    path, gff_file1_name = re.search(r'(\S+)/(\S+)$',gff_file1).groups()
+    if re.search(r'(\S+)/(\S+)$',gff_file1):
+        path, gff_file1_name = re.search(r'(\S+)/(\S+)$',gff_file1).groups()
+    else:
+        path = '.'
+        gff_file1_name = gff_file1
 #    print(path, gff_file1_name)
 
     if auto:

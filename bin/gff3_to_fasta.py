@@ -17,6 +17,11 @@ if dirname(__file__) == '':
 else:
     lib_path = dirname(__file__) + '/../lib'
 sys.path.insert(1, lib_path)
+if dirname(__file__) == '':
+    lib_path = '../../lib'
+else:
+    lib_path = dirname(__file__) + '/../../lib'
+sys.path.insert(1, lib_path)
 from gff3_modified import Gff3
 import function4gff
 import intra_model
