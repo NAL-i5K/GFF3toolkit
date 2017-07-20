@@ -19,11 +19,11 @@ Python 2.7
         * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
 
 ## Quick start
-`python2.7 bin/gff-QC.py -g example_file/annotations2.gff -f example_file/sample.fa -o test`
+`python2.7 bin/gff-QC.py -g example_file/example.gff3 -f example_file/reference.fa -o test`
 
 or
 
-`python2.7 bin/gff-QC.py --gff example_file/annotations2.gff --fasta example_file/sample.fa --output test`
+`python2.7 bin/gff-QC.py --gff example_file/example.gff3 --fasta example_file/reference.fa --output test`
 
 ## Optional arguments
 
@@ -38,3 +38,5 @@ or
 5.  -v, --version         
     - show program's version number and exit
 
+## More information
+- [gff-QC.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)
