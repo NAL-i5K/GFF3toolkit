@@ -33,12 +33,11 @@ else:
 sys.path.insert(1, lib_path)
 from gff3_modified import Gff3
 import function4gff
+import ERROR
 
 __version__ = '0.0.1'
 
-ERROR_CODE = ['Esf0001', 'Esf0002']
-ERROR_TAG = ['Feature type may need to be changed to pseudogene', '[Start/Stop] is not a valid 1-based integer coordinate: "[coordinate]"', ]
-ERROR_INFO = dict(zip(ERROR_CODE, ERROR_TAG))
+ERROR_INFO = ERROR.INFO
 
 def FIX_PSEUDOGENE(gff):
     roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
@@ -77,10 +76,36 @@ def check_pseudogene(gff, line):
             result['eTag'] = ERROR_INFO[eCode]
             gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
     except:
-        logger.error('Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+        logger.error('Program dies at Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
     if len(result):
         return [result]
 
+def check_strand(gff, line):
+    eCode = 'Esf0003'
+    flag = 0
+    result=dict()
+    try:
+        if line['strand'] is '+' or line['strand'] is '-':
+            pass
+        elif line['strand'] is '.' or line['strand'] is '?':
+            result['ID'] = [line['attributes']['ID']]
+            result['line_num'] = ['Line {0:s}'.format(str(line['line_index'] + 1))]
+            result['eCode'] = eCode
+            result['eLines'] = [line]
+            result['eTag'] = '{0:s}: legal chacracter, "{1:s}", found at the strand field'.format(ERROR_INFO[eCode], line['strand'])
+            gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+        else:
+            result['ID'] = [line['attributes']['ID']]
+            result['line_num'] = ['Line {0:s}'.format(str(line['line_index'] + 1))]
+            result['eCode'] = eCode
+            result['eLines'] = [line]
+            result['eTag'] = '{0:s}: illegal chacracter, "{1:s}" found at the strand field'.format(ERROR_INFO[eCode], line['strand'])
+            gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+    except:
+        logger.error('Program dies at Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+    if len(result):
+        return [result]
+   
 
 def main(gff, logger=None):
     function4gff.FIX_MISSING_ATTR(gff, logger=logger)
@@ -93,6 +118,12 @@ def main(gff, logger=None):
         r = check_pseudogene(gff, f)
         if not r == None:
             error_set.extend(r)
+        r = None
+        r = check_strand(gff, f)
+        if not r == None:
+            error_set.extend(r)
+        r = None
+
     if len(error_set): 
         return(error_set)
 

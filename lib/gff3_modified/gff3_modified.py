@@ -793,9 +793,9 @@ class Gff3(object):
                                 elif tag == 'ID':
                                     # check for duplicate ID in non-adjacent lines
                                     if value in features and lines[-1].has_key('attributes') and lines[-1]['attributes'][tag] != value:
-                                        self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0005'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0005'}, log_level=logging.WARNING)
+                                        self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'}, log_level=logging.WARNING)
                                     elif value in features and not lines[-1].has_key('attributes'):
-                                        self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0005'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0005'}, log_level=logging.WARNING)
+                                        self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'}, log_level=logging.WARNING)
 
                                     features[value].append(line_data)
                 except IndexError:
