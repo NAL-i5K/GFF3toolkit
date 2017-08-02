@@ -66,10 +66,9 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None
         error_models = check_replace(gff3)
         if error_models:
             logger.error('There are models missing replace tags...')
-            logger.error('Please check the below models in {0:s}\n'.format(autoReviseGff))
+            logger.error('Please check the below models in {0:s}. Please specify the proper replaced models at colulumn 9. For example, \'replace=[Transcript ID]\'. If this is a newly added model, please put it as \'replace=NA\'. Then, re-excute the program.\n'.format(autoReviseGff))
             for line in error_models:
                 print(line['line_raw'])
-            logger.error('Please specify the proper replaced models at colulumn 9. For example, \'replace=[Transcript ID]\'. If this is a newly added model, please put it as \'replace=NA\'. Then, re-excute the program.')
             return
         else:
             logger.info('- All models have replace tags.')
@@ -82,10 +81,9 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None
         error_models = check_replace(gff3)
         if error_models:
             logger.error('There are models missing replace tags...')
-            logger.error('Please check the below models in {0:s}'.format(gff_file1))
+            logger.error('Please check the below models in {0:s}. Please specify the proper replaced models at colulumn 9. For example, \'replace=[Transcript ID]\'. If this is a newly added model, please put it as \'replace=NA\'. Then, re-excute the program.'.format(gff_file1))
             for line in error_models:
                 print(line['line_raw'].strip())
-            logger.error('Please specify the proper replaced models at colulumn 9. For example, \'replace=[Transcript ID]\'. If this is a newly added model, please put it as \'replace=NA\'. Then, re-excute the program.')
             return
         else:
             logger.info('- All models have replace tags.')
