@@ -11,9 +11,9 @@ Sort features in a gff3 file by according to their order on a scaffold, their co
 
 ## Usage:
 1. Specify the input, output file names and options using short arguments:
-    - `python2.7 gff3-sort.py -g example_file/annotations.gff -og example_file/annotations_sorted.gff`
+    - `python2.7 bin/gff3_sort.py -g example_file/example.gff3 -og example_file/example_sorted.gff`
 2. Specify the input, output file names and options using long arguments:
-    - `python2.7 gff3-sort.py --gff_file example_file/annotations.gff --output_gff example_file/annotations_sorted.gff`
+    - `python2.7 bin/gff3_sort.py --gff_file example_file/example.gff3 --output_gff example_file/example_sorted.gff`
 
 ## Optional arguments:
 

@@ -57,7 +57,7 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None
         autoReviseGff = '{0:s}/Revised_{1:s}'.format(autoDIR, gff_file1_name)
         autoReviseReport = '{0:s}/replace_tag_report.txt'.format(autoDIR)
 
-        logger.info('========== Auto-assignment of replace tags for each transcrip models ==========')
+        logger.info('========== Auto-assignment of replace tags for each transcript model ==========')
         gff3_merge.auto_replace_tag.main(gff_file1, gff_file2, fasta, autoDIR, 'TEMP', logger)
         gff3_merge.revision.main(gff_file1, autoFILE, autoReviseGff, autoReviseReport, logger)
 
@@ -110,28 +110,28 @@ if __name__ == '__main__':
     1. Python 2.7
 
     Inputs:
-    1. GFF3 file 1: Web apollo gff, specify the file name with the -g1 argument
-    2. GFF3 file 2: The other gff, specify the file name with the -g2 argument
+    1. GFF3 file 1: Gff with annotations modified relative to the original gff (e.g. output from the Apollo program), specify the file name with the -g1 argument
+    2. GFF3 file 2: Original/Reference gff, specify the file name with the -g2 argument
     3. FASTA: Genomic sequences in the FASTA format with the -f argument
 
     Outputs:
-    1. Merged GFF3: WA models would be append to the end of predicted gff file and be assinged a ID based on the naming system of the predicted gff, specify the file name with the -og argument
+    1. Merged GFF3: Models from GFF3 file 1 replace Models from GFF3 file 2 based on their replace tag. Specify the output file name with the -og argument
     2. Log report for the integration: specify the file name with the -r argument
 
     Examples:
     1. Specify the input, output file names and options using short arguments:
-       python2.7 bin/%(prog)s -g1 CPB_WA_test.gff -g2 LDEC.Models-NALmod.gff3 -og merged.gff -r merged_report.txt
+       python2.7 bin/%(prog)s -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt
     2. Specify the input, output file names and options using long arguments:
-       python2.7 bin/%(prog)s --gff_file1 CPB_WA_test.gff --gff_file2 LDEC.Models-NALmod.gff3 --output_gff merged.gff --report_file merged_report.txt
+       python2.7 bin/%(prog)s --gff_file1 example_file/new_models.gff3 --gff_file2 example_file/reference.gff3 --fasta example_file/reference.fa --output_gff merged.gff --report_file merged_report.txt
 
 
     """))
-    parser.add_argument('-g1', '--gff_file1', type=str, help='Update GFF3 file, such as Apollo gff')
+    parser.add_argument('-g1', '--gff_file1', type=str, help='Updated GFF3 file, such as Apollo gff')
     parser.add_argument('-g2', '--gff_file2', type=str, help='Reference GFF3 file, such as Maker gff or OGS gff')
     parser.add_argument('-f', '--fasta', type=str, help='Genomic sequences in the fasta format')
     parser.add_argument('-og', '--output_gff', type=str, help='The merged GFF3 file')
-    parser.add_argument('-r', '--report_file', type=str, help='Log file for the intergration')
-    parser.add_argument('-noAuto', '--auto_assignment', action='store_false', help='Turn off the auto-assignemnt of replace tags, if you have had the replace tags in your update gff (default: Automatically assign replace tags and then merge the gff files)')
+    parser.add_argument('-r', '--report_file', type=str, help='Log file for the integration')
+    parser.add_argument('-noAuto', '--auto_assignment', action='store_false', help='Turn off the auto-assignment of replace tags, if you already have replace tags in your updated gff (default: Automatically assign replace tags and then merge the gff files)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
    
     args = parser.parse_args()
