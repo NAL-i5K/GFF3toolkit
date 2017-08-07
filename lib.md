@@ -18,9 +18,9 @@
 * [lib/single_feature](lib/single_feature)/
     - QC functions for processing single features in a GFF3 file.
 
-### Functions in the GFF3toolkit/lib that used by each program (GFF3toolkit/bin/*.py)
+### Functions used by each program (GFF3toolkit/bin/*.py)
 * [bin/gff3_sort.py](bin/gff3_sort.py)/
-    - [lib/gff3_modified/gff3_modified.py](lib/gff3_modified/gff3_modified.py)(GFF3toolkit/lib/gff3_modified/gff3_modified.py)
+    - [lib/gff3_modified/gff3_modified.py](lib/gff3_modified/gff3_modified.py)
 * [bin/gff-QC.py](bin/gff-QC.py)
     - [lib/gff3_modified/gff3_modified.py](lib/gff3_modified/gff3_modified.py)
         - Note: If a error type cannot be found in the following four directories, you shall find it here
