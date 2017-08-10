@@ -155,7 +155,14 @@ def splicer(gff, ftype, dline):
 def extract_start_end(gff, stype, dline):
     '''Extract sequences for a feature only use the Start and End information. The relationship between parent and children would be ignored.'''
     seq=dict()
-    roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    roots = []
+    for line in gff.lines:
+        try:
+            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                roots.append(line)
+        except:
+            print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+    #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     if stype == 'pre_trans':
         for root in roots:
             rid = 'NA'
@@ -189,26 +196,29 @@ def extract_start_end(gff, stype, dline):
     elif stype == 'exon':
         exons = [line for line in gff.lines if line['type'] == 'exon' or line['type'] == 'pseudogenic_exon']
         for exon in exons:
-            eid = 'NA'
-            if exon['attributes'].has_key('ID'):
-                eid = exon['attributes']['ID']
-            ename = eid
-            if exon['attributes'].has_key('Name'):
-                ename = exon['attributes']['Name']
-            parents = exon['parents']
-            plist = dict()
-            for parent in parents:
-                for p in parent:
-                    plist[p['attributes']['ID']] = 1
+            try:
+                eid = 'NA'
+                if exon['attributes'].has_key('ID'):
+                    eid = exon['attributes']['ID']
+                ename = eid
+                if exon['attributes'].has_key('Name'):
+                    ename = exon['attributes']['Name']
+                parents = exon['parents']
+                plist = dict()
+                for parent in parents:
+                    for p in parent:
+                        plist[p['attributes']['ID']] = 1
 
-            keys = plist.keys()
-            pid = ','.join(keys)
+                keys = plist.keys()
+                pid = ','.join(keys)
             
-            defline='>{0:s}'.format(eid)
-            if dline == 'complete':
-                defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|Parent={5:s}|ID={6:s}|Name={7:s}'.format(exon['seqid'], exon['start'], exon['end'], exon['strand'], exon['type'], pid, eid, ename)
+                defline='>{0:s}'.format(eid)
+                if dline == 'complete':
+                    defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|Parent={5:s}|ID={6:s}|Name={7:s}'.format(exon['seqid'], exon['start'], exon['end'], exon['strand'], exon['type'], pid, eid, ename)
 
-            seq[defline] = get_subseq(gff, exon)
+                seq[defline] = get_subseq(gff, exon)
+            except:
+                print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(exon['line_index']+1), exon['line_raw']))
 
     return seq
     
