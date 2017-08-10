@@ -65,7 +65,14 @@ def translator(seq):
 
 def splicer(gff, ftype, dline):
     seq=dict()
-    roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    roots = []
+    for line in gff.lines:
+        try:
+            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                roots.append(line)
+        except:
+            print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw'])) 
+    #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     for root in roots:
         #if ftype[0] == 'CDS' and root['type'] == 'pseudogene': # pseudogene should not contain cds
             #continue

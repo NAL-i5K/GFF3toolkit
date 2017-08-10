@@ -322,9 +322,16 @@ def check_merged_gene_parent(gff, rootline):
 
 def main(gff, logger=None):
     function4gff.FIX_MISSING_ATTR(gff, logger=logger)
-
-
-    roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
+    roots = []
+    
+    for line in gff.lines:
+        try:
+            if line['line_type']=='feature' and not line['attributes'].has_key('Parent'):
+                roots.append(line)
+        except:
+            logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+            
+        #roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
     error_set=list()
     for root in roots:
         r = check_pseudo_child_type(gff, root)
