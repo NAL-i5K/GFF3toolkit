@@ -279,7 +279,10 @@ class Gff3(object):
             phase = 0
             for line in sorted_cds_list:
                 if line['phase'] != phase:
-                    self.add_line_error(line, {'message': 'Wrong phase {0:d}, should be {1:d}'.format(line['phase'], phase), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
+                    try:
+                        self.add_line_error(line, {'message': 'Wrong phase {0:d}, should be {1:d}'.format(line['phase'], phase), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
+                    except:
+                        logger.warning('[Phase] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                 phase = (3 - ((line['end'] - line['start'] + 1 - phase) % 3)) % 3
 
     def parse_fasta_external(self, fasta_file):
@@ -981,13 +984,16 @@ class Gff3(object):
                 return
             field_list = [str(line_data[k]) for k in field_keys]
             attribute_list = []
-            for k, v in sorted(line_data['attributes'].items(), key=lambda x: attributes_sort_map[x[0]], reverse=True):
-                if isinstance(v, list):
-                    v = ','.join(v)
-                attribute_list.append('%s=%s' % (str(k), str(v)))
-            field_list.append(';'.join(attribute_list))
-            gff_fp.write('\t'.join(field_list) + '\n')
-            wrote_lines.add(line_data['line_index'])
+            try:
+                for k, v in sorted(line_data['attributes'].items(), key=lambda x: attributes_sort_map[x[0]], reverse=True):
+                    if isinstance(v, list):
+                        v = ','.join(v)
+                    attribute_list.append('%s=%s' % (str(k), str(v)))
+                field_list.append(';'.join(attribute_list))
+                gff_fp.write('\t'.join(field_list) + '\n')
+                wrote_lines.add(line_data['line_index'])
+            except:
+                logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line_data['line_index']+1), line_data['line_raw']))
         # write directives
         ignore_directives = ['##sequence-region', '###', '##FASTA']
         directives_lines = [line_data for line_data in self.lines if line_data['line_type'] == 'directive' and line_data['directive'] not in ignore_directives]
