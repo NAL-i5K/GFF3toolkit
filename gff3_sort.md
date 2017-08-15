@@ -25,3 +25,8 @@ Sort features in a gff3 file by according to their order on a scaffold, their co
     - Sorted GFF3 file
 4. -v, --version         
     - show program's version number and exit
+
+## Assumptions:
+
+1. Any features without a Parent attribute are 'root' features - the program will insert  directives (lines beginning with ##) above these features.
+2. All child features occur after their respective Parent feature, but before new Parent features. 
