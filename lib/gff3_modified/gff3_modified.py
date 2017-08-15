@@ -517,6 +517,8 @@ class Gff3(object):
                 self.add_line_error(line_data, {'message': '"##gff-version" missing from the first line', 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0014'})
             if len(line_strip) == 0:
                 line_data['line_type'] = 'blank'
+                current_line_num += 1
+                lines.append(line_data)
                 continue
             if line_strip.startswith('##'):
                 line_data['line_type'] = 'directive'
