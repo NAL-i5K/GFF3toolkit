@@ -97,9 +97,12 @@ def check_internal_stop(gff, rootline):
                 segments.append(gchild)
 
         sort_seg = function4gff.featureSort(segments)
-        if gchild['strand'] == '-':
-            sort_seg = function4gff.featureSort(segments, reverse=True)
-
+        try:
+            if gchild['strand'] == '-':
+                sort_seg = function4gff.featureSort(segments, reverse=True)
+        except:
+            pass
+            #logger.warning('[Attributes Format error] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(rootline['line_index']+1), rootline['line_raw']))
         tmpseq = ''
         tmpindex = list()
         count = 0
