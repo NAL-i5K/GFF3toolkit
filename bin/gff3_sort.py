@@ -35,9 +35,13 @@ def PositionSort(linelist):
     seq2id = {}
     for line in linelist:
         id2line[str(line['line_raw'])] = line
-        id2start[str(line['line_raw'])] = line['start']
+        id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
         tmp = re.search('(.+?)(\d+)',line['seqid']) # Truncate the sequence ID, and only keep the sequence ID number
-        seqnum = tmp.groups()[1]
+        try:
+            seqnum = tmp.groups()[1]
+        except:
+            print('ERROR  [Missing SeqID] Empty SeqID.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1),line['line_raw']))
+            sys.exit(1)
         # 'seq2id': a dictionary mapping sequence number to their features
         if seq2id.has_key(seqnum):
             seq2id[seqnum].append(str(line['line_raw']))
@@ -51,7 +55,13 @@ def PositionSort(linelist):
         ids = seq2id[k] # Collect features having the same sequence ID number
         d = {}
         for ID in ids:
-            d[ID] = id2start[ID] # Collect the 'start' coordinate of each feature with the same seqeunce ID number
+            d[ID] = id2start[ID][0] # Collect the 'start' coordinate of each feature with the same seqeunce ID number
+            try:
+                int(d[ID])
+            except:
+                print('ERROR [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(id2start[ID][1]+1),ID))
+                sys.exit(1)
+        
         id_sorted = sorted(d, key=lambda i: int(d[i])) # Sort the features by their 'start' coordinates
         for i in id_sorted:
             newlinelist.append(id2line[i]) # Collect the sorted features to the result parameter
@@ -236,9 +246,9 @@ def main(gff, output=None, logger=None):
         report.write('###\n')
     #Missing 'root' feature
     if len(gff3_linenum_Set) !=0:
-        logger.warning('[Missing parent feature] The following lines won\'t show in the output file, due to the parent feature missing.\n')
+        logger.warning('[Missing parent feature] The following lines are omitted from the output file, because their parent feature is missing.\n')
         for line_num in gff3_linenum_Set:
-            logger.warning('\t\t- Line {0:s}: {1:s}'.format(str(line_num+1), gff3.lines[line_num]['line_raw']))
+            print('\t\t- Line {0:s}: {1:s}'.format(str(line_num+1), gff3.lines[line_num]['line_raw']))
         
      
 

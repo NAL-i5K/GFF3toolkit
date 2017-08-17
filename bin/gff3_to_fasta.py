@@ -35,9 +35,16 @@ def complement(seq):
 
 def get_subseq(gff, line):
     # it would give positive strand out as default, unless the strand information is given as '-'
-    start = line['start']-1
+    try:
+        start = line['start']-1
+    except:
+        print('WARNING  [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
     end = line['end']
-    string = gff.fasta_external[line['seqid']]['seq'][start:end]
+    try:
+        string = gff.fasta_external[line['seqid']]['seq'][start:end]
+    except:
+         print('WARNING  [SeqID/End] Empty SeqID or End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+         string = ""
     #print(line['strand'], (line['start']-1), line['end'])
     #print('-->', line['strand'], start, end)
     if line['strand'] == '-':

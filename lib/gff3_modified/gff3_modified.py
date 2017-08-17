@@ -104,6 +104,7 @@ def fasta_file_to_dict(fasta_file, id=True, header=False, seq=False):
             entry['id'] = line.split()[0][1:]
             entry['seq'] = []
         else:
+            print(entry)
             entry['seq'].append(line.upper())
         line_num += 1
 
@@ -397,9 +398,12 @@ class Gff3(object):
                     self.add_line_error(line_data, {'message': 'Seqid not found in the external FASTA file: %s' % seqid, 'error_type': 'BOUNDS', 'location': 'fasta_external', 'eCode': 'Esf0010'})
                     continue
                 # check bounds
-                if line_data['end'] > len(self.fasta_external[seqid]['seq']):
-                    error_lines.add(line_data['line_index'])
-                    self.add_line_error(line_data, {'message': 'End is greater than the external FASTA sequence length: %d' % len(self.fasta_external[seqid]['seq']), 'error_type': 'BOUNDS', 'location': 'fasta_external', 'eCode': 'Esf0011'})
+                try:
+                    if line_data['end'] > len(self.fasta_external[seqid]['seq']):
+                        error_lines.add(line_data['line_index'])
+                        self.add_line_error(line_data, {'message': 'End is greater than the external FASTA sequence length: %d' % len(self.fasta_external[seqid]['seq']), 'error_type': 'BOUNDS', 'location': 'fasta_external', 'eCode': 'Esf0011'})
+                except:
+                    logger.warning('[Missing SeqID] Empty SeqID. \n\t\t- Line {0:s}: {1:s}'.format(str(line_data['line_index']+1), line_data['line_raw']))
                 # check n
                 if check_n and line_data['type'] in check_n_feature_types:
                     n_count = self.fasta_external[seqid]['seq'].count('N', line_data['start'] - 1, line_data['end']) + self.fasta_external[seqid]['seq'].count('n', line_data['start'] - 1, line_data['end'])

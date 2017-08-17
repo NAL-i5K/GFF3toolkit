@@ -52,8 +52,11 @@ def check_redundant_length(gff, rootline):
     flag = 0
     gene_start = rootline['start']
     gene_end = rootline['end']
-    gene_len = gene_end - gene_start + 1
-
+    try:
+        gene_len = gene_end - gene_start + 1
+    except:
+        gff.add_line_error(rootline, {'message': ERROR_INFO['Esf0017'], 'error_type': 'FEATURE_TYPE', 'eCode':'Esf0017'})
+        gene_len = 0
     children = rootline['children']
     c_start = list()
     c_end = list()
