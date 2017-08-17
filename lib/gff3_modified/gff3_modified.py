@@ -104,7 +104,6 @@ def fasta_file_to_dict(fasta_file, id=True, header=False, seq=False):
             entry['id'] = line.split()[0][1:]
             entry['seq'] = []
         else:
-            print(entry)
             entry['seq'].append(line.upper())
         line_num += 1
 
