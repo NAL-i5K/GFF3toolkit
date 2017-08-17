@@ -40,7 +40,7 @@ def PositionSort(linelist):
         try:
             seqnum = tmp.groups()[1]
         except:
-            print('ERROR  [Missing SeqID] Empty SeqID.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1),line['line_raw']))
+            print('ERROR  [Missing SeqID] Missing SeqID.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1),line['line_raw']))
             sys.exit(1)
         # 'seq2id': a dictionary mapping sequence number to their features
         if seq2id.has_key(seqnum):
@@ -79,8 +79,8 @@ def StrandSort(linelist):
         strand[line['strand']] = 0
         seq[line['seqid']] = 0
         id2line[str(line['line_raw'])] = line
-        id2start[str(line['line_raw'])] = line['start']
-        id2end[str(line['line_raw'])] = line['end']
+        id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
+        id2end[str(line['line_raw'])] = (line['end'],line['line_index'])
 
     # Required conditions for the input line list
     if not len(seq) == 1:
@@ -94,13 +94,29 @@ def StrandSort(linelist):
     newlinelist=[]
     for k, v in strand.items():
         if k == '+':
-            id_sorted = sorted(id2start, key=lambda i: int(id2start[i]))
-            for i in id_sorted:
-                newlinelist.append(id2line[i])
+            try:
+                id_sorted = sorted(id2start, key=lambda i: int(id2start[i][0]))
+                for i in id_sorted:
+                    newlinelist.append(id2line[i])
+            except:
+                for i in id2start:
+                    try:
+                        int(id2start[i][0])
+                    except:
+                        print('ERROR  [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(id2start[i][1]+1),i))
+                        sys.exit(1)
         elif k == '-':
-            id_sorted = sorted(id2end, key=lambda i: int(id2end[i]), reverse=True)
-            for i in id_sorted:
-                newlinelist.append(id2line[i])
+            try:
+                id_sorted = sorted(id2end, key=lambda i: int(id2end[i][0]), reverse=True)
+                for i in id_sorted:
+                    newlinelist.append(id2line[i])
+            except:
+                for i in id2end:
+                    try:
+                        int(id2end[i][0])
+                    except:
+                        print('ERROR  [End] End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(id2end[i][1]+1),i))
+                        sys.exit(1)
         else:
             print('[Error]\tStrand is not clear. Cannot process by StrandSort.')
     return newlinelist

@@ -93,7 +93,10 @@ def featureSort(linelist, reverse=False):
         else:
             id2index[str(line['line_raw'])] = [lineindex, 99 if reverse==False else -99]
         tmp = re.search('(.+?)(\d+)',line['seqid'])
-        seqnum = tmp.groups()[1]
+        try:
+            seqnum = tmp.groups()[1]
+        except:
+            continue
         if seq2id.has_key(seqnum):
             seq2id[seqnum].append(str(line['line_raw']))
         else:
@@ -105,9 +108,12 @@ def featureSort(linelist, reverse=False):
         d = {}
         for ID in ids:
             d[ID] = id2index[ID]
-        id_sorted = sorted(d, key=lambda i: (int(d[i][0]), int(d[i][1])), reverse=reverse)
-        for i in id_sorted:
-            newlinelist.append(id2line[i])
+        try:
+            id_sorted = sorted(d, key=lambda i: (int(d[i][0]), int(d[i][1])), reverse=reverse)
+            for i in id_sorted:
+                newlinelist.append(id2line[i])
+        except:
+            pass
     return newlinelist
 
 

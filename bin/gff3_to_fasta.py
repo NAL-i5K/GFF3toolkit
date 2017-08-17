@@ -38,12 +38,12 @@ def get_subseq(gff, line):
     try:
         start = line['start']-1
     except:
-        print('WARNING  [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+        pass
     end = line['end']
     try:
         string = gff.fasta_external[line['seqid']]['seq'][start:end]
     except:
-         print('WARNING  [SeqID/End] Empty SeqID or End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+         print('WARNING  [SeqID/Start/End] Missing SeqID or Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
          string = ""
     #print(line['strand'], (line['start']-1), line['end'])
     #print('-->', line['strand'], start, end)
@@ -99,8 +99,10 @@ def splicer(gff, ftype, dline):
             if ftype[0] == 'CDS':
                 defline='>{0:s}-CDS'.format(cid)
             if dline == 'complete':
-                defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}({8:s})|Parent={5:s}|ID={6:s}|Name={7:s}'.format(child['seqid'], child['start'], child['end'], child['strand'], child['type'], rid, cid, cname, ftype[0])
-
+                try:
+                    defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}({8:s})|Parent={5:s}|ID={6:s}|Name={7:s}'.format(child['seqid'], child['start'], child['end'], child['strand'], child['type'], rid, cid, cname, ftype[0])
+                except:
+                    pass
             segments = []
             gchildren = child['children']
             for gchild in gchildren:
@@ -185,7 +187,10 @@ def extract_start_end(gff, stype, dline):
                     cname = child['attributes']['Name']
                 defline='>{0:s}'.format(cid)
                 if dline == 'complete':
-                    defline = '>{0:s}:{1:d}..{2:d}:{3:s}|genomic_sequence({4:s})|Parent={5:s}|ID={6:s}|Name={7:s}'.format(child['seqid'], child['start'], child['end'], child['strand'], child['type'], rid, cid, cname)
+                    try:
+                        defline = '>{0:s}:{1:d}..{2:d}:{3:s}|genomic_sequence({4:s})|Parent={5:s}|ID={6:s}|Name={7:s}'.format(child['seqid'], child['start'], child['end'], child['strand'], child['type'], rid, cid, cname)
+                    except:
+                        pass
                 seq[defline] = get_subseq(gff, child)
     elif stype == 'gene':
         for root in roots:

@@ -66,7 +66,10 @@ def check_redundant_length(gff, rootline):
     if len(c_start) > 0 and len(c_end) > 0:
         min_start = min(c_start)
         max_end = max(c_end)
-        child_len = max_end - min_start + 1
+        try:
+            child_len = max_end - min_start + 1
+        except:
+            child_len = 0
         #print(min_start, c_start, max_end, c_end)
 
 
