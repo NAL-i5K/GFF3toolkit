@@ -132,9 +132,15 @@ def check_internal_stop(gff, rootline):
                 s['end'] = end
                 s['phase'] = 0
             tmpseq = tmpseq + gff3_to_fasta.get_subseq(gff, s)
-            index = list(range(s['start']+s['phase'], s['end']+1, 3))
+            try:
+                index = list(range(s['start']+s['phase'], s['end']+1, 3))
+            except:
+                sys.exit('[Error] Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
             if line['strand'] == '-':
-                index = list(range(s['end']-s['phase'], s['start']-1, -3))
+                try:
+                    index = list(range(s['end']-s['phase'], s['start']-1, -3))
+                except:
+                    sys.exit('[Error] Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
             tmpindex.extend(index)
             #print(s['start'], s['end'], s['phase'])
             count += 1

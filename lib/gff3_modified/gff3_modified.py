@@ -286,8 +286,10 @@ class Gff3(object):
                         self.add_line_error(line, {'message': 'Wrong phase {0:d}, should be {1:d}'.format(line['phase'], phase), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
                     except:
                         logger.warning('[Phase] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-                phase = (3 - ((line['end'] - line['start'] + 1 - phase) % 3)) % 3
-
+                try:
+                    phase = (3 - ((line['end'] - line['start'] + 1 - phase) % 3)) % 3
+                except:
+                    pass
     def parse_fasta_external(self, fasta_file):
         self.fasta_external, count = fasta_file_to_dict(fasta_file)
 
