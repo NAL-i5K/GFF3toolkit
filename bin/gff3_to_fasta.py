@@ -43,7 +43,7 @@ def get_subseq(gff, line):
     try:
         string = gff.fasta_external[line['seqid']]['seq'][start:end]
     except:
-         print('WARNING  [SeqID/Start/End] Missing SeqID or Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+         print('WARNING  [SeqID/Start/End] Missing SeqID, or Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
          string = ""
     #print(line['strand'], (line['start']-1), line['end'])
     #print('-->', line['strand'], start, end)
@@ -127,6 +127,7 @@ def splicer(gff, ftype, dline):
             
             if flag == 1:
                 print("WARNING  There is no exon feature for {0:s} in the input gff. CDS features are used for splicing instead.".format(cid))
+                continue
             
             sort_seg = function4gff.featureSort(segments)
             if gchild['strand'] == '-':
@@ -309,7 +310,8 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
             report_fh = open(fname, 'wb')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
-                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+                if len(k)!=0 and len(v)!=0:
+                    report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
 
         seq=dict()
         tmp_stype = 'gene'
@@ -320,7 +322,8 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
             report_fh = open(fname, 'wb')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
-                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+                if len(k)!=0 and len(v)!=0:
+                    report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
 
         seq=dict()
         tmp_stype = 'exon'
@@ -331,7 +334,8 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
             report_fh = open(fname, 'wb')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
-                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+                if len(k)!=0 and len(v)!=0:
+                    report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
 
         seq=dict()
         tmp_stype = 'trans'
@@ -343,7 +347,8 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
             report_fh = open(fname, 'wb')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
-                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+                if len(k)!=0 and len(v)!=0:
+                    report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
 
         seq=dict()
         tmp_stype = 'cds'
@@ -355,7 +360,8 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
             report_fh = open(fname, 'wb')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
-                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+                if len(k)!=0 and len(v)!=0:
+                    report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
 
         seq=dict()
         tmp_stype = 'pep'
@@ -371,7 +377,8 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
             report_fh = open(fname, 'wb')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
-                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+                if len(k)!=0 and len(v)!=0:
+                    report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
 
     else:
         if stype == 'pre_trans' or stype == 'gene' or stype == 'exon':
@@ -392,7 +399,8 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
         if len(seq):
             logger.info('Print out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, stype))
             for k,v in seq.items():
-                report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
+                if len(k)!=0 and len(v)!=0:
+                    report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
 
 if __name__ == '__main__':
     logger_stderr = logging.getLogger(__name__+'stderr')
