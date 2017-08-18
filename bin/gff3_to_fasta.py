@@ -477,7 +477,7 @@ if __name__ == '__main__':
         logger_stderr.info('Reading from STDIN...')
     else: # no input
         parser.print_help()
-        logger_stderr.error('Required field -st missing...')
+        logger_stderr.error('Required field -d missing...')
         sys.exit(1)
 
 
