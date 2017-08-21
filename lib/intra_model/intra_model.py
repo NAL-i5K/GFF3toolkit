@@ -119,11 +119,17 @@ def check_internal_stop(gff, rootline):
                 if line['type'] == 'CDS':
                     if not type(line['phase']) == int:
                         sys.exit('[Error] No phase informatin!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-                    start = line['start']+line['phase']
+                    try:
+                        start = line['start']+line['phase']
+                    except:
+                        pass
                     end = line['end']
                     if line['strand'] == '-':
                         start = line['start']
-                        end = line['end']-line['phase']
+                        try:
+                            end = line['end']-line['phase']
+                        except:
+                            pass
                 else:
                     start = line['start']
                     end = line['end']

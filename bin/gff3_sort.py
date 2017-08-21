@@ -149,15 +149,15 @@ def main(gff, output=None, logger=None):
     # Visit the GFF3 object through root-level features (eg. gene, pseudogene, and etc.)
     roots =[]
     gff3_linenum_Set = set()
+   
     for line in gff3.lines:
        if line['line_type'] == 'feature':
            gff3_linenum_Set.add(line['line_index'])
        try:
-           if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+           if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent') and len(line['attributes']) != 0:
                roots.append(line)
        except:
-           gff3_linenum_Set.discard(line['line_index'])
-           logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw'])) 
+           logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
     #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
 
     # Sort the root-level features based on the order of the genomic sequences

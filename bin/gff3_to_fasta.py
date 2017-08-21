@@ -76,7 +76,10 @@ def splicer(gff, ftype, dline):
     for line in gff.lines:
         try:
             if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
-                roots.append(line)
+                if len(line['attributes']) != 0:
+                    roots.append(line)
+                else:
+                    print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         except:
             print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw'])) 
     #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
@@ -104,10 +107,14 @@ def splicer(gff, ftype, dline):
                 except:
                     pass
             segments = []
+            segments_Set = set()
             gchildren = child['children']
             for gchild in gchildren:
                 if gchild['type'] in ftype:
                     segments.append(gchild)
+                    segments_Set.add(gchild['line_index'])
+                if gchild['type'] == "":
+                    print('WARNING  [Missing feature type] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(gchild['line_index']+1), gchild['line_raw']))
             
             flag = 0
             if len(segments)==0:
@@ -126,7 +133,7 @@ def splicer(gff, ftype, dline):
                 continue
             
             if flag == 1:
-                print("WARNING  There is no exon feature for {0:s} in the input gff. CDS features are used for splicing instead.".format(cid))
+                print("WARNING  There is no exon feature for {0:s} in the input gff. No spliced transcript output file generated.".format(cid))
                 continue
             
             sort_seg = function4gff.featureSort(segments)
@@ -136,17 +143,24 @@ def splicer(gff, ftype, dline):
             tmpseq = ''
             count = 0
             for s in sort_seg:
+                segments_Set.discard(s['line_index'])
                 if count == 0:
                     start, end = int, int
                     line = s
                     if line['type'] == 'CDS':
                         if not type(line['phase']) == int:
                             sys.exit('[Error] No phase information!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-                        start = line['start']+line['phase']
+                        try:
+                            start = line['start']+line['phase']
+                        except:
+                            print('WARNING  [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                         end = line['end']
                         if line['strand'] == '-':
                             start = line['start']
-                            end = line['end']-line['phase']
+                            try:
+                                end = line['end']-line['phase']
+                            except:
+                                print('WARNING  [End] End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                     else:
                         start = line['start']
                         end = line['end']
@@ -154,12 +168,32 @@ def splicer(gff, ftype, dline):
                     s['start'] = start
                     s['end'] = end
                     s['phase'] = 0
-                
                 tmpseq = tmpseq + get_subseq(gff, s)
                 count += 1
             
             seq[defline] = tmpseq
-
+            if len(segments_Set) != 0:
+                for seg in segments_Set:
+                    if len(sort_seg) != 0:
+                        if gff.lines[seg]['type'] == 'exon' or gff.lines[seg]['type'] == 'pseudogenic_exon':
+                            print('WARNING  [SeqID/Start/End] Missing SeqID, or Start/End is not a valid integer. Trans output file might have incorrect sequence.\n\t\t- Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
+                        elif gff.lines[seg]['type'] == 'CDS':
+                            print('WARNING  [SeqID/Start/End] Missing SeqID, or Start/End is not a valid integer. CDS, pep output file might have incorrect sequence.\n\t\t- Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
+                    else:
+                        try:
+                            if gff.lines[seg]['seqid'] == "":
+                                print('WARNING  [SeqID] Missing SeqID.\n\t\t-Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
+                            try:
+                                int(gff.lines[seg]['start'])
+                            except:
+                                print('WARNING  [Start] Start is not a valid integer.\n\t\t-Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
+                            try:
+                                int(gff.lines[seg]['end'])
+                            except:
+                                print('WARNING  [End] End is not a valid integer.\n\t\t-Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
+                        except:
+                            print('WARNING  [SeqID] Missing SeqID.\n\t\t-Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
+                        
     return seq
             
 def extract_start_end(gff, stype, dline):
@@ -169,7 +203,10 @@ def extract_start_end(gff, stype, dline):
     for line in gff.lines:
         try:
             if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
-                roots.append(line)
+                if len(line['attributes']) != 0:
+                    roots.append(line)
+                else:
+                    print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         except:
             print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
     #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
@@ -206,6 +243,8 @@ def extract_start_end(gff, stype, dline):
                 if dline == 'complete':
                     defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{6:s}|ID={4:s}|Name={5:s}'.format(root['seqid'], root['start'], root['end'], root['strand'], rid, rname, root['type'])
                 seq[defline] = get_subseq(gff, root)
+            elif root['type'] == "":
+                print('WARNING  [Missing feature type] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(root['line_index']+1), root['line_raw']))
     elif stype == 'exon':
         exons = [line for line in gff.lines if line['type'] == 'exon' or line['type'] == 'pseudogenic_exon']
         for exon in exons:
