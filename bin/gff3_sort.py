@@ -262,7 +262,7 @@ def main(gff, output=None, logger=None):
         report.write('###\n')
     #Missing 'root' feature
     if len(gff3_linenum_Set) !=0:
-        logger.warning('[Missing parent feature] The following lines are omitted from the output file, because their parent feature is missing.\n')
+        logger.warning('The following lines are omitted from the output file, because there is a problem with the input file. Please review the input file or run gff-QC.py to identify the error.\n')
         for line_num in gff3_linenum_Set:
             print('\t\t- Line {0:s}: {1:s}'.format(str(line_num+1), gff3.lines[line_num]['line_raw']))
         
