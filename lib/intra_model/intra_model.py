@@ -52,8 +52,11 @@ def check_redundant_length(gff, rootline):
     flag = 0
     gene_start = rootline['start']
     gene_end = rootline['end']
-    gene_len = gene_end - gene_start + 1
-
+    try:
+        gene_len = gene_end - gene_start + 1
+    except:
+        gff.add_line_error(rootline, {'message': ERROR_INFO['Esf0017'], 'error_type': 'FEATURE_TYPE', 'eCode':'Esf0017'})
+        gene_len = 0
     children = rootline['children']
     c_start = list()
     c_end = list()
@@ -63,7 +66,10 @@ def check_redundant_length(gff, rootline):
     if len(c_start) > 0 and len(c_end) > 0:
         min_start = min(c_start)
         max_end = max(c_end)
-        child_len = max_end - min_start + 1
+        try:
+            child_len = max_end - min_start + 1
+        except:
+            child_len = 0
         #print(min_start, c_start, max_end, c_end)
 
 
@@ -97,9 +103,12 @@ def check_internal_stop(gff, rootline):
                 segments.append(gchild)
 
         sort_seg = function4gff.featureSort(segments)
-        if gchild['strand'] == '-':
-            sort_seg = function4gff.featureSort(segments, reverse=True)
-
+        try:
+            if gchild['strand'] == '-':
+                sort_seg = function4gff.featureSort(segments, reverse=True)
+        except:
+            pass
+            #logger.warning('[Attributes Format error] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(rootline['line_index']+1), rootline['line_raw']))
         tmpseq = ''
         tmpindex = list()
         count = 0
@@ -110,11 +119,17 @@ def check_internal_stop(gff, rootline):
                 if line['type'] == 'CDS':
                     if not type(line['phase']) == int:
                         sys.exit('[Error] No phase informatin!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-                    start = line['start']+line['phase']
+                    try:
+                        start = line['start']+line['phase']
+                    except:
+                        pass
                     end = line['end']
                     if line['strand'] == '-':
                         start = line['start']
-                        end = line['end']-line['phase']
+                        try:
+                            end = line['end']-line['phase']
+                        except:
+                            pass
                 else:
                     start = line['start']
                     end = line['end']
@@ -123,9 +138,15 @@ def check_internal_stop(gff, rootline):
                 s['end'] = end
                 s['phase'] = 0
             tmpseq = tmpseq + gff3_to_fasta.get_subseq(gff, s)
-            index = list(range(s['start']+s['phase'], s['end']+1, 3))
+            try:
+                index = list(range(s['start']+s['phase'], s['end']+1, 3))
+            except:
+                sys.exit('[Error] Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
             if line['strand'] == '-':
-                index = list(range(s['end']-s['phase'], s['start']-1, -3))
+                try:
+                    index = list(range(s['end']-s['phase'], s['start']-1, -3))
+                except:
+                    sys.exit('[Error] Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
             tmpindex.extend(index)
             #print(s['start'], s['end'], s['phase'])
             count += 1
@@ -322,9 +343,16 @@ def check_merged_gene_parent(gff, rootline):
 
 def main(gff, logger=None):
     function4gff.FIX_MISSING_ATTR(gff, logger=logger)
-
-
-    roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
+    roots = []
+    
+    for line in gff.lines:
+        try:
+            if line['line_type']=='feature' and not line['attributes'].has_key('Parent'):
+                roots.append(line)
+        except:
+            logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+            
+        #roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
     error_set=list()
     for root in roots:
         r = check_pseudo_child_type(gff, root)

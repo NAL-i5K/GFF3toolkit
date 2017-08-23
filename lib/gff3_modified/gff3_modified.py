@@ -104,7 +104,10 @@ def fasta_file_to_dict(fasta_file, id=True, header=False, seq=False):
             entry['id'] = line.split()[0][1:]
             entry['seq'] = []
         else:
-            entry['seq'].append(line.upper())
+            try:
+                entry['seq'].append(line.upper())
+            except:
+                pass
         line_num += 1
 
     if isinstance(fasta_file, str):
@@ -279,9 +282,14 @@ class Gff3(object):
             phase = 0
             for line in sorted_cds_list:
                 if line['phase'] != phase:
-                    self.add_line_error(line, {'message': 'Wrong phase {0:d}, should be {1:d}'.format(line['phase'], phase), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
-                phase = (3 - ((line['end'] - line['start'] + 1 - phase) % 3)) % 3
-
+                    try:
+                        self.add_line_error(line, {'message': 'Wrong phase {0:d}, should be {1:d}'.format(line['phase'], phase), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
+                    except:
+                        logger.warning('[Phase] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                try:
+                    phase = (3 - ((line['end'] - line['start'] + 1 - phase) % 3)) % 3
+                except:
+                    pass
     def parse_fasta_external(self, fasta_file):
         self.fasta_external, count = fasta_file_to_dict(fasta_file)
 
@@ -394,18 +402,24 @@ class Gff3(object):
                     self.add_line_error(line_data, {'message': 'Seqid not found in the external FASTA file: %s' % seqid, 'error_type': 'BOUNDS', 'location': 'fasta_external', 'eCode': 'Esf0010'})
                     continue
                 # check bounds
-                if line_data['end'] > len(self.fasta_external[seqid]['seq']):
-                    error_lines.add(line_data['line_index'])
-                    self.add_line_error(line_data, {'message': 'End is greater than the external FASTA sequence length: %d' % len(self.fasta_external[seqid]['seq']), 'error_type': 'BOUNDS', 'location': 'fasta_external', 'eCode': 'Esf0011'})
+                try:
+                    if line_data['end'] > len(self.fasta_external[seqid]['seq']):
+                        error_lines.add(line_data['line_index'])
+                        self.add_line_error(line_data, {'message': 'End is greater than the external FASTA sequence length: %d' % len(self.fasta_external[seqid]['seq']), 'error_type': 'BOUNDS', 'location': 'fasta_external', 'eCode': 'Esf0011'})
+                except:
+                    logger.warning('[Missing SeqID] Missing SeqID. \n\t\t- Line {0:s}: {1:s}'.format(str(line_data['line_index']+1), line_data['line_raw']))
                 # check n
                 if check_n and line_data['type'] in check_n_feature_types:
-                    n_count = self.fasta_external[seqid]['seq'].count('N', line_data['start'] - 1, line_data['end']) + self.fasta_external[seqid]['seq'].count('n', line_data['start'] - 1, line_data['end'])
-                    if n_count > allowed_num_of_n:
-                        # get detailed segments info
-                        n_segments = [(m.start(), m.end() - m.start()) for m in n_segments_finditer(self.fasta_external[seqid]['seq'], line_data['start'] - 1, line_data['end'])]
-                        n_segments_str = ['(%d, %d)' % (m[0], m[1]) for m in n_segments]
-                        error_lines.add(line_data['line_index'])
-                        self.add_line_error(line_data, {'message': 'Found %d Ns in %s feature of length %d using the external FASTA, consists of %d segment (start, length): %s' % (n_count, line_data['type'], line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_external', 'eCode': 'Esf0012'})
+                    try:
+                        n_count = self.fasta_external[seqid]['seq'].count('N', line_data['start'] - 1, line_data['end']) + self.fasta_external[seqid]['seq'].count('n', line_data['start'] - 1, line_data['end'])
+                        if n_count > allowed_num_of_n:
+                            # get detailed segments info
+                            n_segments = [(m.start(), m.end() - m.start()) for m in n_segments_finditer(self.fasta_external[seqid]['seq'], line_data['start'] - 1, line_data['end'])]
+                            n_segments_str = ['(%d, %d)' % (m[0], m[1]) for m in n_segments]
+                            error_lines.add(line_data['line_index'])
+                            self.add_line_error(line_data, {'message': 'Found %d Ns in %s feature of length %d using the external FASTA, consists of %d segment (start, length): %s' % (n_count, line_data['type'], line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_external', 'eCode': 'Esf0012'})
+                    except:
+                        logger.warning('Sequence ID {0:s} not found in FASTA file.'.format(seqid))
         elif fasta_external:
             self.logger.debug('External FASTA file not given')
         if check_all_sources and not checked_at_least_one_source:
@@ -514,6 +528,8 @@ class Gff3(object):
                 self.add_line_error(line_data, {'message': '"##gff-version" missing from the first line', 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0014'})
             if len(line_strip) == 0:
                 line_data['line_type'] = 'blank'
+                current_line_num += 1
+                lines.append(line_data)
                 continue
             if line_strip.startswith('##'):
                 line_data['line_type'] = 'directive'
@@ -792,10 +808,13 @@ class Gff3(object):
                                     self.add_line_error(line_data, {'message': 'Unknown reserved (uppercase) attribute: "%s"' % tag, 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0041'})
                                 elif tag == 'ID':
                                     # check for duplicate ID in non-adjacent lines
-                                    if value in features and lines[-1].has_key('attributes') and lines[-1]['attributes'][tag] != value:
-                                        self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'}, log_level=logging.WARNING)
-                                    elif value in features and not lines[-1].has_key('attributes'):
-                                        self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'}, log_level=logging.WARNING)
+                                    try:
+                                        if value in features and lines[-1].has_key('attributes') and lines[-1]['attributes'][tag] != value:
+                                            self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'}, log_level=logging.WARNING)
+                                        elif value in features and not lines[-1].has_key('attributes'):
+                                            self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'}, log_level=logging.WARNING)
+                                    except:
+                                        logger.warning('[Missing ID] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(lines[-1]['line_index']+1), lines[-1]['line_raw']))
 
                                     features[value].append(line_data)
                 except IndexError:
@@ -981,13 +1000,16 @@ class Gff3(object):
                 return
             field_list = [str(line_data[k]) for k in field_keys]
             attribute_list = []
-            for k, v in sorted(line_data['attributes'].items(), key=lambda x: attributes_sort_map[x[0]], reverse=True):
-                if isinstance(v, list):
-                    v = ','.join(v)
-                attribute_list.append('%s=%s' % (str(k), str(v)))
-            field_list.append(';'.join(attribute_list))
-            gff_fp.write('\t'.join(field_list) + '\n')
-            wrote_lines.add(line_data['line_index'])
+            try:
+                for k, v in sorted(line_data['attributes'].items(), key=lambda x: attributes_sort_map[x[0]], reverse=True):
+                    if isinstance(v, list):
+                        v = ','.join(v)
+                    attribute_list.append('%s=%s' % (str(k), str(v)))
+                field_list.append(';'.join(attribute_list))
+                gff_fp.write('\t'.join(field_list) + '\n')
+                wrote_lines.add(line_data['line_index'])
+            except:
+                logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line_data['line_index']+1), line_data['line_raw']))
         # write directives
         ignore_directives = ['##sequence-region', '###', '##FASTA']
         directives_lines = [line_data for line_data in self.lines if line_data['line_type'] == 'directive' and line_data['directive'] not in ignore_directives]

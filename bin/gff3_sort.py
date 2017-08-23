@@ -35,9 +35,13 @@ def PositionSort(linelist):
     seq2id = {}
     for line in linelist:
         id2line[str(line['line_raw'])] = line
-        id2start[str(line['line_raw'])] = line['start']
+        id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
         tmp = re.search('(.+?)(\d+)',line['seqid']) # Truncate the sequence ID, and only keep the sequence ID number
-        seqnum = tmp.groups()[1]
+        try:
+            seqnum = tmp.groups()[1]
+        except:
+            print('ERROR  [Missing SeqID] Missing SeqID.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1),line['line_raw']))
+            sys.exit(1)
         # 'seq2id': a dictionary mapping sequence number to their features
         if seq2id.has_key(seqnum):
             seq2id[seqnum].append(str(line['line_raw']))
@@ -51,7 +55,13 @@ def PositionSort(linelist):
         ids = seq2id[k] # Collect features having the same sequence ID number
         d = {}
         for ID in ids:
-            d[ID] = id2start[ID] # Collect the 'start' coordinate of each feature with the same seqeunce ID number
+            d[ID] = id2start[ID][0] # Collect the 'start' coordinate of each feature with the same seqeunce ID number
+            try:
+                int(d[ID])
+            except:
+                print('ERROR [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(id2start[ID][1]+1),ID))
+                sys.exit(1)
+        
         id_sorted = sorted(d, key=lambda i: int(d[i])) # Sort the features by their 'start' coordinates
         for i in id_sorted:
             newlinelist.append(id2line[i]) # Collect the sorted features to the result parameter
@@ -69,8 +79,8 @@ def StrandSort(linelist):
         strand[line['strand']] = 0
         seq[line['seqid']] = 0
         id2line[str(line['line_raw'])] = line
-        id2start[str(line['line_raw'])] = line['start']
-        id2end[str(line['line_raw'])] = line['end']
+        id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
+        id2end[str(line['line_raw'])] = (line['end'],line['line_index'])
 
     # Required conditions for the input line list
     if not len(seq) == 1:
@@ -84,13 +94,29 @@ def StrandSort(linelist):
     newlinelist=[]
     for k, v in strand.items():
         if k == '+':
-            id_sorted = sorted(id2start, key=lambda i: int(id2start[i]))
-            for i in id_sorted:
-                newlinelist.append(id2line[i])
+            try:
+                id_sorted = sorted(id2start, key=lambda i: int(id2start[i][0]))
+                for i in id_sorted:
+                    newlinelist.append(id2line[i])
+            except:
+                for i in id2start:
+                    try:
+                        int(id2start[i][0])
+                    except:
+                        print('ERROR  [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(id2start[i][1]+1),i))
+                        sys.exit(1)
         elif k == '-':
-            id_sorted = sorted(id2end, key=lambda i: int(id2end[i]), reverse=True)
-            for i in id_sorted:
-                newlinelist.append(id2line[i])
+            try:
+                id_sorted = sorted(id2end, key=lambda i: int(id2end[i][0]), reverse=True)
+                for i in id_sorted:
+                    newlinelist.append(id2line[i])
+            except:
+                for i in id2end:
+                    try:
+                        int(id2end[i][0])
+                    except:
+                        print('ERROR  [End] End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(id2end[i][1]+1),i))
+                        sys.exit(1)
         else:
             print('[Error]\tStrand is not clear. Cannot process by StrandSort.')
     return newlinelist
@@ -121,7 +147,18 @@ def main(gff, output=None, logger=None):
     logger.info('Sorting and printing out...')
     
     # Visit the GFF3 object through root-level features (eg. gene, pseudogene, and etc.)
-    roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    roots =[]
+    gff3_linenum_Set = set()
+   
+    for line in gff3.lines:
+       if line['line_type'] == 'feature':
+           gff3_linenum_Set.add(line['line_index'])
+       try:
+           if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent') and len(line['attributes']) != 0:
+               roots.append(line)
+       except:
+           logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+    #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
 
     # Sort the root-level features based on the order of the genomic sequences
     roots_sorted = PositionSort(roots)
@@ -132,12 +169,14 @@ def main(gff, output=None, logger=None):
     # Visit every root-level feature
     for root in roots_sorted:
         report.write(root['line_raw'])
+        gff3_linenum_Set.discard(root['line_index']) 
         children = root['children'] # Collect the second-level features (eg. mRNA, ncRNA, and etc.)
         children_sorted = PositionSort(children)
         otherlines=[]
         for child in children_sorted:
             ## ID information is stored in child['attributes']['ID']
             #print('----------------')
+            gff3_linenum_Set.discard(child['line_index'])
             report.write(child['line_raw'])
             grandchildren = child['children'] # Collect third-level features (eg. exon, CDS, and etc.)
             gchildgroup = {}
@@ -169,10 +208,13 @@ def main(gff, output=None, logger=None):
                     for exon in exons_sorted:
                         if exon['attributes'].has_key('Parent'):
                             if type(exon['attributes']['Parent']) == type([]) and len(exon['attributes']['Parent']) > 1:
+                                gff3_linenum_Set.discard(exon['line_index'])
                                 report.write(TwoParent(child['attributes']['ID'],exon))
                             else:
+                                gff3_linenum_Set.discard(exon['line_index'])
                                 report.write(exon['line_raw'])
                         else:
+                            gff3_linenum_Set.discard(exon['line_index'])
                             report.write(exon['line_raw'])
             # Sort cds features by considering strand information (StrandSort)
             if len(cdss):
@@ -181,11 +223,14 @@ def main(gff, output=None, logger=None):
                     cdss_sorted = StrandSort(cdss)
                     for cds in cdss_sorted:
                         if cds['attributes'].has_key('Parent'):
-                            if type(cds['attributes']['Parent']) == type([]) and len(cds['attributes']['Parent']) > 1:                 
+                            if type(cds['attributes']['Parent']) == type([]) and len(cds['attributes']['Parent']) > 1:
+                                gff3_linenum_Set.discard(cds['line_index'])                 
                                 report.write(TwoParent(child['attributes']['ID'],cds))
                             else:
+                                gff3_linenum_Set.discard(cds['line_index'])
                                 report.write(cds['line_raw'])
-                        else:            
+                        else:
+                            gff3_linenum_Set.discard(cds['line_index'])            
                             report.write(cds['line_raw'])
             # Sort other features by PositionSort
             if len(others):
@@ -195,10 +240,13 @@ def main(gff, output=None, logger=None):
                     for other in others:
                         if other['attributes'].has_key('Parent'):
                             if type(other['attributes']['Parent']) == type([]) and len(other['attributes']['Parent']) > 1:
+                                gff3_linenum_Set.discard(other['line_index'])
                                 report.write(TwoParent(child['attributes']['ID'],other))
                             else:
+                                gff3_linenum_Set.discard(other['line_index'])
                                 report.write(other['line_raw'])
                         else:
+                            gff3_linenum_Set.discard(other['line_index'])
                             report.write(other['line_raw'])
 
         # Sort the features beyond the third-level by PositionSort
@@ -207,10 +255,18 @@ def main(gff, output=None, logger=None):
         if PositionSort(otherlines):
             otherlines_sorted = PositionSort(otherlines)
         for k in otherlines_sorted:
+            gff3_linenum_Set.discard(k['line_index'])
             unique[k['line_raw']] = 1
         for k,v in unique.items():
             report.write(k)
         report.write('###\n')
+    #Missing 'root' feature
+    if len(gff3_linenum_Set) !=0:
+        logger.warning('The following lines are omitted from the output file, because there is a problem with the input file. Please review the input file or run gff-QC.py to identify the error.\n')
+        for line_num in gff3_linenum_Set:
+            print('\t\t- Line {0:s}: {1:s}'.format(str(line_num+1), gff3.lines[line_num]['line_raw']))
+        
+     
 
 if __name__ == '__main__':
     # Set up logger information

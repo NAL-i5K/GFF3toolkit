@@ -124,8 +124,15 @@ def main(gff_file, revision_file, output_gff, report_file=None, logger=None):
                     count += 1
         if count == 0:
             report_fh.write('\t- All IDs are properly found in the gff.\n')
-
-    roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    roots = []
+    for line in gff3.lines:
+        try:
+            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                roots.append(line)
+        except:
+            print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+     
+    #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     for line in roots:
         if line['attributes'].has_key('replace') and line.has_key('children'):
             for index in range(len(line['attributes']['replace'])):

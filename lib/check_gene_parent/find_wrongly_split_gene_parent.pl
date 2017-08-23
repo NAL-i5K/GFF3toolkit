@@ -4,8 +4,8 @@ use strict;
 
 die "
 
-	Comand: $0 [gff] [blast] [species code] [ouput file name]
-	Exmpale: $0 lepdec_5-26-2015_annotations.gff lepdec_cdna_self_all_-5_50_3.blastn lepdec splited_gene_parent.txt
+	Command: $0 [gff] [blast] [species code] [ouput file name]
+	Example: $0 lepdec_5-26-2015_annotations.gff lepdec_cdna_self_all_-5_50_3.blastn lepdec splited_gene_parent.txt
 
 " if !@ARGV;
 
@@ -23,53 +23,59 @@ open FI, "$gff" or die "[Error] Cannot open $gff.";
 while (<FI>){
 	$line++;
 	chomp $_;
-	if ($_ =~ /^#/){next;}
+	if ( $_ =~ /^##FASTA/ ){last;}#go to end of file if there's a FASTA section in the gff3 file
+        elsif ($_ =~ /^#/){next;}
 	my @t = split("\t", $_);
-	if ($t[2] eq "gene"){
+	if ( scalar @t == 9 ){
+	    if ($t[2] eq "gene"){
 		my $pid = '';
 		if ($t[8] =~ /ID=(.+?);/ or $t[8] =~ /ID=(.+?)$/){
 			$pid = $1;
 		}else{
 			$pid = 'Unassigned';
-			print "Warnning: $_: Parent ID is missing!!\n";
+			print "Warning: $_: Parent ID is missing!!\n";
 		}
 		my $url = "<https://apollo.nal.usda.gov/".$scode."/jbrowse/?loc=".$t[0].":".$t[3]."..".$t[4]."&tracks=DNA,Annotations,$scode\_current_models>";
 		$gene2url{$pid} = $url;
 		$typeflag = 0;
-	}elsif ($t[2] eq "pseudogene"){ #debug 07082015
+	    }elsif ($t[2] eq "pseudogene"){ #debug 07082015
 		$typeflag = 1; #debug 07082015
-	}elsif ($t[2] eq "mRNA"){
-			if ($typeflag==1){print "Warning: pseudogene has isoforms with mRNA type: $t[8]\n"; next;} #debug 07082015
-			if ($t[8] =~ /ID=(.+?);/ || $t[8] =~ /ID=(.+?)$/){
-				my $id = $1;
-				if ($t[8] =~ /Parent=(.+?);/ || $t[8] =~ /Parent=(.+?)$/){
-					my $par = $1;
-					if (defined $gene{$par}){
-						$gene{$par} .= "\t$id";
-					}else{
-						$gene{$par} = "$id";
-					}
-					if ($t[8] =~ /Name=(.+?);/ || $t[8] =~ /Name=(.+?)$/){
-						$id2name{$id} = $1;
-					}else{
-						print "Warning: $id: Name is missing!\n";
-						$id2name{$id} = "Unassigned";
-					}
-					if ($t[8] =~ /owner=(.+?);/ || $t[8] =~ /owner=(.+?)$/){
-						$id2owner{$id} = $1;
-					}else{
-						$id2owner{$id} = 'Unassigned';
-						#print "Warning: $id: owner is missing!\n";
-					}
-				}else{
-					print "Warning: $id: Parent is missing!\n";
-					next;
-				}
+	    }elsif ($t[2] eq "mRNA"){
+		if ($typeflag==1){print "Warning: pseudogene has isoforms with mRNA type: $t[8]\n"; next;} #debug 07082015
+		if ($t[8] =~ /ID=(.+?);/ || $t[8] =~ /ID=(.+?)$/){
+		    my $id = $1;
+		    if ($t[8] =~ /Parent=(.+?);/ || $t[8] =~ /Parent=(.+?)$/){
+			my $par = $1;
+			if (defined $gene{$par}){
+			    $gene{$par} .= "\t$id";
 			}else{
-				print "Warning: ID is missing!: $_\n";
-				next;
+			    $gene{$par} = "$id";
 			}
+			if ($t[8] =~ /Name=(.+?);/ || $t[8] =~ /Name=(.+?)$/){
+			    $id2name{$id} = $1;
+			}else{
+			    print "Warning: $id: Name is missing!\n";
+			    $id2name{$id} = "Unassigned";
+			}
+			if ($t[8] =~ /owner=(.+?);/ || $t[8] =~ /owner=(.+?)$/){
+			    $id2owner{$id} = $1;
+			}else{
+			    $id2owner{$id} = 'Unassigned';
+			    #print "Warning: $id: owner is missing!\n";
+			}
+		    }else{
+			print "Warning: $id: Parent is missing!\n";
+			next;
+		    }
+		}else{
+		    print "Warning: ID is missing!: $_\n";
+		    next;
 		}
+	    }
+	}
+	else {
+	    print "Warning: File $gff, line $line does not have the correct number of columns.\n";
+	}
 }
 close FI;
 

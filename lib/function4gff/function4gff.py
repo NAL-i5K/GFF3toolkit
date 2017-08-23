@@ -44,20 +44,23 @@ def FIX_MISSING_ATTR(gff, logger=None):
     features = [line for line in gff.lines if line['line_type']=='feature']
     flag = 0
     for f in features:
-        if not f['attributes'].has_key('owner'):
-            f['attributes']['owner'] = 'Unassigned'
-        if not f['attributes'].has_key('ID'):
-            IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript']
-            if f['type'] in IDrequired:
-                logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line {0:s}: {1:s}'.format(str(f['line_index']+1), f['line_raw']))
-                flag += 1
-            else:
-                #tid = f['parents'][0][0]['attributes']['ID'] + '-' + f['type']
-                tid = randomID()
-                while (tid in gff.features):
+        try:
+            if not f['attributes'].has_key('owner'):
+                f['attributes']['owner'] = 'Unassigned'
+            if not f['attributes'].has_key('ID'):
+                IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript']
+                if f['type'] in IDrequired:
+                    logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line {0:s}: {1:s}'.format(str(f['line_index']+1), f['line_raw']))
+                    flag += 1
+                else:
+                    #tid = f['parents'][0][0]['attributes']['ID'] + '-' + f['type']
                     tid = randomID()
-                f['attributes']['ID'] = tid
-                gff.features[tid].append(f)
+                    while (tid in gff.features):
+                        tid = randomID()
+                    f['attributes']['ID'] = tid
+                    gff.features[tid].append(f)
+        except:
+            logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(f['line_index']+1), f['line_raw']))
     if flag != 0:
         sys.exit()
 
@@ -90,7 +93,10 @@ def featureSort(linelist, reverse=False):
         else:
             id2index[str(line['line_raw'])] = [lineindex, 99 if reverse==False else -99]
         tmp = re.search('(.+?)(\d+)',line['seqid'])
-        seqnum = tmp.groups()[1]
+        try:
+            seqnum = tmp.groups()[1]
+        except:
+            continue
         if seq2id.has_key(seqnum):
             seq2id[seqnum].append(str(line['line_raw']))
         else:
@@ -102,9 +108,12 @@ def featureSort(linelist, reverse=False):
         d = {}
         for ID in ids:
             d[ID] = id2index[ID]
-        id_sorted = sorted(d, key=lambda i: (int(d[i][0]), int(d[i][1])), reverse=reverse)
-        for i in id_sorted:
-            newlinelist.append(id2line[i])
+        try:
+            id_sorted = sorted(d, key=lambda i: (int(d[i][0]), int(d[i][1])), reverse=reverse)
+            for i in id_sorted:
+                newlinelist.append(id2line[i])
+        except:
+            pass
     return newlinelist
 
 
