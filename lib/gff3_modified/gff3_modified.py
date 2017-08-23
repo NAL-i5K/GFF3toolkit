@@ -410,13 +410,16 @@ class Gff3(object):
                     logger.warning('[Missing SeqID] Empty SeqID. \n\t\t- Line {0:s}: {1:s}'.format(str(line_data['line_index']+1), line_data['line_raw']))
                 # check n
                 if check_n and line_data['type'] in check_n_feature_types:
-                    n_count = self.fasta_external[seqid]['seq'].count('N', line_data['start'] - 1, line_data['end']) + self.fasta_external[seqid]['seq'].count('n', line_data['start'] - 1, line_data['end'])
-                    if n_count > allowed_num_of_n:
-                        # get detailed segments info
-                        n_segments = [(m.start(), m.end() - m.start()) for m in n_segments_finditer(self.fasta_external[seqid]['seq'], line_data['start'] - 1, line_data['end'])]
-                        n_segments_str = ['(%d, %d)' % (m[0], m[1]) for m in n_segments]
-                        error_lines.add(line_data['line_index'])
-                        self.add_line_error(line_data, {'message': 'Found %d Ns in %s feature of length %d using the external FASTA, consists of %d segment (start, length): %s' % (n_count, line_data['type'], line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_external', 'eCode': 'Esf0012'})
+                    try:
+                        n_count = self.fasta_external[seqid]['seq'].count('N', line_data['start'] - 1, line_data['end']) + self.fasta_external[seqid]['seq'].count('n', line_data['start'] - 1, line_data['end'])
+                        if n_count > allowed_num_of_n:
+                            # get detailed segments info
+                            n_segments = [(m.start(), m.end() - m.start()) for m in n_segments_finditer(self.fasta_external[seqid]['seq'], line_data['start'] - 1, line_data['end'])]
+                            n_segments_str = ['(%d, %d)' % (m[0], m[1]) for m in n_segments]
+                            error_lines.add(line_data['line_index'])
+                            self.add_line_error(line_data, {'message': 'Found %d Ns in %s feature of length %d using the external FASTA, consists of %d segment (start, length): %s' % (n_count, line_data['type'], line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_external', 'eCode': 'Esf0012'})
+                    except:
+                        logger.warning('Sequence ID {0:s} not found in FASTA file.'.format(seqid))
         elif fasta_external:
             self.logger.debug('External FASTA file not given')
         if check_all_sources and not checked_at_least_one_source:
