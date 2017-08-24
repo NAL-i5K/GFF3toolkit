@@ -59,11 +59,11 @@ if __name__ == '__main__':
     """))
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format') 
     parser.add_argument('-f', '--fasta', type=str, help='Genome sequences, fasta format')
+    parser.add_argument('-i', '--initial_phase', action="store_true", help='Check whether initial CDS phase is 0 (default - no check)')
     parser.add_argument('-o', '--output', type=str, help='output file name (default: report.txt)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     
     args = parser.parse_args()
-
     if args.gff:
         logger_stderr.info('Checking gff file (%s)...', args.gff)
     elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
@@ -89,7 +89,7 @@ if __name__ == '__main__':
         sys.exit()
 
     gff3.check_unresolved_parents()
-    gff3.check_phase()
+    gff3.check_phase(args.initial_phase)
     gff3.check_reference()
     logger_stderr.info('\t- Checking missing attributes: (%s)...\n', 'function4gff.FIX_MISSING_ATTR()')
     function4gff.FIX_MISSING_ATTR(gff3, logger=logger_stderr)

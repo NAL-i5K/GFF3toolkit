@@ -252,7 +252,7 @@ class Gff3(object):
                     logger.warning('[Parent feature missing] Cannot find the parents of this feature. Fail to check the boundary relationship (Ema0003).\n\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         return flag
 
-    def check_phase(self):
+    def check_phase(self, initial_phase):
         """
         1. get a list of CDS with the same parent
         2. sort according to strand
@@ -266,10 +266,11 @@ class Gff3(object):
                 for line in cds_list:
                     self.add_line_error(line, {'message': 'Inconsistent CDS strand with parent: {0:s}'.format(k), 'error_type': 'STRAND', 'eCode': 'Ema0007'})
                 continue
-            if len(cds_list) == 1:
-                if cds_list[0]['phase'] != 0:
-                    self.add_line_error(cds_list[0], {'message': '{0:s} {1:d}, should be {2:d}'.format(ERROR_INFO['Ema0006'], cds_list[0]['phase'], 0), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
-                continue
+            if initial_phase:
+                if len(cds_list) == 1:
+                    if cds_list[0]['phase'] != 0:
+                        self.add_line_error(cds_list[0], {'message': '{0:s} {1:d}, should be {2:d}'.format(ERROR_INFO['Ema0006'], cds_list[0]['phase'], 0), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
+                    continue
             strand = strand_set[0]
             if strand not in plus_minus:
                 # don't process unknown strands
@@ -279,7 +280,12 @@ class Gff3(object):
                 sorted_cds_list = sorted(cds_list, key=lambda x: x['end'], reverse=True)
             else:
                 sorted_cds_list = sorted(cds_list, key=lambda x: x['start'])
-            phase = 0
+            #If initial_phase is given, then program will test whether phase of the first CDS is 0. If it is not, then show warning. 
+            #If initial_phase is not given (default), then program will not test whether phase of the first CDS is 0
+            if initial_phase:
+                phase = 0
+            else:
+                phase = sorted_cds_list[0]['phase']
             for line in sorted_cds_list:
                 if line['phase'] != phase:
                     try:
