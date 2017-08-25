@@ -43,7 +43,10 @@ def get_subseq(gff, line):
     try:
         string = gff.fasta_external[line['seqid']]['seq'][start:end]
     except:
-         print('WARNING  [SeqID/Start/End] Missing SeqID, or Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+         if line['type'] != "CDS":
+             print('WARNING  [SeqID/Start/End] Missing SeqID, or Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+         else:
+             print('WARNING  [SeqID/Start/End/Phase] Missing SeqID, or Start/End/Phase is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
          string = ""
     #print(line['strand'], (line['start']-1), line['end'])
     #print('-->', line['strand'], start, end)
@@ -149,18 +152,21 @@ def splicer(gff, ftype, dline):
                     line = s
                     if line['type'] == 'CDS':
                         if not type(line['phase']) == int:
-                            sys.exit('[Error] No phase information!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                            print('WARNONG   No phase information!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                            #sys.exit('[Error] No phase information!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                         try:
                             start = line['start']+line['phase']
                         except:
-                            print('WARNING  [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                            if type(line['start']) != int:
+                                print('WARNING  [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                         end = line['end']
                         if line['strand'] == '-':
                             start = line['start']
                             try:
                                 end = line['end']-line['phase']
                             except:
-                                print('WARNING  [End] End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                                if type(line['end']) != int:
+                                    print('WARNING  [End] End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                     else:
                         start = line['start']
                         end = line['end']
@@ -178,7 +184,7 @@ def splicer(gff, ftype, dline):
                         if gff.lines[seg]['type'] == 'exon' or gff.lines[seg]['type'] == 'pseudogenic_exon':
                             print('WARNING  [SeqID/Start/End] Missing SeqID, or Start/End is not a valid integer. Trans output file might have incorrect sequence.\n\t\t- Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
                         elif gff.lines[seg]['type'] == 'CDS':
-                            print('WARNING  [SeqID/Start/End] Missing SeqID, or Start/End is not a valid integer. CDS, pep output file might have incorrect sequence.\n\t\t- Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
+                            print('WARNING  [SeqID/Start/End/Phase] Missing SeqID, or Start/End/Phase is not a valid integer. CDS, pep output file might have incorrect sequence.\n\t\t- Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
                     else:
                         try:
                             if gff.lines[seg]['seqid'] == "":
@@ -303,10 +309,11 @@ def main(gff_file=None, fasta_file=None, stype=None, dline=None, qc=True, output
     gff=None
 
     if qc:
+        initial_phase = False
         gff = Gff3(gff_file=gff_file, fasta_external=fasta_file, logger=logger)
         logger.info('Checking errors...')
         gff.check_parent_boundary()
-        gff.check_phase()
+        gff.check_phase(initial_phase)
         gff.check_reference()
         error_set = function4gff.extract_internal_detected_errors(gff)
         t = intra_model.main(gff, logger=logger)
