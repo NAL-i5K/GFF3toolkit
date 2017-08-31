@@ -181,10 +181,12 @@ foreach my $e (sort keys %diffparent){
 }
 close FO;
 
-if ($ecut == 0 && $idncut == 101 && $alncut == 99999){
+unless ( !keys %idpair ){
+    if ($ecut == 0 && $idncut == 101 && $alncut == 99999){
 	print "[Error] $blast might be empty.\n"; exit;
-}else{
+    }
+}#else{
 #	print "Suggested cutoff learned from qualified gene models: Evalue ($ecut), Identity ($idncut), Alignment Length ($alncut)\n";
-}
+#}
 
 
