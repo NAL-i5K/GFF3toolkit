@@ -75,6 +75,8 @@ def translator(seq):
 
 def splicer(gff, ftype, dline, stype):
     seq=dict()
+    segments_Set = set()
+    sort_seg = []
     roots = []
     u_parents = []
     for line in gff.lines:
@@ -120,7 +122,7 @@ def splicer(gff, ftype, dline, stype):
                 if u_child['type'] == "":
                     print('WARNING  [Missing feature type] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(u_child['line_index']+1), u_child['line_raw']))
                 if len(segments) == 0:
-                    print('WARNING  There is no {0:s} feature for {1:s} in the input gff. The sequence of {1:s} is not generated.'.form(ftype[1],cid))
+                    print('WARNING  There is no {0:s} feature for {1:s} in the input gff. The sequence of {1:s} is not generated.'.format(ftype[1],cid))
                 sort_seg = function4gff.featureSort(segments)
             if u_child['strand'] == '-':
                 sort_seg = function4gff.featureSort(segments, reverse=True)
