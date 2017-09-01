@@ -4,7 +4,7 @@ Extract sequences from specific regions of genome based on gff file.
 
 ## Usage
 
-gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-d DEFLINE] [-o OUTPUT_PREFIX] [-noQC] [-v]
+gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d DEFLINE] [-o OUTPUT_PREFIX] [-noQC] [-v]
 
 ## Testing enviroment
 1. Python 2.7
@@ -31,13 +31,19 @@ gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-d DEFLINE] [-o O
     - Genome sequences in FASTA format
 4. -st SEQUENCE_TYPE, --sequence_type SEQUENCE_TYPE
     - Type of sequences you would like to extract: 
-        * "all" - FASTA files for all types of sequences listed below;
+        * "all" - FASTA files for all types of sequences listed below, except user_defined;
         * "gene" - gene sequence for each record;
         * "exon" - exon sequence for each record;
         * "pre_trans" - genomic region of a transcript model (premature transcript);
         * "trans" - spliced transcripts (only exons included);
         * "cds" - coding sequences;
-        * "pep" - peptide sequences.
+        * "pep" - peptide sequences;
+	* "user_defined" - specify parent and child features via the -u argument.
+5. -u USER_DEFINED, --user_defined USER_DEFINED
+    - Specify parent and child features for fasta extraction, format [parent feature type],[child feature type]. Required if -st user_defined is given.
+        * Example: -st user_defined -u miRNA,exon
+	* Lines with the child feature type given in -u must contain a Parent attribute referencing the given Parent feature type. Hence, the parent lines must also contain an ID attribute.
+	* If CDS is the child feature type, the program will take phase into account. 
 5. -d DEFLINE, --defline DEFLINE
     - Defline format in the output FASTA file:
         * "simple" - only ID is shown in the defline;
