@@ -40,7 +40,19 @@ __version__ = '0.0.1'
 ERROR_INFO = ERROR.INFO
 
 def FIX_PSEUDOGENE(gff):
-    roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
+    roots = []
+    for line in gff.lines:
+        try:
+            if line['line_type']=='feature' and not line['attributes'].has_key('Parent'):
+                if len(line['attributes']) != 0:
+                    roots.append()
+                else:
+                    print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+        except:
+            print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+            
+        
+    #roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
     for root in roots:
         if root['type'] == 'pseudogene':
             for child in root['children']:
