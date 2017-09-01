@@ -442,7 +442,7 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
     else:
         gff = Gff3(gff_file=gff_file, fasta_external=fasta_file, logger=logger_null)
     
-    logger.info('Extract seqeunces for {0:s}...'.format(stype))
+    logger.info('Extract sequences for {0:s}...'.format(stype))
     seq=dict()
     if stype == 'all':
         if output_prefix:
@@ -594,7 +594,7 @@ if __name__ == '__main__':
     parser.add_argument('-u', '--user_defined', type=str, help="Specify parent and child features for fasta extraction, format [parent feature type],[child feature type]")
     parser.add_argument('-d', '--defline', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}".format('Defline format in the output FASTA file:','"simple" - only ID would be shown in the defline;', '"complete" - complete information of the feature would be shown in the defline.'))
     parser.add_argument('-o', '--output_prefix', type=str, help='Prefix of output file name')
-    parser.add_argument('-noQC', '--quality_control', action='store_false', help='Specify this option if you do not want to excute quality control for gff file. (default: QC is excuted)')
+    parser.add_argument('-noQC', '--quality_control', action='store_false', help='Specify this option if you do not want to execute quality control for gff file. (default: QC is executed)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     
     args = parser.parse_args()
