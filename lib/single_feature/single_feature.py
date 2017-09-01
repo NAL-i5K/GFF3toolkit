@@ -43,9 +43,9 @@ def FIX_PSEUDOGENE(gff):
     roots = []
     for line in gff.lines:
         try:
-            if line['line_type']=='feature' and not line['attributes'].has_key('Parent'):
+            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
                 if len(line['attributes']) != 0:
-                    roots.append()
+                    roots.append(line)
                 else:
                     print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         except:
