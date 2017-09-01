@@ -93,8 +93,8 @@ def splicer(gff, ftype, dline, stype):
     if stype == "user_defined":
         for u_parent in u_parents:
             rid = 'NA'
-            if u_parent['attributes'].has_key('Parient'):
-                rid = u_parent['attributes']['Parient']
+            if u_parent['attributes'].has_key('Parent'):
+                rid = ",".join(u_parent['attributes']['Parent'])
             cid = 'NA'
             if u_parent['attributes'].has_key('ID'):
                 cid = u_parent['attributes']['ID']
@@ -224,7 +224,7 @@ def splicer(gff, ftype, dline, stype):
                         line = s
                         if line['type'] == 'CDS':
                             if not type(line['phase']) == int:
-                                print('WARNONG   No phase information!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                                print('WARNING   No phase information!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                                 #sys.exit('[Error] No phase information!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                             try:
                                 start = line['start']+line['phase']
