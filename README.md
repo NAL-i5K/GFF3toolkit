@@ -33,7 +33,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 ## Sort a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
-* bin/gff3-sort.py - Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and parent-child feature relationships
+* bin/gff3_sort.py - Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and parent-child feature relationships
     - [gff3_sort.py readme](gff3_sort.md)
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff3_sort.py -g GFF3toolkit/example_file/example.gff3 -og example-sorted.gff3`
