@@ -13,11 +13,11 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 ## Detect GFF3 format errors ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
-* bin/gff-QC.py - Detection of GFF format errors (~50 types of errors).
-    - [gff-QC.py readme](gff-QC.md)
-    - [gff-QC.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)
+* bin/gff3-QC.py - Detection of GFF format errors (~50 types of errors).
+    - [gff3-QC.py readme](gff3-QC.md)
+    - [gff3-QC.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)
     - Quick start:
-        `python2.7 GFF3toolkit/bin/gff-QC.py -g GFF3toolkit/example_file/example.gff3 -f GFF3toolkit/example_file/reference.fa -o test2.txt`
+        `python2.7 GFF3toolkit/bin/gff3-QC.py -g GFF3toolkit/example_file/example.gff3 -f GFF3toolkit/example_file/reference.fa -o test2.txt`
     - Please refer to lib/ERROR/ERROR.py to see the full list of Error codes and the corresponding Error tags.
 
 ## Merge two GFF3 files ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
@@ -33,17 +33,17 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 ## Sort a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
-* bin/gff3_sort.py - Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and parent-child feature relationships
+* bin/gff3-sort.py - Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and parent-child feature relationships
     - [gff3_sort.py readme](gff3_sort.md)
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff3_sort.py -g GFF3toolkit/example_file/example.gff3 -og example-sorted.gff3`
 
 ## Generate biological sequences from a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
-* bin/gff3_to_fasta.py - extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file
-    - [gff3_to_fasta.py readme](gff3_to_fasta.md)
+* bin/gff3-to-fasta.py - extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file
+    - [gff3-to-fasta.py readme](gff3-to-fasta.md)
     - Quick start:
-        `python2.7 GFF3toolkit/bin/gff3_to_fasta.py -g GFF3toolkit/example_file/example.gff3 -f GFF3toolkit/example_file/reference.fa -st all -d simple -o test_sequences`
+        `python2.7 GFF3toolkit/bin/gff3-to-fasta.py -g GFF3toolkit/example_file/example.gff3 -f GFF3toolkit/example_file/reference.fa -st all -d simple -o test_sequences`
 
 ## Example Files ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
