@@ -1,4 +1,4 @@
-# gff3_to_fasta
+# gff3-to-fasta
 
 This software extracts biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of a genomic fasta file based on a given [`GFF3`] file.
 * Free software: [license](https://github.com/NAL-i5K/GFF3toolkit/blob/master/LICENCE.md)
@@ -23,13 +23,13 @@ This software extracts biological sequences (such as spliced transcripts, cds, o
 
 Sequence extraction based on genome annotation file in [`GFF3`] format might generate incorrect sequences if the [`GFF3`] file contains certain errors. This program can automatically validate [`GFF3`] format and list the detected errors for users along with the extracted sequences by simple command as follows:
 
-`python gff3_to_fasta.py -g example_file/annotations3.gff -f example_file/sample.fa -st cds -d simple -o sample_output`
+`python gff3-to-fasta.py -g example_file/annotations3.gff -f example_file/sample.fa -st cds -d simple -o sample_output`
 
 If you would like to ignore the QC step for checking errors in gff file, you can use the below command:
 
-`python gff3_to_fasta.py -g example_file/annotations3.gff -f example_file/sample.fa -st cds -d simple -o sample_output -noQC`
+`python gff3-to-fasta.py -g example_file/annotations3.gff -f example_file/sample.fa -st cds -d simple -o sample_output -noQC`
 
-If you would like to incorporate a specfic method in `gff3_to_fasta` into other python script, below is a suggested script.
+If you would like to incorporate a specfic method in `gff3-to-fasta` into other python script, below is a suggested script.
 
 ```python
     import gff3_to_fasta
@@ -45,7 +45,7 @@ If you would like to incorporate a specfic method in `gff3_to_fasta` into other 
 ## Options
 
 ```
-usage: gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE]
+usage: gff3-to-fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE]
                         [-d DEFLINE] [-o OUTPUT_PREFIX] [-noQC] [-v]
 ```
 
