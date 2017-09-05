@@ -1,10 +1,10 @@
-# gff3_to_fasta
+# gff3-to-fasta
 
 Extract sequences from specific regions of genome based on gff file.
 
 ## Usage
 
-gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d DEFLINE] [-o OUTPUT_PREFIX] [-noQC] [-v]
+gff3-to-fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d DEFLINE] [-o OUTPUT_PREFIX] [-noQC] [-v]
 
 ## Testing enviroment
 1. Python 2.7
@@ -19,7 +19,7 @@ gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] 
 
 ## Example command
 1. Specify the input, output file names and options using short arguments:
-    - `python2.7 bin/gff3_to_fasta.py -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences`
+    - `python2.7 bin/gff3-to-fasta.py -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences`
 
 ## Optional arguments
     

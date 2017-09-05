@@ -1,1 +1,1 @@
-../../bin/gff3_to_fasta.py
+../../bin/gff3-to-fasta.py
