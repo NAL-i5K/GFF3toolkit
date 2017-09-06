@@ -1,8 +1,8 @@
-# gff3-QC.py
+# gff-QC.py
 
 ## Usage 
 
-gff3-QC.py [-h] [-g GFF] [-f FASTA] [-i] [-o OUTPUT] [-v]
+gff-QC.py [-h] [-g GFF] [-f FASTA] [-i] [-o OUTPUT] [-v]
 
 ## Testing environment
 
@@ -19,11 +19,11 @@ Python 2.7
         * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
 
 ## Quick start
-`python2.7 bin/gff3-QC.py -g example_file/example.gff3 -f example_file/reference.fa -o test`
+`python2.7 bin/gff-QC.py -g example_file/example.gff3 -f example_file/reference.fa -o test`
 
 or
 
-`python2.7 bin/gff3-QC.py --gff example_file/example.gff3 --fasta example_file/reference.fa --output test`
+`python2.7 bin/gff-QC.py --gff example_file/example.gff3 --fasta example_file/reference.fa --output test`
 
 ## Optional arguments
 
@@ -40,4 +40,4 @@ or
     - show program's version number and exit
 
 ## More information
-- [gff3-QC.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)
+- [gff-QC.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)
