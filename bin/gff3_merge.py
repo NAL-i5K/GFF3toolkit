@@ -19,7 +19,9 @@ sys.path.insert(1, lib_path)
 from gff3_modified import Gff3
 sys.path =  filter (lambda a: not a.endswith('/bin'), sys.path)
 import gff3_merge
-__version__ = '0.0.5'
+import version
+
+__version__ = version.__version__
 
 def check_replace(gff):
     roots = []

@@ -22,8 +22,9 @@ import single_feature
 import inter_model
 import intra_model
 import ERROR # Details of the errors that can be detected.
+import version
 
-__version__ = '0.0.1'
+__version__ = version.__version__
 
 if __name__ == '__main__':
     logger_stderr = logging.getLogger(__name__+'stderr')

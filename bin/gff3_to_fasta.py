@@ -26,8 +26,10 @@ from gff3_modified import Gff3
 import function4gff
 import intra_model
 import single_feature
+import version
 
-__version__ = '0.0.1'
+__version__ = version.__version__
+
 
 COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
 def complement(seq):

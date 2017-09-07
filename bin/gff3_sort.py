@@ -24,8 +24,9 @@ else:
     bin_path = dirname(__file__) + '/../lib'
 sys.path.insert(1, bin_path)
 from gff3_modified import Gff3
+import version
 
-__version__ = '0.0.3'
+__version__ = version.__version__
 
 
 def PositionSort(linelist):
