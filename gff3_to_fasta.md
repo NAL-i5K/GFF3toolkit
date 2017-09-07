@@ -38,7 +38,7 @@ gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] 
         * "trans" - spliced transcripts (only exons included);
         * "cds" - coding sequences;
         * "pep" - peptide sequences;
-	* "user_defined" - specify parent and child features via the -u argument.
+        * "user_defined" - specify parent and child features via the -u argument.
 5. -u USER_DEFINED, --user_defined USER_DEFINED
     - Specify parent and child features for fasta extraction, format [parent feature type],[child feature type]. Required if -st user_defined is given.
         * Example: -st user_defined -u miRNA,exon
