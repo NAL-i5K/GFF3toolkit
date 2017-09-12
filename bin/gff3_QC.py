@@ -61,7 +61,6 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format') 
     parser.add_argument('-f', '--fasta', type=str, help='Genome sequences, fasta format')
     parser.add_argument('-i', '--initial_phase', action="store_true", help='Check whether initial CDS phase is 0 (default: no check)')
-    parser.add_argument('-cn', '--check_n', action="store_true", help='Count the number of Ns and check if the number is greater than the allowed number of Ns (default: no check)')
     parser.add_argument('-n', '--allowed_num_of_n', type=int, default=0, help='Max number of Ns allowed in a feature, anything more will be reported as an error (default: 0)')
     parser.add_argument('-t', '--check_n_feature_types', nargs='*', default=['CDS'], help='Count the number of Ns in each feature with the type specified, multiple types may be specified, ex: -t CDS exon (default: "CDS")')
     parser.add_argument('-o', '--output', type=str, help='output file name (default: report.txt)')
@@ -86,7 +85,10 @@ if __name__ == '__main__':
     else: # no input
         parser.print_help()
         sys.exit(1)
-    
+    if args.allowed_num_of_n or args.check_n_feature_types:
+        check_n = True
+    else:
+        check_n = False  
 
     logger_stderr.info('Reading gff files: (%s)...\n', args.gff)
     gff3 = Gff3(gff_file=args.gff, fasta_external=args.fasta, logger=logger_null)
@@ -96,7 +98,7 @@ if __name__ == '__main__':
 
     gff3.check_unresolved_parents()
     gff3.check_phase(args.initial_phase)
-    gff3.check_reference(check_n=args.check_n, allowed_num_of_n=args.allowed_num_of_n, feature_types=args.check_n_feature_types)
+    gff3.check_reference(check_n=check_n, allowed_num_of_n=args.allowed_num_of_n, feature_types=args.check_n_feature_types)
     logger_stderr.info('\t- Checking missing attributes: (%s)...\n', 'function4gff.FIX_MISSING_ATTR()')
     function4gff.FIX_MISSING_ATTR(gff3, logger=logger_stderr)
 
