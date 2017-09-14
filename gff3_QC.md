@@ -2,7 +2,8 @@
 
 ## Usage 
 
-gff3_QC.py [-h] [-g GFF] [-f FASTA] [-i] [-o OUTPUT] [-v]
+gff3_QC.py [-h] [-g GFF] [-f FASTA] [-i] [-n ALLOWED_NUM_OF_N]   
+[-t [CHECK_N_FEATURE_TYPES [CHECK_N_FEATURE_TYPES ...]]] [-o OUTPUT] [-v]
 
 ## Testing environment
 
@@ -33,10 +34,15 @@ or
     - Genome annotation file, gff3 format
 3.  -f FASTA, --fasta FASTA
     - Genome sequences, fasta format
-4. -i, --initial_phase   Check whether initial CDS phase is 0 (default - no check)
-5.  -o OUTPUT, --output OUTPUT
+4.  -i, --initial_phase   
+    - Check whether initial CDS phase is 0 (default - no check)
+5.  -n ALLOWED_NUM_OF_N, --allowed_num_of_n ALLOWED_NUM_OF_N  
+    - Max number of Ns allowed in a feature, anything more will be reported as an error (default: 0)  
+6.  -t [CHECK_N_FEATURE_TYPES [CHECK_N_FEATURE_TYPES ...]], --check_n_feature_types [CHECK_N_FEATURE_TYPES [CHECK_N_FEATURE_TYPES ...]]
+    - Count the number of Ns in each feature with the type specified, multiple types may be specified, ex: -t CDS exon (default: "CDS")    
+7.  -o OUTPUT, --output OUTPUT
     - output file name (default: report.txt)
-6.  -v, --version         
+8.  -v, --version         
     - show program's version number and exit
 
 ## More information
