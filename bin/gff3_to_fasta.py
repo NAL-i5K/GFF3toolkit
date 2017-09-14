@@ -401,8 +401,7 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
         print('[Error] Please specify the prefix of output file name...')
         sys.exit(1)
     if stype == 'user_defined' and user_defined != None:
-        user_def = user_defined.split(',')
-        if len(user_def) != 2:
+        if len(user_defined) != 2:
             logger.error('Please specify parent and child feature via the -u argument. Format: [parent feature type],[child feature type]')
             sys.exit(1)
     elif stype != 'user_defined' and user_defined != None:
@@ -532,7 +531,7 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
                 if len(k)!=0 and len(v)!=0:
                     report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
     elif stype == 'user_defined':
-        feature_type = [user_def[0],user_def[1]]
+        feature_type = [user_defined[0],user_defined[1]]
         seq = splicer(gff, feature_type,  dline, stype)
         if len(seq):
             logger.info('Print out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, stype))
@@ -568,6 +567,7 @@ if __name__ == '__main__':
     stderr_handler = logging.StreamHandler()
     stderr_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger_stderr.addHandler(stderr_handler)
+
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -593,7 +593,7 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file in GFF3 format') 
     parser.add_argument('-f', '--fasta', type=str, help='Genome sequences in FASTA format')
     parser.add_argument('-st', '--sequence_type', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}\n\t{3:s}\n\t{4:s}\n\t{5:s}\n\t{6:s}\n\t{7:s}\n\t{8:s}".format('Type of sequences you would like to extract: ','"all" - FASTA files for all types of sequences listed below, except user_defined;','"gene" - gene sequence for each record;', '"exon" - exon sequence for each record;', '"pre_trans" - genomic region of a transcript model (premature transcript);', '"trans" - spliced transcripts (only exons included);', '"cds" - coding sequences;', '"pep" - peptide sequences;', '"user_defined" - specify parent and child features via the -u argument.'))
-    parser.add_argument('-u', '--user_defined', type=str, help="Specify parent and child features for fasta extraction, format [parent feature type],[child feature type]. Required if -st user_defined is given.")
+    parser.add_argument('-u', '--user_defined', nargs='*', help="Specify parent and child features for fasta extraction, format: [parent feature type] [child feature type] (ex: -u mRNA CDS). Required if -st user_defined is given.")
     parser.add_argument('-d', '--defline', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}".format('Defline format in the output FASTA file:','"simple" - only ID would be shown in the defline;', '"complete" - complete information of the feature would be shown in the defline.'))
     parser.add_argument('-o', '--output_prefix', type=str, help='Prefix of output file name')
     parser.add_argument('-noQC', '--quality_control', action='store_false', help='Specify this option if you do not want to execute quality control for gff file. (default: QC is executed)')
@@ -625,7 +625,7 @@ if __name__ == '__main__':
         if args.sequence_type == "user_defined":
             if not args.user_defined:
                 parser.print_help()
-                logger_stderr.error('-u is needed in combination with -st user_defined.')
+                logger_stderr.error('-u is needed in combination with -st user_defined. format: [parent feature type] [child feature type] (ex: -u mRNA CDS)')
                 sys.exit(1)
     elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
         args.sequence_type = sys.stdin
