@@ -40,7 +40,7 @@ gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] 
         * "pep" - peptide sequences;
         * "user_defined" - specify parent and child features via the -u argument.
 5. -u USER_DEFINED, --user_defined USER_DEFINED
-    - Specify parent and child features for fasta extraction, format [parent feature type] [child feature type] (ex: -u mRNA CDS). Required if -st user_defined is given.
+    - Specify parent and child features for fasta extraction, format [parent feature type] [child feature type]. Required if -st user_defined is given.
         * Example: -st user_defined -u miRNA exon
 	* Lines with the child feature type given in -u must contain a Parent attribute referencing the given Parent feature type. Hence, the parent lines must also contain an ID attribute.
 	* If CDS is the child feature type, the program will take phase into account. 
