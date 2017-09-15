@@ -343,7 +343,7 @@ def check_merged_gene_parent(gff, rootline):
         return [result]
       
 
-def main(gff, logger=None):
+def main(gff, logger=None, noncanonical_gene=False):
     function4gff.FIX_MISSING_ATTR(gff, logger=logger)
     roots = []
     
@@ -365,19 +365,23 @@ def main(gff, logger=None):
         if not r == None:
             error_set.extend(r)
         r = None
-        r = check_incomplete(gff, root)
+        if noncanonical_gene == False:
+            r = check_incomplete(gff, root)
         if not r == None:
             error_set.extend(r)
         r = None
-        r = check_internal_stop(gff, root)
+        if noncanonical_gene == False:
+            r = check_internal_stop(gff, root)
         if not r == None:
             error_set.extend(r)
         r = None
-        r = check_distinct_isoform(gff, root)
+        if noncanonical_gene == False:
+            r = check_distinct_isoform(gff, root)
         if not r == None:
             error_set.extend(r)
         r = None
-        r = check_merged_gene_parent(gff, root)
+        if noncanonical_gene == False:
+            r = check_merged_gene_parent(gff, root)
         if not r == None:
             error_set.extend(r)
         r = None
