@@ -322,7 +322,7 @@ def check_merged_gene_parent(gff, rootline):
                 gchildren2 = child2['children']
                 for gchild1 in gchildren1:
                     for gchild2 in gchildren2:
-                        if gchild1['type'] is 'CDS' and gchild2['type'] is 'CDS':
+                        if gchild1['type'] == 'CDS' and gchild2['type'] == 'CDS':
                             if gff.overlap(gchild1, gchild2):
                                 hit += 1
             if hit == 0:
