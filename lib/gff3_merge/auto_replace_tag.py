@@ -33,6 +33,35 @@ def main(gff1, gff2, fasta, outdir, scode, logger):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
+    
+    #Check if there is a non-coding transcript
+    transcripts = set()
+    gff3 = Gff3(gff_file=gff1, logger=logger)
+    roots =[]
+    for line in gff3.lines:
+        try:
+            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent') and len(line['attributes']) != 0:
+                roots.append(line)
+        except:
+            pass
+    for root in roots:
+        rid = 'NA'
+        if root['attributes'].has_key('ID'):
+            rid = root['attributes']['ID']
+        children = root['children']        
+        for child in children:
+            cid = 'NA'
+            if child['attributes'].has_key('ID'):
+                cid = child['attributes']['ID']
+            cname = cid
+            if child['attributes'].has_key('Name'):
+                cname = child['attributes']['Name']
+            defline = cid
+            try:
+                defline = '{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|Parent={5:s}|ID={6:s}|Name={7:s}'.format(child['seqid'], child['start'], child['end'], child['strand'], child['type'], rid, cid, cname)
+            except:
+                pass
+            transcripts.add(defline)
 
     if not os.path.isdir(outdir):
         subprocess.Popen(['mkdir', outdir]).wait()
@@ -52,6 +81,8 @@ def main(gff1, gff2, fasta, outdir, scode, logger):
     gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
     logger.info('\tExtract premature transcript sequences...')
     gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='pre_trans', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
+    logger.info('\tExtract transcript sequences...')
+    gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='trans', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
 
     logger.info('Extract sequences from {0:s}...'.format(gff2))
     out2 = '{0:s}/{1:s}'.format(tmpdir, 'gff2')
@@ -59,6 +90,8 @@ def main(gff1, gff2, fasta, outdir, scode, logger):
     gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out2, logger=logger_null)
     logger.info('\tExtract premature transcript sequences...')
     gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='pre_trans', dline='complete', qc=False, output_prefix=out2, logger=logger_null)
+    logger.info('\tExtract transcript sequences...')
+    gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='trans', dline='complete', qc=False, output_prefix=out2, logger=logger_null)    
 
     logger.info('Catenate {0:s} and {1:s}...'.format(gff1, gff2))
     cgff = '{0:s}/{1:s}'.format(tmpdir, 'cat.gff')
@@ -76,7 +109,36 @@ def main(gff1, gff2, fasta, outdir, scode, logger):
     binput = '{0:s}_{1:s}'.format(out1, 'cds.fa')
     bout = '{0:s}/{1:s}'.format(tmpdir, 'blastn.out')
     subprocess.Popen([cmd, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
-
+    
+    with open(bout, "r") as bcds:
+        for line in bcds:
+            QueryID = line.split("\t")[0]
+            QueryIDs = QueryID.split("|")
+            if len(QueryIDs) == 5:
+                QueryIDs[1] = QueryIDs[1].replace("(CDS)","")
+                if "|".join(QueryIDs) in transcripts:
+                    transcripts.discard("|".join(QueryIDs))
+            else:
+                if QueryID in transcripts:
+                    transcripts.discard(QueryID)
+    if len(transcripts) !=0:
+        binput_trans  = '{0:s}_{1:s}'.format(out1, 'trans.fa')
+        bout_trans = '{0:s}/{1:s}'.format(tmpdir, 'blastn_trans.out')
+        logger.info('Sequence alignment for trabscript fasta files between {0:s} and {1:s}...'.format(gff1, gff2))
+        subprocess.Popen([cmd, '-db', bdb, '-query', binput_trans,'-out', bout_trans, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
+        with open(bout,"a") as bcds:
+            with open(bout_trans,"r") as btrans:
+                for line in btrans:
+                    QueryID = line.split("\t")[0]
+                    QueryIDs = QueryID.split("|")
+                    if len(QueryIDs) == 5:
+                        QueryIDs[1] = QueryIDs[1].replace("(exon)","")
+                        if "|".join(QueryIDs) in transcripts:
+                            bcds.write(line)
+                        
+                    else:
+                        if QueryID in transcripts:
+                            bcds.write(line)
     logger.info('Find CDS matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))
     cmd = lib_path + '/auto_assignment/find_match.pl'
     report1 = '{0:s}/{1:s}'.format(tmpdir, 'report1.txt')
