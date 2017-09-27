@@ -4,12 +4,12 @@ use strict;
 
 die "
 
-	Comand: $0 [gff] [blast] [species code] [ouput file name]
-	Exmpale: $0 lepdec_5-26-2015_annotations.gff lepdec_cdna_self_all_-5_50_3.blastn lepdec splited_gene_parent.txt
+	Comand: $0 [gff] [blast] [species code] [ouput file name] [transcripts type set]
+	Exmpale: $0 lepdec_5-26-2015_annotations.gff lepdec_cdna_self_all_-5_50_3.blastn lepdec splited_gene_parent.txt transcripts_type_set.txt
 
 " if !@ARGV;
 
-my ($gff, $blast, $scode, $out) = @ARGV;
+my ($gff, $blast, $scode, $out, $transcript_type) = @ARGV;
 
 
 my %gene = ();
@@ -19,6 +19,17 @@ my %id2owner = ();
 my $line = 0;
 my $typeflag = 0;
 my $pid='';
+my %trans_type = ();
+
+print "Reading the transcript type file: $transcript_type...\n";
+open FI, "$transcript_type" or die "[Error] Cannot open $transcript_type.";
+while (<FI>){
+        chomp $_;
+        print $_;
+        $trans_type{$_} = $_;
+} 
+close FI;     
+   
 print "Reading the gff file: $gff...\n";
 open FI, "$gff" or die "[Error] Cannot open $gff.";
 while (<FI>){
@@ -42,8 +53,8 @@ while (<FI>){
 		$typeflag = 0;
 	}elsif ($t[2] eq "pseudogene"){ #debug 07082015
 		$typeflag = 1; #debug 07082015
-	}elsif ($t[2] eq "mRNA"){
-			if ($typeflag==1){print "Warning: pseudogene has isoforms with mRNA type: $t[8]\n"; next;} #debug 07082015
+	}elsif (defined $trans_type{$t[2]}){
+			#if ($typeflag==1){print "Warning: pseudogene has isoforms with mRNA type: $t[8]\n"; next;} #debug 07082015
 			if ($t[8] =~ /ID=(.+?);/ || $t[8] =~ /ID=(.+?)$/){
 				my $id = $1;
 				if ($t[8] =~ /Parent=(.+?);/ || $t[8] =~ /Parent=(.+?)$/){

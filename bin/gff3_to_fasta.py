@@ -224,17 +224,16 @@ def splicer(gff, ftype, dline, stype):
 
                 if len(segments)==0 and ftype[0] == 'CDS':
                     flag += 1
-                    print("WARNING  There is no CDS feature for {0:s} in the input gff. The sequence of {0:s} is not generated.".format(cid))
+                    print("WARNING  There are no CDSs for {0:s} in the canonical gene model style. The sequence of {0:s} is not generated. If your gene models are non-canonical, use the argument -st user_defined, and specify the parent and child features with the -u argument.".format(cid))
                     continue
                 elif len(segments)==0:
                     flag += 1
-                    print("WARNING  There is no exon, nor CDS feature for {0:s} in the input gff. The sequence of {0:s} is not generated.".format(cid))
+                    print("WARNING  There are no exons, nor CDSs for {0:s} in the canonical gene model style. The sequence of {0:s} is not generated. If your gene models are non-canonical, use the argument -st user_defined, and specify the parent and child features with the -u argument.".format(cid))
                     continue
             
                 if flag == 1:
-                    print("WARNING  There is no exon feature for {0:s} in the input gff. No spliced transcript output file generated.".format(cid))
+                    print("WARNING  There is no exons for {0:s} in the canonical gene model style. No spliced transcript output file generated. If your gene models are non-canonical, use the argument -st user_defined, and specify the parent and child features with the -u argument.".format(cid))
                     continue
-            
                 sort_seg = function4gff.featureSort(segments)
                 if gchild['strand'] == '-':
                     sort_seg = function4gff.featureSort(segments, reverse=True)
