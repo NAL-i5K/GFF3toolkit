@@ -25,7 +25,6 @@ print "Reading the transcript type file: $transcript_type...\n";
 open FI, "$transcript_type" or die "[Error] Cannot open $transcript_type.";
 while (<FI>){
         chomp $_;
-        print $_;
         $trans_type{$_} = $_;
 } 
 close FI;     

@@ -68,7 +68,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger):
     cmd = lib_path + '/auto_assignment/create_annotation_summaries_nov21-7.pl'
     logger.info('Generate info table for {0:s} by using {1:s}'.format(gff1, cmd))
     summary = '{0:s}/{1:s}'.format(tmpdir, 'summary_report.txt')
-    subprocess.Popen(['perl', cmd, gff1, fasta, summary, scode], stdout=DEVNULL).wait()
+    subprocess.Popen(['perl', cmd, gff1, fasta, summary, scode, out1_type], stdout=DEVNULL).wait()
 
     logger.info('Extract sequences from {0:s}...'.format(gff1))
     out1 = '{0:s}/{1:s}'.format(tmpdir, 'gff1')
