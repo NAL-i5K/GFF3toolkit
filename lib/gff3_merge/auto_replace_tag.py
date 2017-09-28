@@ -58,7 +58,13 @@ def main(gff1, gff2, fasta, outdir, scode, logger):
             if child['attributes'].has_key('ID'):
                 cid = child['attributes']['ID']
             defline = cid
-            transcripts.add(defline)
+            gchildren = child['children']
+            CDSflag = 0
+            for gchild in gchildren:
+                if gchild['type'] == 'CDS':
+                    CDSflag += 1
+            if CDSflag == 0:
+                transcripts.add(defline)            
             if child.has_key('type'):
                 transcripts_type.add(child['type'])
     out1_type = '{0:s}/{1:s}'.format(tmpdir, 'gff1_transcript_type.txt')
@@ -76,8 +82,9 @@ def main(gff1, gff2, fasta, outdir, scode, logger):
     gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
     logger.info('\tExtract premature transcript sequences...')
     gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='pre_trans', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
-    logger.info('\tExtract transcript sequences...')
-    gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='trans', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
+    if len(transcripts) > 0:
+        logger.info('\tExtract transcript sequences...')
+        gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='trans', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
 
     logger.info('Extract sequences from {0:s}...'.format(gff2))
     out2 = '{0:s}/{1:s}'.format(tmpdir, 'gff2')
@@ -85,8 +92,9 @@ def main(gff1, gff2, fasta, outdir, scode, logger):
     gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out2, logger=logger_null)
     logger.info('\tExtract premature transcript sequences...')
     gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='pre_trans', dline='complete', qc=False, output_prefix=out2, logger=logger_null)
-    logger.info('\tExtract transcript sequences...')
-    gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='trans', dline='complete', qc=False, output_prefix=out2, logger=logger_null)    
+    if len(transcripts) > 0:
+        logger.info('\tExtract transcript sequences...')
+        gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='trans', dline='complete', qc=False, output_prefix=out2, logger=logger_null)    
 
     logger.info('Catenate {0:s} and {1:s}...'.format(gff1, gff2))
     cgff = '{0:s}/{1:s}'.format(tmpdir, 'cat.gff')
@@ -116,7 +124,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger):
                 transcripts.discard(QueryID)
             except:
                 pass
-    if len(transcripts) !=0:
+    if len(transcripts) >0:
         cmd = lib_path + '/auto_assignment/makeblastdb'
         bdb = '{0:s}_{1:s}'.format(out2, 'trans.fa')
         logger.info('Make blastDB for transcript sequences from {0:s}...'.format(bdb))
