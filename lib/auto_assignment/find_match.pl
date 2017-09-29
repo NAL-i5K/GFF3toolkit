@@ -67,7 +67,8 @@ while (<FI>){
 						$id2name{$id} = $1;
 					}else{
                         #print "Warning: $id: Name is missing!\n";
-						$id2name{$id} = "Unassigned";
+                        #$id2name{$id} = "Unassigned";
+                        $id2name{$id} = $id;
 					}
 					if ($t[8] =~ /owner=(.+?);/ || $t[8] =~ /owner=(.+?)$/){
 						$id2owner{$id} = $1;

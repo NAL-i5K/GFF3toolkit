@@ -139,7 +139,10 @@ def main(gff_file1, gff_file2, output_gff, report_fh, logger=None):
                         tname, tid, gid = 'NA', 'NA', 'NA'
                         if not i == 'NA':
                             t = gff3M.features[ReplaceGroups.mapName2ID[i]][0]
-                            tname = t['attributes']['Name']
+                            try:
+                                tname = t['attributes']['Name']
+                            except:
+                                tname = t['attributes']['ID']
                             tid = t['attributes']['ID']
                             gid_list = list()
                             for tp_line in t['parents']:
@@ -224,8 +227,8 @@ if __name__ == '__main__':
     parser.add_argument('-og', '--output_gff', type=str, help='The merged GFF3 file')
     parser.add_argument('-r', '--report_file', type=str, help='Log file for the intergration')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-    
- 
+
+
     test_lv = 1 # debug
     if test_lv == 0:
         args = parser.parse_args(['-g', 'annotations.gff'])
