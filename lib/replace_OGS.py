@@ -31,8 +31,8 @@ if not logger.handlers:
 
 def featureSort(linelist, reverse=False):
     FEATURECODE = {
-        'gene': 0, 
-        'pseudogene': 0, 
+        'gene': 0,
+        'pseudogene': 0,
         'mRNA': 1,
         'pseudogenic_transcript': 1,
         'exon': 2,
@@ -238,7 +238,7 @@ def merge(gff, line, line2, oID):
         report.extend(["#\t\t- {0:s}: {1:s}".format(p1['attributes']['ID'],str(vector1))])
         report.extend(["#\t\t- {0:s}: {1:s}".format(oID, str(vector2))])
 
-    
+
     if len(pinfo)>0:
         report.insert(0, "{0:s} (primary gene)".format(pinfo))
     return(report)
@@ -292,7 +292,7 @@ class Groups(object):
                         # The case cannot be processed.
                         print('Warning -- inconsitent replace tags, one is NA: {0:s}'.format(child['attributes']['ID']))
 
-                rIDs = child['attributes']['replace']			 
+                rIDs = child['attributes']['replace']
                 for i in rIDs:
                     if (uniqueReplaceID.has_key(i)):
                         uniqueReplaceID[i].append(child)
@@ -516,7 +516,7 @@ class Groups(object):
                                 k['attributes']['Parent'] = p[-1]['attributes']['ID']
                                 print ('[renameID]',str(k['attributes']['Parent']), k['attributes']['ID'], p[-1]['attributes']['ID'])
 
-    
+
     def newUTRfeature(self, fname, exonline, ID, gff):
         newf = id_processor.newChildModel(exonline, ID, gff)
         newf['parents'] = exonline['parents']
@@ -528,7 +528,7 @@ class Groups(object):
         gff.features[newf['attributes']['ID']].append(newf)
         for parent in newf['parents']:
             for p in parent:
-                p['children'].append(newf)       
+                p['children'].append(newf)
         return newf
 
     def gen5UTR(self, fname, cdsline, exonlist, ID, gff):
@@ -569,7 +569,7 @@ class Groups(object):
             RG.maxIDnumber = newID['maxnum']
             # New model with replaced information in predicted gff
             #self.renameID(lparent, newID['ID'])
-            id_processor.general_newModel(lparent, Mgff) 
+            id_processor.general_newModel(lparent, Mgff)
             '''
             # Generate utr features for each curated models
             t = Mgff.features[newID['ID']][0]
@@ -636,14 +636,14 @@ class Groups(object):
         if line['attributes']['replace_type'] == 'simple' and len(line['attributes']['replace']) > 1:
             print('Warning: Wrong grouping!!!! simple replacement with multiple replace tags! - ', line['attributes']['replace'], 'at', line['line_raw'])
             sys.exit()
-       
+
         if line['attributes']['replace_type'] == 'add':
             if not line['attributes'].has_key('modified_track'):
                 newid = self.replacer_add(line, RG, Mgff)
                 newtarget = Mgff.features[newid['ID']][0]
                 newtarget['attributes']['modified_track'] = '{0:s}:{1:s}'.format(line['attributes']['replace_type'], originalID)
                 self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
-        
+
         #elif line['attributes']['replace_type'] == 'simple': # Simple replacement for a model should inherite the original ID.
         #    if len(line['attributes']['replace']) > 1:
         #        print('Warning: Wrong grouping!!!! simple replacement with multiple replace tags! - ', line['attributes']['replace'], 'at', line['line_raw'])
@@ -657,7 +657,7 @@ class Groups(object):
         #        self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
                 #print('simple_replacement: ',newid['ID'],keepID.groups()[0])
         #    Mgff.remove(Mgff.features[keepID.groups()[0]][0])
-        
+
         else: # other replace_types
             for tag in rtags:
                 t = Mgff.features[Name2ID[tag]][0]
@@ -672,8 +672,10 @@ class Groups(object):
                 newtarget = Mgff.features[newid['ID']][0]
                 midline = ','.join(mid)
                 newtarget['attributes']['modified_track'] = '{0:s}:{1:s}'.format(line['attributes']['replace_type'], midline)
-                self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
-
+                try:
+                    self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
+                except:
+                    pass
 
             for t in targets:
                 if t['num_isoforms'] == 1:
@@ -710,7 +712,7 @@ class Groups(object):
                 newtarget = Mgff.features[newid['ID']][0]
                 newtarget['attributes']['modified_track'] = '{0:s}:{1:s}'.format(line['attributes']['replace_type'], originalID)
                 self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
-            
+
             replace_parent = {}
             for ri in line['attributes']['replace']:
                 feature = Mgff.features[Name2ID[ri]][0]
