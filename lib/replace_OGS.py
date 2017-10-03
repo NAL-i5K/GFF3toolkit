@@ -642,8 +642,10 @@ class Groups(object):
                 newid = self.replacer_add(line, RG, Mgff)
                 newtarget = Mgff.features[newid['ID']][0]
                 newtarget['attributes']['modified_track'] = '{0:s}:{1:s}'.format(line['attributes']['replace_type'], originalID)
-                self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
-
+                try:
+                    self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
+                except:
+                    pass
         #elif line['attributes']['replace_type'] == 'simple': # Simple replacement for a model should inherite the original ID.
         #    if len(line['attributes']['replace']) > 1:
         #        print('Warning: Wrong grouping!!!! simple replacement with multiple replace tags! - ', line['attributes']['replace'], 'at', line['line_raw'])
