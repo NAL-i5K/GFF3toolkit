@@ -38,14 +38,14 @@ def check_replace(gff):
         for child in children:
             if not child['attributes'].has_key('replace'):
                 error_lines.append(child)
-    
+
     if len(error_lines):
         return error_lines
     else:
         return False
 
 
-def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None):
+def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, user_defined1=False, user_defined2=False, logger=None):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -67,7 +67,7 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, logger=None
         autoReviseReport = '{0:s}/replace_tag_report.txt'.format(autoDIR)
 
         logger.info('========== Auto-assignment of replace tags for each transcript model ==========')
-        gff3_merge.auto_replace_tag.main(gff_file1, gff_file2, fasta, autoDIR, 'TEMP', logger)
+        gff3_merge.auto_replace_tag.main(gff_file1, gff_file2, fasta, autoDIR, 'TEMP', user_defined1, user_defined2, logger)
         gff3_merge.revision.main(gff_file1, autoFILE, autoReviseGff, autoReviseReport, logger)
 
         logger.info('========== Check whether there are missing replace tags ==========')
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     import argparse
     from textwrap import dedent
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
-    Merge two gff files of the same genome into one. 
+    Merge two gff files of the same genome into one.
 
     Testing enviroment:
     1. Python 2.7
@@ -138,11 +138,13 @@ if __name__ == '__main__':
     parser.add_argument('-g1', '--gff_file1', type=str, help='Updated GFF3 file, such as Apollo gff')
     parser.add_argument('-g2', '--gff_file2', type=str, help='Reference GFF3 file, such as Maker gff or OGS gff')
     parser.add_argument('-f', '--fasta', type=str, help='Genomic sequences in the fasta format')
+    parser.add_argument('-u1', '--user_defined_file1', type=str, help='File for specifing parent and child features for fasta extraction from updated GFF3 file.')
+    parser.add_argument('-u2', '--user_defined_file2', type=str, help='File for specifing parent and child features for fasta extraction from reference GFF3 file.')
     parser.add_argument('-og', '--output_gff', type=str, help='The merged GFF3 file')
     parser.add_argument('-r', '--report_file', type=str, help='Log file for the integration')
     parser.add_argument('-noAuto', '--auto_assignment', action='store_false', help='Turn off the auto-assignment of replace tags, if you already have replace tags in your updated gff (default: Automatically assign replace tags and then merge the gff files)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-   
+
     args = parser.parse_args()
 
     if args.gff_file1:
@@ -172,6 +174,48 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(1)
 
+    if args.user_defined_file1:
+        logger_stderr.info('Checking user defined file1 (%s)...', args.user_defined_file1)
+        user_defined1 = []
+        try:
+            with open(args.user_defined_file1, "r") as ud:
+                for line in ud:
+                    line = line.strip()
+                    lines = line.split(" ")
+                    if len(lines) != 2:
+                        logger_stderr.error('Please specify parent and child feature follow the format: [parent feature type] [child feature type] in (%s)', args.user_defined_file1)
+                    else:
+                        if lines not in user_defined1:
+                            user_defined1.append(lines)
+            if len(user_defined1) == 0:
+                logger_stderr.error('Failed to get parent and child feature from (%s). Please specify parent and child feature follow the format: [parent feature type] [child feature type]', args.user_defined_file1)
+            args.user_defined_file1 = user_defined1
+        except:
+            parser.print_help()
+            sys.exit(1)
+
+
+    if args.user_defined_file2:
+        logger_stderr.info('Checking user defined file2 (%s)...', args.user_defined_file2)
+        user_defined2 = []
+        try:
+            with open(args.user_defined_file2, "r") as ud:
+                for line in ud:
+                    line = line.strip()
+                    lines = line.split(" ")
+                    if len(lines) != 2:
+                        logger_stderr.error('Please specify parent and child feature follow the format: [parent feature type] [child feature type] in (%s)', args.user_defined_file2)
+                    else:
+                        if lines not in user_defined2:
+                            user_defined2.append(lines)
+            if len(user_defined2) == 0:
+                logger_stderr.error('Failed to get parent and child feature from (%s). Please specify parent and child feature follow the format: [parent feature type] [child feature type]', args.user_defined_file2)
+            args.user_defined_file2 = user_defined2
+        except:
+            parser.print_help()
+            sys.exit(1)
+
+
     if args.report_file:
         logger_stderr.info('Writing validation report (%s)...\n', args.report_file)
         report_fh = open(args.report_file, 'wb')
@@ -181,4 +225,4 @@ if __name__ == '__main__':
     if not args.output_gff:
         args.output_gff='merged.gff'
 
-    main(args.gff_file1, args.gff_file2, args.fasta, report_fh, args.output_gff, args.auto_assignment, logger=logger_stderr)
+    main(args.gff_file1, args.gff_file2, args.fasta, report_fh, args.output_gff, args.auto_assignment, args.user_defined_file1, args.user_defined_file2, logger=logger_stderr)

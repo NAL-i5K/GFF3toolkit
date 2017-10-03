@@ -92,7 +92,7 @@ def splicer(gff, ftype, dline, stype):
                 else:
                     print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         except:
-            print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw'])) 
+            print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
     #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     if stype == "user_defined":
         if len(u_parents) == 0:
@@ -181,14 +181,14 @@ def splicer(gff, ftype, dline, stype):
                         except:
                             print('WARNING  [SeqID] Missing SeqID.\n\t\t-Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
 
-    else:            
+    else:
         for root in roots:
             #if ftype[0] == 'CDS' and root['type'] == 'pseudogene': # pseudogene should not contain cds
                 #continue
             rid = 'NA'
             if root['attributes'].has_key('ID'):
                rid = root['attributes']['ID']
-       
+
             children = root['children']
             for child in children:
                 cid = 'NA'
@@ -214,7 +214,7 @@ def splicer(gff, ftype, dline, stype):
                         segments_Set.add(gchild['line_index'])
                     if gchild['type'] == "":
                         print('WARNING  [Missing feature type] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(gchild['line_index']+1), gchild['line_raw']))
-            
+
                 flag = 0
                 if len(segments)==0:
                     flag += 1
@@ -230,7 +230,7 @@ def splicer(gff, ftype, dline, stype):
                     flag += 1
                     print("WARNING  There are no exons, nor CDSs for {0:s} in the canonical gene model style. The sequence of {0:s} is not generated. If your gene models are non-canonical, use the argument -st user_defined, and specify the parent and child features with the -u argument.".format(cid))
                     continue
-            
+
                 if flag == 1:
                     print("WARNING  There is no exons for {0:s} in the canonical gene model style. No spliced transcript output file generated. If your gene models are non-canonical, use the argument -st user_defined, and specify the parent and child features with the -u argument.".format(cid))
                     continue
@@ -265,13 +265,13 @@ def splicer(gff, ftype, dline, stype):
                         else:
                             start = line['start']
                             end = line['end']
-                
+
                         s['start'] = start
                         s['end'] = end
                         s['phase'] = 0
                     tmpseq = tmpseq + get_subseq(gff, s)
                     count += 1
-            
+
                 seq[defline] = tmpseq
                 if len(segments_Set) != 0:
                     for seg in segments_Set:
@@ -294,9 +294,9 @@ def splicer(gff, ftype, dline, stype):
                                     print('WARNING  [End] End is not a valid integer.\n\t\t-Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
                             except:
                                 print('WARNING  [SeqID] Missing SeqID.\n\t\t-Line {0:s}: {1:s}'.format(str(gff.lines[seg]['line_index']+1), gff.lines[seg]['line_raw']))
-                        
+
     return seq
-            
+
 def extract_start_end(gff, stype, dline):
     '''Extract sequences for a feature only use the Start and End information. The relationship between parent and children would be ignored.'''
     seq=dict()
@@ -364,7 +364,7 @@ def extract_start_end(gff, stype, dline):
 
                 keys = plist.keys()
                 pid = ','.join(keys)
-            
+
                 defline='>{0:s}'.format(eid)
                 if dline == 'complete':
                     defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|Parent={5:s}|ID={6:s}|Name={7:s}'.format(exon['seqid'], exon['start'], exon['end'], exon['strand'], exon['type'], pid, eid, ename)
@@ -372,9 +372,34 @@ def extract_start_end(gff, stype, dline):
                 seq[defline] = get_subseq(gff, exon)
             except:
                 print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(exon['line_index']+1), exon['line_raw']))
+    else:
+        #user-defined pre_trans sequence
+        user_defineds = [line for line in gff.lines if line['type'] == stype]
+        for user_defined in user_defineds:
+            try:
+                uid = 'NA'
+                if user_defined['attributes'].has_key('ID'):
+                    uid = user_defined['attributes']['ID']
+                uname = uid
+                if user_defined['attributes'].has_key('Name'):
+                    uname = user_defined['attributes']['Name']
+                parents = user_defined['parents']
+                plist = dict()
+                for parent in parents:
+                    for p in parent:
+                        plist[p['attributes']['ID']] = 1
+                keys = plist.keys()
+                pid = ','.join(keys)
+                defline='>{0:s}'.format(uid)
+                if dline == 'complete':
+                    defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|Parent={5:s}|ID={6:s}|Name={7:s}'.format(user_defined['seqid'], user_defined['start'], user_defined['end'], user_defined['strand'], user_defined['type'], pid, uid, uname)
+
+                seq[defline] = get_subseq(gff, user_defined)
+            except:
+                print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(user_defined['line_index']+1), user_defined['line_raw']))
 
     return seq
-    
+
 def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=None, qc=True, output_prefix=None, logger=None):
     stderr_handler = logging.StreamHandler()
     stderr_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
@@ -407,8 +432,8 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
         logger.warning('Your sequence type is "{0:s}", -u argument will be ignored.'.format(stype))
     elif stype == 'user_defined' and user_defined == None:
         logger.error('-u is needed in combination with -st user_defined.')
-        sys.exit(1)    
-        
+        sys.exit(1)
+
     logger.info('Reading files: {0:s}, {1:s}...'.format(gff_file, fasta_file))
     gff=None
 
@@ -441,7 +466,7 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
                     print e['ID'], e['eCode'], tag
     else:
         gff = Gff3(gff_file=gff_file, fasta_external=fasta_file, logger=logger_null)
-    
+
     logger.info('Extract sequences for {0:s}...'.format(stype))
     seq=dict()
     if stype == 'all':
@@ -521,7 +546,7 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
         for k,v in tmpseq.items():
             k = k.replace("|mRNA(CDS)|", "|peptide|").replace("-RA", "-PA")
             v = translator(v)
-            seq[k] = v            
+            seq[k] = v
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
             report_fh = open(fname, 'wb')
@@ -536,11 +561,11 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
             logger.info('Print out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, stype))
             for k,v in seq.items():
                 if len(k)!=0 and len(v)!=0:
-                    report_fh.write('{0:s}\n{1:s}\n'.format(k,v))        
+                    report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
 
     else:
         if stype == 'pre_trans' or stype == 'gene' or stype == 'exon':
-            seq = extract_start_end(gff, stype, dline)        
+            seq = extract_start_end(gff, stype, dline)
         elif stype == 'trans':
             feature_type = ['exon', 'pseudogenic_exon']
             seq = splicer(gff, feature_type,  dline, stype)
@@ -553,7 +578,7 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
             for k,v in tmpseq.items():
                 k = k.replace("|mRNA(CDS)|", "|peptide|").replace("-RA", "-PA")
                 v = translator(v)
-                seq[k] = v            
+                seq[k] = v
         if len(seq):
             logger.info('Print out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, stype))
             for k,v in seq.items():
@@ -585,11 +610,11 @@ if __name__ == '__main__':
     Outputs:
     1. Fasta formatted sequence file based on the gff3 file.
 
-    Example command: 
+    Example command:
     python2.7 bin/gff3_to_fasta.py -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
 
     """))
-    parser.add_argument('-g', '--gff', type=str, help='Genome annotation file in GFF3 format') 
+    parser.add_argument('-g', '--gff', type=str, help='Genome annotation file in GFF3 format')
     parser.add_argument('-f', '--fasta', type=str, help='Genome sequences in FASTA format')
     parser.add_argument('-st', '--sequence_type', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}\n\t{3:s}\n\t{4:s}\n\t{5:s}\n\t{6:s}\n\t{7:s}\n\t{8:s}".format('Type of sequences you would like to extract: ','"all" - FASTA files for all types of sequences listed below, except user_defined;','"gene" - gene sequence for each record;', '"exon" - exon sequence for each record;', '"pre_trans" - genomic region of a transcript model (premature transcript);', '"trans" - spliced transcripts (only exons included);', '"cds" - coding sequences;', '"pep" - peptide sequences;', '"user_defined" - specify parent and child features via the -u argument.'))
     parser.add_argument('-u', '--user_defined', nargs='*', help="Specify parent and child features for fasta extraction, format: [parent feature type] [child feature type] (ex: -u mRNA CDS). Required if -st user_defined is given.")
@@ -597,7 +622,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output_prefix', type=str, help='Prefix of output file name')
     parser.add_argument('-noQC', '--quality_control', action='store_false', help='Specify this option if you do not want to execute quality control for gff file. (default: QC is executed)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-    
+
     args = parser.parse_args()
     if args.gff:
         logger_stderr.info('Checking gff file (%s)...', args.gff)
