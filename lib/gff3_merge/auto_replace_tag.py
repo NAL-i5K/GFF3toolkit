@@ -46,14 +46,15 @@ def main(gff1, gff2, fasta, outdir, scode, user_defined1, user_defined2, logger)
     gff3_1 = Gff3(gff_file=gff1, fasta_external=fasta, logger=logger)
     gff3_2 = Gff3(gff_file=gff2, fasta_external=fasta, logger=logger)
 
-    roots =[]
-    for line in gff3_1.lines:
-        try:
-            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent') and len(line['attributes']) != 0:
-                roots.append(line)
-        except:
-            pass
+
     if not user_defined1:
+        roots =[]
+        for line in gff3_1.lines:
+            try:
+                if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent') and len(line['attributes']) != 0:
+                    roots.append(line)
+            except:
+                pass
         for root in roots:
             children = root['children']
             for child in children:
@@ -73,6 +74,13 @@ def main(gff1, gff2, fasta, outdir, scode, user_defined1, user_defined2, logger)
     else:
         for lines in user_defined1:
             transcripts_type.add(lines[0])
+        for line in gff3_1.lines:
+            if line['type'] in transcripts_type:
+                id = 'NA'
+                if line['attributes'].has_key('ID'):
+                    id = line['attributes']['ID']
+                    transcripts.add(id)
+
     out1_type = '{0:s}/{1:s}'.format(tmpdir, 'gff1_transcript_type.txt')
     with open(out1_type, "w") as trans_type:
         for line in transcripts_type:
@@ -163,40 +171,40 @@ def main(gff1, gff2, fasta, outdir, scode, user_defined1, user_defined2, logger)
     cmd = lib_path + '/auto_assignment/find_match.pl'
     report1 = '{0:s}/{1:s}'.format(tmpdir, 'report1.txt')
     subprocess.Popen(['perl', cmd, cgff, bout, scode, report1, out1_type]).wait()
-    if not user_defined1:
-        with open(bout, "r") as bcds:
-            for line in bcds:
-                try:
-                    QueryID = re.match("^.*ID=([^|]+).+$",line.split("\t")[0]).group(1)
-                    transcripts.discard(QueryID)
-                except:
-                    pass
-        if len(transcripts) >0:
-            cmd = lib_path + '/auto_assignment/makeblastdb'
-            bdb = '{0:s}_{1:s}'.format(out2, 'trans.fa')
-            logger.info('Make blastDB for transcript sequences from {0:s}...'.format(bdb))
-            subprocess.Popen([cmd, '-in', bdb, '-dbtype', 'nucl']).wait()
-            cmd = lib_path + '/auto_assignment/blastn'
-            print('\n')
-            logger.info('Sequence alignment for transcript fasta files between {0:s} and {1:s}...'.format(gff1, gff2))
-            binput  = '{0:s}_{1:s}'.format(out1, 'trans.fa')
-            bout = '{0:s}/{1:s}'.format(tmpdir, 'blastn.out')
-            subprocess.Popen([cmd, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
 
-            logger.info('Find transcript matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))
-            cmd = lib_path + '/auto_assignment/find_match.pl'
-            report1_trans = '{0:s}/{1:s}'.format(tmpdir, 'report1_trans.txt')
-            subprocess.Popen(['perl', cmd, cgff, bout, scode, report1_trans, out1_type]).wait()
+    with open(bout, "r") as bcds:
+        for line in bcds:
+            try:
+                QueryID = re.match("^.*ID=([^|]+).+$",line.split("\t")[0]).group(1)
+                transcripts.discard(QueryID)
+            except:
+                pass
+    if len(transcripts) >0:
+        cmd = lib_path + '/auto_assignment/makeblastdb'
+        bdb = '{0:s}_{1:s}'.format(out2, 'trans.fa')
+        logger.info('Make blastDB for transcript sequences from {0:s}...'.format(bdb))
+        subprocess.Popen([cmd, '-in', bdb, '-dbtype', 'nucl']).wait()
+        cmd = lib_path + '/auto_assignment/blastn'
+        print('\n')
+        logger.info('Sequence alignment for transcript fasta files between {0:s} and {1:s}...'.format(gff1, gff2))
+        binput  = '{0:s}_{1:s}'.format(out1, 'trans.fa')
+        bout = '{0:s}/{1:s}'.format(tmpdir, 'blastn.out')
+        subprocess.Popen([cmd, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
 
-            with open(report1,"a") as rep1:
-                with open(report1_trans,"r") as rep1_trans:
-                    for line in rep1_trans:
-                        try:
-                            transID = line.split("\t")[2]
-                            if transID in transcripts:
-                                rep1.write(line)
-                        except:
-                            pass
+        logger.info('Find transcript matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))
+        cmd = lib_path + '/auto_assignment/find_match.pl'
+        report1_trans = '{0:s}/{1:s}'.format(tmpdir, 'report1_trans.txt')
+        subprocess.Popen(['perl', cmd, cgff, bout, scode, report1_trans, out1_type]).wait()
+
+        with open(report1,"a") as rep1:
+            with open(report1_trans,"r") as rep1_trans:
+                for line in rep1_trans:
+                    try:
+                        transID = line.split("\t")[2]
+                        if transID in transcripts:
+                            rep1.write(line)
+                    except:
+                        pass
     cmd = lib_path + '/auto_assignment/makeblastdb'
     bdb = '{0:s}_{1:s}'.format(out2, 'pre_trans.fa')
     logger.info('Make blastDB for premature transcript sequences from {0:s}...'.format(bdb))

@@ -118,6 +118,11 @@ while ( my $line = <$GFF> ){
 		my $link = "https://apollo.nal.usda.gov/".$species_code."/jbrowse/?loc=".$scaffold."%3A".$start."..".$stop."&tracks=DNA%2CAnnotations%2C".$species_code."_current_models&highlight=";
                 $transcript_ids{$id} = "$gene_ids{$parent}\t$owner\t$scaffold\t$start\t$stop\t$strand\t$array[2]\t$name\t$id\t$comments\t$replace\t$status\t$link";
 	    }
+	    elsif ($parent eq "NA" ){
+	        $gene_ids{$parent} = "NA\tNA\tNA\tNA\tNA\tNA\tNA";
+            my $link = "https://apollo.nal.usda.gov/".$species_code."/jbrowse/?loc=".$scaffold."%3A".$start."..".$stop."&tracks=DNA%2CAnnotations%2C".$species_code."_current_models&highlight=";
+                $transcript_ids{$id} = "$gene_ids{$parent}\t$owner\t$scaffold\t$start\t$stop\t$strand\t$array[2]\t$name\t$id\t$comments\t$replace\t$status\t$link";        
+        }
 	    else {
 		warn "parents and children out of synch here:\n$parent\t$id\n";
 	    }

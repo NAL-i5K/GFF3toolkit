@@ -44,7 +44,7 @@ IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript']
 COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
 def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
-    
+
 BASES = ['t', 'c', 'a', 'g']
 CODONS = [a+b+c for a in BASES for b in BASES for c in BASES]
 AMINO_ACIDS = 'FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG'
@@ -58,7 +58,7 @@ def translate(seq):
         if amino_acid != '!': # end of seq
             peptide += amino_acid
     return peptide
-    
+
 def fasta_file_to_dict(fasta_file, id=True, header=False, seq=False):
     """Returns a dict from a fasta file and the number of sequences as the second return value.
     fasta_file can be a string path or a file object.
@@ -162,13 +162,28 @@ class Gff3(object):
             self.parse_fasta_external(fasta_external)
 
     error_format = 'Line {current_line_num}: {error_type}: {message}\n-> {line}'
-    def collect_descendants(self, line_data): #Function defined by Mei-Ju May Chen 11/04/2015 
+    def collect_descendants(self, line_data): #Function defined by Mei-Ju May Chen 11/04/2015
         collected_list = []
         if line_data.has_key('children'):
             children = line_data['children']
             for child in children:
                 collected_list.append(child)
                 collected_list.extend(self.collect_descendants(child))
+        else:
+            return
+        return(collected_list)
+    def collect_roots(self, line_data): #Function defined by Li-Mei Chiang 10/06/2017
+        collected_list = []
+        if line_data.has_key('parents'):
+            for p_line in line_data['parents']:
+                for p in p_line:
+                    try:
+                        if not p['attributes'].has_key('Parent'):
+                            collected_list.append(p)
+                        else:
+                            collected_list.extend(self.collect_roots(p))
+                    except:
+                        pass
         else:
             return
         return(collected_list)
@@ -282,7 +297,7 @@ class Gff3(object):
                 sorted_cds_list = sorted(cds_list, key=lambda x: x['end'], reverse=True)
             else:
                 sorted_cds_list = sorted(cds_list, key=lambda x: x['start'])
-            #If initial_phase is given, then program will test whether phase of the first CDS is 0. If it is not, then show warning. 
+            #If initial_phase is given, then program will test whether phase of the first CDS is 0. If it is not, then show warning.
             #If initial_phase is not given (default), then program will not test whether phase of the first CDS is 0
             if initial_phase:
                 phase = 0
@@ -512,13 +527,13 @@ class Gff3(object):
         gff_fp = gff_file
         if isinstance(gff_file, str):
             gff_fp = open(gff_file, 'rb')
-            
+
         lines = []
         current_line_num = 1 # line numbers start at 1
         features = defaultdict(list)
         # key = the unresolved id, value = a list of line_data(dict)
         unresolved_parents = defaultdict(list)
-        
+
         for line_raw in gff_fp:
             line_data = {
                 'line_index': current_line_num - 1,

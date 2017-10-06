@@ -42,7 +42,7 @@ import gff3_sort
 
 __version__ = '0.0.4'
 
-def main(gff_file1, gff_file2, output_gff, report_fh, logger=None):
+def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_defined2=None, logger=None):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -63,7 +63,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, logger=None):
     gff3M = Gff3(gff_file='other_sorted.gff', logger=logger_null) #Maker
 
     logger.info('Identifying types of replacement based on replace tag...')
-    ReplaceGroups = replace_OGS.Groups(WAgff=gff3, Pgff=gff3M, outsideNum=1,logger=logger_null)
+    ReplaceGroups = replace_OGS.Groups(WAgff=gff3, Pgff=gff3M, outsideNum=1, user_defined1=user_defined1, user_defined2=user_defined2, logger=logger_null)
 
     logger.info('Replacing...')
     roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]

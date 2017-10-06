@@ -392,9 +392,11 @@ def extract_start_end(gff, stype, dline):
                 pid = ','.join(keys)
                 defline='>{0:s}'.format(uid)
                 if dline == 'complete':
-                    defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|Parent={5:s}|ID={6:s}|Name={7:s}'.format(user_defined['seqid'], user_defined['start'], user_defined['end'], user_defined['strand'], user_defined['type'], pid, uid, uname)
-
-                seq[defline] = get_subseq(gff, user_defined)
+                    if pid != "":
+                        defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|Parent={5:s}|ID={6:s}|Name={7:s}'.format(user_defined['seqid'], user_defined['start'], user_defined['end'], user_defined['strand'], user_defined['type'], pid, uid, uname)
+                    else:
+                        defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|ID={5:s}|Name={6:s}'.format(user_defined['seqid'], user_defined['start'], user_defined['end'], user_defined['strand'], user_defined['type'], uid, uname)
+                    seq[defline] = get_subseq(gff, user_defined)
             except:
                 print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(user_defined['line_index']+1), user_defined['line_raw']))
 

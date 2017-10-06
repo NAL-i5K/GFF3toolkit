@@ -23,14 +23,28 @@ import version
 
 __version__ = version.__version__
 
-def check_replace(gff):
+def check_replace(gff, user_defined1=None):
+    if user_defined1 != None:
+        u_type = set()
+        for line in user_defined1:
+            u_type.add(line[0])
+
     roots = []
     for line in gff.lines:
-        try:
-            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
-               roots.append(line)
-        except:
-            print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+        if not user_defined1:
+            try:
+                if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                   roots.append(line)
+            except:
+                print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+        else:
+            if line['type'] in u_type:
+                try:
+                    if not line['attributes'].has_key('replace'):
+                        error_lines.append(line)
+                except:
+                    print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+
     #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     error_lines = list()
     for root in roots:
@@ -45,7 +59,7 @@ def check_replace(gff):
         return False
 
 
-def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, user_defined1=False, user_defined2=False, logger=None):
+def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, user_defined1=None, user_defined2=None, logger=None):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -68,11 +82,11 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, user_define
 
         logger.info('========== Auto-assignment of replace tags for each transcript model ==========')
         gff3_merge.auto_replace_tag.main(gff_file1, gff_file2, fasta, autoDIR, 'TEMP', user_defined1, user_defined2, logger)
-        gff3_merge.revision.main(gff_file1, autoFILE, autoReviseGff, autoReviseReport, logger)
+        gff3_merge.revision.main(gff_file1, autoFILE, autoReviseGff, autoReviseReport, user_defined1, logger)
 
         logger.info('========== Check whether there are missing replace tags ==========')
         gff3 = Gff3(gff_file=autoReviseGff, logger=logger_null)
-        error_models = check_replace(gff3)
+        error_models = check_replace(gff3, user_defined1)
         if error_models:
             logger.error('There are models missing replace tags...')
             logger.error('Please check the below models in {0:s}. Please specify the proper replaced models at colulumn 9. For example, \'replace=[Transcript ID]\'. If this is a newly added model, please put it as \'replace=NA\'. Then, re-excute the program.\n'.format(autoReviseGff))
@@ -83,7 +97,7 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, user_define
             logger.info('- All models have replace tags.')
 
         logger.info('========== Merge the two gff files ==========')
-        gff3_merge.merge.main(autoReviseGff, gff_file2, output_gff, report, logger)
+        gff3_merge.merge.main(autoReviseGff, gff_file2, output_gff, report, user_defined1, user_defined2, logger)
     else:
         logger.info('========== Check whether there are missing replace tags ==========')
         gff3 = Gff3(gff_file=gff_file1, logger=logger_null)
@@ -98,7 +112,7 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, user_define
             logger.info('- All models have replace tags.')
 
         logger.info('========== Merge the two gff files ==========')
-        gff3_merge.merge.main(gff_file1, gff_file2, output_gff, report, logger)
+        gff3_merge.merge.main(gff_file1, gff_file2, output_gff, report, user_defined1, user_defined2, logger)
 
 
 if __name__ == '__main__':

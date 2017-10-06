@@ -246,10 +246,12 @@ def merge(gff, line, line2, oID):
 
 class Groups(object):
 
-    def __init__(self, WAgff=None, Pgff=None, outsideNum=int, logger=logger):
+    def __init__(self, WAgff=None, Pgff=None, outsideNum=int, user_defined1=None, user_defined2=None, logger=logger):
         self.logger = logger
         self.WAgff = WAgff
         self.Pgff = Pgff
+        self.user_defined1 = user_defined1
+        self.user_defined2 = user_defined2
         self.outsideNum = outsideNum
         self.mapType2Log = {'simple':'replaced by WA model: simple replacement','merge':'replaced by WA model: merge','split':'replaced by WA model: split','add':'newly added WA model: add','other':'no change', 'Delete':'removed', 'multi-ref':'replaced by WA model: deal with reference gene with multiple transcripts'}
 
@@ -262,43 +264,90 @@ class Groups(object):
         if Pgff:
             self.name2id(Pgff)
         if WAgff:
-            self.grouping(WAgff)
+            self.grouping(WAgff, user_defined1)
 
-    def grouping(self, WAgff):
-        roots = [line for line in WAgff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    def grouping(self, WAgff, user_defined1):
+        u_type = set()
+        if user_defined1 != None:
+            for line in user_defined1:
+                u_type.add(line[0])
+
+        roots = []
+        u_transcripts = []
+        for line in WAgff.lines:
+            if user_defined1 == None:
+                try:
+                    if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                        roots.append(line)
+                except:
+                    pass
+            else:
+                if line['type'] in u_type:
+                    u_transcripts.append(line)
+
+        #roots = [line for line in WAgff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
         uniqueReplaceID = {}
-        for root in roots:
-            children = root['children']
-            for child in children:
-                child['attributes']['replace'].sort()
-                if len(child['attributes']['replace']) == 1 and child['attributes']['replace'][0] == 'NA':
-                    parent = child['parents']
-                    childrtag = {}
+        if user_defined1 == None:
+            for root in roots:
+                children = root['children']
+                for child in children:
+                    child['attributes']['replace'].sort()
+                    if len(child['attributes']['replace']) == 1 and child['attributes']['replace'][0] == 'NA':
+                        parent = child['parents']
+                        childrtag = {}
+                        for parent_lines in parent:
+                            for line in parent_lines:
+                                tmpchildren = line['children']
+                                for tmpchild in tmpchildren:
+                                    tmpline = ','.join(tmpchild['attributes']['replace'])
+                                    childrtag[tmpline] = 0
+                        if len(childrtag) == 1:
+                            pass
+                        elif len(childrtag) == 2:
+                            # If a gene contains multiple transcripts, and one of them is 'NA' and the others belong to a specific reference transcript. Then, replace 'NA' with that specific refernece transcript.
+                            for tmptag in childrtag:
+                                if not tmptag == 'NA':
+                                    tmplist = tmptag.split(',')
+                                    child['attributes']['replace'] = tmplist
+                        else:
+                            # The case cannot be processed.
+                            print('Warning -- inconsitent replace tags, one is NA: {0:s}'.format(child['attributes']['ID']))
+
+                    rIDs = child['attributes']['replace']
+                    for i in rIDs:
+                        if (uniqueReplaceID.has_key(i)):
+                            uniqueReplaceID[i].append(child)
+                        else:
+                            uniqueReplaceID[i] = []
+                            uniqueReplaceID[i].append(child)
+        else:
+            for line in u_transcripts:
+                line['attributes']['replace'].sort()
+                if len(line['attributes']['replace']) == 1 and line['attributes']['replace'][0] == 'NA':
+                    parent = line['parents']
+                    linetag = {}
                     for parent_lines in parent:
-                        for line in parent_lines:
-                            tmpchildren = line['children']
-                            for tmpchild in tmpchildren:
-                                tmpline = ','.join(tmpchild['attributes']['replace'])
-                                childrtag[tmpline] = 0
-                    if len(childrtag) == 1:
+                        for p_line in parent_lines:
+                            tmplines = p_line['children']
+                            for tmpline in tmplines:
+                                tmplin = ','.join(tmpline['attributes']['replace'])
+                                linetag[tmplin] = 0
+                    if len(linetag) == 1:
                         pass
-                    elif len(childrtag) == 2:
-                        # If a gene contains multiple transcripts, and one of them is 'NA' and the others belong to a specific reference transcript. Then, replace 'NA' with that specific refernece transcript.
-                        for tmptag in childrtag:
+                    elif len(linetag) == 2:
+                        for tmptag in linetag:
                             if not tmptag == 'NA':
                                 tmplist = tmptag.split(',')
-                                child['attributes']['replace'] = tmplist
+                                line['attributes']['replace'] = tmplist
                     else:
-                        # The case cannot be processed.
-                        print('Warning -- inconsitent replace tags, one is NA: {0:s}'.format(child['attributes']['ID']))
-
-                rIDs = child['attributes']['replace']
+                        print('Warning -- inconsitent replace tags, one is NA: {0:s}'.format(line['attributes']['ID']))
+                rIDs = line['attributes']['replace']
                 for i in rIDs:
                     if (uniqueReplaceID.has_key(i)):
-                        uniqueReplaceID[i].append(child)
+                        uniqueReplaceID[i].append(line)
                     else:
                         uniqueReplaceID[i] = []
-                        uniqueReplaceID[i].append(child)
+                        uniqueReplaceID[i].append(line)
 
         for k, v in uniqueReplaceID.items():
             parents = {} # for each replace tag, all the gene IDs involved.
@@ -339,35 +388,48 @@ class Groups(object):
             for i in v:
                 print("  Detail:", i['attributes']['replace_type'], i['attributes']['replace'])
             '''
-        for root in roots:
-            children = root['children']
+        if user_defined1 == None:
+            for root in roots:
+                children = root['children']
+                rtypes={}
+                rtags={}
+                for child in children:
+                    rtypes[child['attributes']['replace_type']] = 0
+                    for tag in child['attributes']['replace']:
+                        rtags[tag] = 0
+                if len(rtypes) == 1:
+                    for k, v in rtypes.items():
+                        root['attributes']['replace_type'] = k
+                    tmp = []
+                    for k, v in rtags.items():
+                        tmp.append(k)
+                    root['attributes']['replace'] = tmp
+                elif len(rtypes) == 0:
+                    root['attributes']['replace_type'] = 'add'
+                    root['attributes']['replace'] = ['NA']
+                 else:
+                    print('Warning! Two or more replace types for a gene model: {0:s}. This gene model is not processed!'.format(root['attributes']['ID']))
+                    root['attributes']['replace_type'] = 'internal_review'
+            for root in roots:
+                children = root['children']
+                for child in children:
+                    if child['attributes'].has_key('status') and (child['attributes']['status'] == 'Delete' or child['attributes']['status'] == 'delete'):
+                        child['attributes']['replace_type'] == 'Delete'
+                        for p_line in child['parents']:
+                            for p in p_line:
+                                p['attributes']['replace_type'] == 'Delete'
+        else:
             rtypes={}
             rtags={}
-            for child in children:
-                rtypes[child['attributes']['replace_type']] = 0
-                for tag in child['attributes']['replace']:
-                    rtags[tag] = 0
+            for line in u_transcripts:
+               rtypes[line['attributes']['replace_type']] = 0
+               for tag in line['attributes']['replace']:
+                   rtags[tag] = 0
             if len(rtypes) == 1:
                 for k, v in rtypes.items():
-                    root['attributes']['replace_type'] = k
-                tmp = []
-                for k, v in rtags.items():
-                    tmp.append(k)
-                root['attributes']['replace'] = tmp
-            elif len(rtypes) == 0:
-                root['attributes']['replace_type'] = 'add'
-                root['attributes']['replace'] = ['NA']
-            else:
-                print('Warning! Two or more replace types for a gene model: {0:s}. This gene model is not processed!'.format(root['attributes']['ID']))
-                root['attributes']['replace_type'] = 'internal_review'
-        for root in roots:
-            children = root['children']
-            for child in children:
-                if child['attributes'].has_key('status') and (child['attributes']['status'] == 'Delete' or child['attributes']['status'] == 'delete'):
-                    child['attributes']['replace_type'] == 'Delete'
-                    for p_line in child['parents']:
-                        for p in p_line:
-                            p['attributes']['replace_type'] == 'Delete'
+
+
+
 
 
     def name2id(self, Mgff):
