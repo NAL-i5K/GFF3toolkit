@@ -209,11 +209,16 @@ print FO "Gene_ID1\tGene_ID2\tmRNA_ID1\tmRNA_ID2\tName1\tName2\tOwner1\tOwner2\t
 foreach my $e (sort keys %diffparent){
 	my @pid = split("\t", $diffparent{$e}->{PAR});
 	my @t = split("\t", $diffparent{$e}->{BEST});
-	$t[0] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;
-	my ($scaf1, $s1, $e1, $d1) = ($1, $2, $3, $4);
-	$t[1] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;
+	$t[0] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;	
+	my ($scaf1, $s1, $e1, $d1) = ($1, $2, $3, $4);	
+	$t[1] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;	
 	my ($scaf2, $s2, $e2, $d2) = ($1, $2, $3, $4);
-	print "$scaf2, $s2, $e2, $d2\n";
+
+	if ( !defined $gene2url{$pid[0]} ){
+	    $gene2url{$pid[0]} = 'Unassigned';
+    }
+    
+
 	if ($scaf1 eq $scaf2 && $d1 eq $d2){
 		if (($s1 >= $s2 && $s1 <= $e2) || ($s2 >= $s1 && $s2 <= $e1)){
 			print FO "$diffparent{$e}->{PAR}\t$diffparent{$e}->{ID}\t$diffparent{$e}->{NAME}\t$diffparent{$e}->{OWNER}\t$gene2url{$pid[0]}\t$diffparent{$e}->{BEST}\n";

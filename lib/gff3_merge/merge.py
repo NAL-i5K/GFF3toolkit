@@ -66,12 +66,41 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     ReplaceGroups = replace_OGS.Groups(WAgff=gff3, Pgff=gff3M, outsideNum=1, user_defined1=user_defined1, user_defined2=user_defined2, logger=logger_null)
 
     logger.info('Replacing...')
-    roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    u1_types = set()
+    if user_defined1 != None:
+        for line in user_defined1:
+            u1_types.add(line[0])
+    u2_types = set()
+    if user_defined2 != None:
+        for line in user_defined2:
+            u2_types.add(line[0])
+    roots = []
+    transcripts = []
+    for line in gff3.lines:
+        if user_defined1 == None:
+            try:
+                if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                    roots.append(line)
+            except:
+                pass
+        else:
+            if line['type'] in u1_types:
+                transcripts.append(line)
+                roots.extend(gff3.collect_roots(line))
+
+    #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     rnum, cnum, changed = 0, 0, 0
     cal_type_children = {}
+
     for root in roots:
         rnum += 1
-        children = root['children']
+        if user_defined1 == None:
+            children = root['children']
+        else:
+            children = []
+            for child in gff3.collect_descendants(root):
+                if child['type'] in u1_types:
+                    children.append(child)
         tags = {}
         cnum += len(children)
         maxisoforms = 0
@@ -88,7 +117,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                 root['attributes']['replace_type'] = 'multi-ref'
                 for child in children:
                     child['attributes']['replace_type'] = 'multi-ref'
-                ans = ReplaceGroups.replacer_multi(root, ReplaceGroups, gff3M)
+                ans = ReplaceGroups.replacer_multi(root, ReplaceGroups, gff3M, u2_types)
                 report_fh.write('{0:s}\n'.format(ans))
                 changed += 1
             else:
@@ -128,9 +157,29 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
         report_fh.write('# Number of transcripts with {0:s} replacement: {1:d}\n'.format(k, v) )
 
     report_fh.write('Change_log\tOriginal_gene_name\tOriginal_transcript_ID\tOriginal_transcript_name\tTmp_OGSv0_ID\n')
-    roots = [line for line in gff3M.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+
+    roots = []
+    transcripts = []
+    for line in gff3M.lines:
+        if user_defined2 == None:
+            try:
+                if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                    roots.append(line)
+            except:
+                pass
+        else:
+            if line['type'] in u2_type:
+                transcripts.append(line)
+                roots.extend(gff3M.collect_roots(line))
+    #roots = [line for line in gff3M.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     for root in roots:
-        children = root['children']
+        if user_defined2 == None:
+            children = root['children']
+        else:
+            children = []
+            for child in gff3.collect_descendants(root):
+                if child['type'] in u2_types:
+                    children.append(child)
         for child in children:
             cflag = 0
             if not child['line_status'] == 'removed':
@@ -145,10 +194,15 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                                 tname = t['attributes']['ID']
                             tid = t['attributes']['ID']
                             gid_list = list()
-                            for tp_line in t['parents']:
-                                for tp in tp_line:
+                            if user_defined2 == None:
+                                for tp_line in t['parents']:
+                                    for tp in tp_line:
+                                        gid_list.append(tp['attributes']['ID'])
+                                gid = ','.join(gid_list)
+                            else:
+                                for tp_line in gff3M.collect_roots(t):
                                     gid_list.append(tp['attributes']['ID'])
-                            gid = ','.join(gid_list)
+                                gid = ','.join(gid_list)
                         report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\n'.format(ReplaceGroups.mapType2Log[child['attributes']['replace_type']], gid, tid, tname, child['attributes']['ID']))
                     del child['attributes']['replace_type']
                     cflag += 1
@@ -157,9 +211,14 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                 if cflag == 0:
                     gid = None
                     gid_list = list()
-                    for p_line in child['parents']:
-                        for p in p_line:
+                    if user_defined2 == None:
+                        for p_line in child['parents']:
+                            for p in p_line:
+                                gid_list.append(p['attributes']['ID'])
+                    else:
+                        for p in gff3M.collect_roots(child):
                             gid_list.append(p['attributes']['ID'])
+
                     gid = ','.join(gid_list)
                     report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\n'.format(ReplaceGroups.mapType2Log['other'], gid, child['attributes']['ID'], ReplaceGroups.id2name[child['attributes']['ID']], child['attributes']['ID']))
             else:
@@ -171,9 +230,14 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                         tname = t['attributes']['Name']
                         tid = t['attributes']['ID']
                         gid_list = list()
-                        for tp_line in t['parents']:
-                            for tp in tp_line:
+                        if user_defined2 == None:
+                            for tp_line in t['parents']:
+                                for tp in tp_line:
+                                    gid_list.append(tp['attributes']['ID'])
+                        else:
+                            for tp_line in gff3M.collect_roots(t):
                                 gid_list.append(tp['attributes']['ID'])
+
                         gid = ','.join(gid_list)
 
                     report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\n'.format(ReplaceGroups.mapType2Log['Delete'], gid, tid, tname, "NA"))

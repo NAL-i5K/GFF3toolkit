@@ -130,7 +130,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
             u_types.add(line[0])
 
     roots = []
-    u_transcripts = []
+    transcripts = []
     for line in gff3.lines:
         if user_defined1 == None:
             try:
@@ -140,41 +140,52 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                 print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         else:
             if line['type'] in u_types:
-                u_transcripts.append(line)
+                transcripts.append(line)
+                roots.extend(gff3.collect_roots(line))
 
 
     #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
-
-    if user_defined1 == None:
-        for line in roots:
-            if line['attributes'].has_key('replace') and line.has_key('children'):
-                for index in range(len(line['attributes']['replace'])):
-                    line['attributes']['replace'][index] = re.sub('\s+', '', line['attributes']['replace'][index])
+    for line in roots:
+        if line['attributes'].has_key('replace') and line.has_key('children'):
+            for index in range(len(line['attributes']['replace'])):
+                line['attributes']['replace'][index] = re.sub('\s+', '', line['attributes']['replace'][index])
+            if user_defined1 == None:
                 children = line['children']
-                flag = 0
-                for child in children:
-                    f=0
-                    if not child['attributes'].has_key('replace'):
-                        child['attributes']['replace'] = line['attributes']['replace']
-                        flag += 1
-                        f+=1
+            else:
+                children = []
+                for child in gff3.collect_descendants(line):
+                    if child['type'] in u_type:
+                        children.append(child)
+            flag = 0
+            for child in children:
+                f=0
+                if not child['attributes'].has_key('replace'):
+                    child['attributes']['replace'] = line['attributes']['replace']
+                    flag += 1
+                    f+=1
 
-                    for index in range(len(child['attributes']['replace'])):
-                        child['attributes']['replace'][index] = re.sub('\s+', '', child['attributes']['replace'][index])
+                for index in range(len(child['attributes']['replace'])):
+                    child['attributes']['replace'][index] = re.sub('\s+', '', child['attributes']['replace'][index])
 
-                    if f == 0:
-                        #print('\nReplace tags found at both gene and mRNA level:{0:s}; {1:s}'.format(line['attributes']['replace'], child['attributes']['replace']))
-                        i = str(sorted(line['attributes']['replace']))
-                        j = str(sorted(child['attributes']['replace']))
-                        if not i == j:
-                            print '[Warning!] replace tag at gene level ({0:s}) is not consistent with that at mRNA level ({1:s})'.format(i,j)
+                if f == 0:
+                    #print('\nReplace tags found at both gene and mRNA level:{0:s}; {1:s}'.format(line['attributes']['replace'], child['attributes']['replace']))
+                    i = str(sorted(line['attributes']['replace']))
+                    j = str(sorted(child['attributes']['replace']))
+                    if not i == j:
+                        print '[Warning!] replace tag at gene level ({0:s}) is not consistent with that at mRNA level ({1:s})'.format(i,j)
 
-                del line['attributes']['replace']
+            del line['attributes']['replace']
 
 
 
             # add an exon features with the same coordiantes to the ncRNA feature if the ncRNA does not contain at least one exon.
-            children = line['children']
+            if user_defined1 == None:
+                children = line['children']
+            else:
+                children = []
+                for child in gff3.collect_descendants(line):
+                    if child['type'] in u_type:
+                        children.append(child)
             for child in children:
                 exonflag = 0
                 if child['type'] in NCRNA:
@@ -203,32 +214,6 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
             if line['type'] == 'gene' or line['type'] == 'pseudogene':
                 if not line.has_key('children'):
                     gff3.remove(line)
-    else:
-
-        for line in u_transcripts:
-            roots.extend(gff3.collect_roots(line))
-        for line in roots:
-            if root['type'] not in u_type:
-                if line['attributes'].has_key('replace') and line.has_key('children'):
-                    for index in range(len(line['attributes']['replace'])):
-                        line['attributes']['replace'][index] = re.sub('\s+', '', line['attributes']['replace'][index])
-                    children.extend(gff3.collect_descendants(line['children']))
-                    flag = 0
-                    for child in children:
-                        f = 0
-                        if child['type'] in u_type:
-                            if not child['attributes'].has_key('replace'):
-                                child['attributes']['replace'] = line['attributes']['replace']
-                                flag += 1
-                                f+=1
-                        for index in range(len(child['attributes']['replace'])):
-                            child['attributes']['replace'][index] = re.sub('\s+', '', child['attributes']['replace'][index])
-                        if f == 0:
-                            i = str(sorted(line['attributes']['replace']))
-                            j = str(sorted(child['attributes']['replace']))
-                            if not i == j:
-                                print '[Warning!] replace tag at {0:s} level ({1:s}) is not consistent with that at {2:s} level ({3:s})'.format(line['type'],i,child['type'],j)
-                    del line['attributes']['replace']
 
     if report_file:
         report_fh.close()
