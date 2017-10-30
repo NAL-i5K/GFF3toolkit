@@ -293,9 +293,12 @@ class Groups(object):
                 children = root['children']
             else:
                 children = []
-                for child in WAgff.collect_descendants(root):
-                    if child['type'] in u_type:
-                        children.append(child)
+                if root['type'] in u_type:
+                    children.append(root)
+                else:
+                    for child in WAgff.collect_descendants(root):
+                        if child['type'] in u_type:
+                            children.append(child)
             for child in children:
                 child['attributes']['replace'].sort()
                 if len(child['attributes']['replace']) == 1 and child['attributes']['replace'][0] == 'NA':
@@ -344,10 +347,12 @@ class Groups(object):
             for i in v:
                 if user_defined1 == None:
                     parent = i['parents']
+                    for parent_lines in parent:
+                        for line in parent_lines:
+                            parents[line['attributes']['ID']]=0
                 else:
                     parent = WAgff.collect_roots(i)
-                for parent_lines in parent:
-                    for line in parent_lines:
+                    for line in parent:
                         parents[line['attributes']['ID']]=0
 
             for i in v:
@@ -398,9 +403,12 @@ class Groups(object):
                 children = root['children']
             else:
                 children = []
-                for child in WAgff.collect_descendants(root):
-                    if child['type'] in u_type:
-                        children.append(child)
+                if root['type'] in u_type:
+                    children.append(root)
+                else:
+                    for child in WAgff.collect_descendants(root):
+                        if child['type'] in u_type:
+                            children.append(child)
             rtypes={}
             rtags={}
             for child in children:
@@ -425,9 +433,12 @@ class Groups(object):
                 children = root['children']
             else:
                 children = []
-                for child in WAgff.collect_descendants(root):
-                    if child['type'] in u_type:
-                        children.append(child)
+                if root['type'] in u_type:
+                    children.append(root)
+                else:
+                    for child in WAgff.collect_descendants(root):
+                        if child['type'] in u_type:
+                            children.append(child)
 
             for child in children:
                 if child['attributes'].has_key('status') and (child['attributes']['status'] == 'Delete' or child['attributes']['status'] == 'delete'):
@@ -483,9 +494,12 @@ class Groups(object):
                 children = root['children']
             else:
                 children = []
-                for child in Mgff.collect_descendants(root):
-                    if child['type'] in u_type:
-                        children.append(child)
+                if root['type'] in u_types:
+                    children.append(root)
+                else:
+                    for child in Mgff.collect_descendants(root):
+                        if child['type'] in u_types:
+                            children.append(child)
             for child in children:
                 if child['attributes'].has_key('Name'):
                     mapName2ID[child['attributes']['Name']] = child['attributes']['ID']
@@ -755,12 +769,17 @@ class Groups(object):
         #    Mgff.remove(Mgff.features[keepID.groups()[0]][0])
 
         else: # other replace_types
+            #print(line['children'][0]['line_raw'])
             for tag in rtags:
                 t = Mgff.features[Name2ID[tag]][0]
                 tmp = {}
                 tmp['line'] = t
-                tmp['parent'] = t['parents'][0][-1]
-                tmp['num_isoforms'] = len(t['parents'][0][-1]['children'])
+                if len(t['parents']) == 0:
+                    tmp['parent'] = t
+                    tmp['num_isoforms'] = 1
+                else:
+                    tmp['parent'] = t['parents'][0][-1]
+                    tmp['num_isoforms'] = len(t['parents'][0][-1]['children'])
                 targets.append(tmp)
                 mid.append(t['attributes']['ID'])
             if not line['attributes'].has_key('modified_track'):
@@ -770,6 +789,7 @@ class Groups(object):
                 newtarget['attributes']['modified_track'] = '{0:s}:{1:s}'.format(line['attributes']['replace_type'], midline)
                 try:
                     self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
+                    #print('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
                 except:
                     pass
 

@@ -49,7 +49,6 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
 
     if not logger:
         logger = logger_null
-
     logger.info('Sorting the WA gff by following the order of Scaffold number and coordinates...')
     gff3_sort.main(gff_file1, output='WA_sorted.gff', logger=logger)
 
@@ -91,16 +90,19 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     rnum, cnum, changed = 0, 0, 0
     cal_type_children = {}
-
+    changed_rootid = set()
     for root in roots:
         rnum += 1
         if user_defined1 == None:
             children = root['children']
         else:
             children = []
+            if root['type'] in u1_types:
+                children.append(root)
             for child in gff3.collect_descendants(root):
                 if child['type'] in u1_types:
                     children.append(child)
+
         tags = {}
         cnum += len(children)
         maxisoforms = 0
@@ -109,7 +111,16 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
             for tag in child['attributes']['replace']:
                 if not tag == 'NA':
                     t = gff3M.features[ReplaceGroups.mapName2ID[tag]][0]
-                    tmp = len(t['parents'][0][0]['children'])
+                    if user_defined2 == None:
+                        tmp = len(t['parents'][0][0]['children'])
+                    else:
+                        if len(t['parents']) == 0 and t['type'] in u2_types:
+                            #this transcript don't have parent feature(e.g. gene), set the number of isoform as 1.
+                            tmp = 1
+                        else:
+                            tmp = len(t['parents'][0][0]['children'])
+
+
                     if tmp > maxisoforms:
                         maxisoforms = tmp
         if len(tags) <= 1:
@@ -118,10 +129,13 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                 for child in children:
                     child['attributes']['replace_type'] = 'multi-ref'
                 ans = ReplaceGroups.replacer_multi(root, ReplaceGroups, gff3M, u2_types)
+
                 report_fh.write('{0:s}\n'.format(ans))
+                changed_rootid.add(root['attributes']['ID'])
                 changed += 1
             else:
                 ReplaceGroups.replacer(root, ReplaceGroups, gff3M)
+                changed_rootid.add(root['attributes']['ID'])
                 changed += 1
         else:
             logger.info('[Warning] multiple replace tags in multiple isoforms! {0:s}. This model is not processed\n'.format(root['attributes']['ID']))
@@ -168,21 +182,40 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
             except:
                 pass
         else:
-            if line['type'] in u2_type:
+            if line['type'] in u2_types:
                 transcripts.append(line)
                 roots.extend(gff3M.collect_roots(line))
+
     #roots = [line for line in gff3M.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     for root in roots:
-        if user_defined2 == None:
-            children = root['children']
-        else:
+        if root['attributes']['ID'] not in changed_rootid:
+            if user_defined2 == None:
+                children = root['children']
+
+            else:
+                children = []
+                if root['type'] in u2_types:
+                    children.append(root)
+                else:
+                    for child in gff3M.collect_descendants(root):
+                        if child['type'] in u2_types:
+                            children.append(child)
+        elif root['attributes']['ID'] in changed_rootid and user_defined1 != None:
             children = []
-            for child in gff3.collect_descendants(root):
-                if child['type'] in u2_types:
-                    children.append(child)
+            if root['type'] in u1_types:
+                children.append(root)
+            else:
+                for child in gff3.collect_descendants(root):
+                    if child['type'] in u1_types:
+                        children.append(child)
+        else:
+            children = root['children']
+
+
         for child in children:
             cflag = 0
             if not child['line_status'] == 'removed':
+                #print(child['attributes'])
                 if child['attributes'].has_key('replace_type'):
                     for i in root['attributes']['replace']:
                         tname, tid, gid = 'NA', 'NA', 'NA'
@@ -200,7 +233,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                                         gid_list.append(tp['attributes']['ID'])
                                 gid = ','.join(gid_list)
                             else:
-                                for tp_line in gff3M.collect_roots(t):
+                                for tp in gff3M.collect_roots(t):
                                     gid_list.append(tp['attributes']['ID'])
                                 gid = ','.join(gid_list)
                         report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\n'.format(ReplaceGroups.mapType2Log[child['attributes']['replace_type']], gid, tid, tname, child['attributes']['ID']))

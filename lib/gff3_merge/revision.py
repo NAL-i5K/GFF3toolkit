@@ -153,9 +153,12 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                 children = line['children']
             else:
                 children = []
-                for child in gff3.collect_descendants(line):
-                    if child['type'] in u_type:
-                        children.append(child)
+                if line['type'] in u_types:
+                    children.append(line)
+                else:
+                    for child in gff3.collect_descendants(line):
+                        if child['type'] in u_types:
+                            children.append(child)
             flag = 0
             for child in children:
                 f=0
@@ -173,19 +176,23 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                     j = str(sorted(child['attributes']['replace']))
                     if not i == j:
                         print '[Warning!] replace tag at gene level ({0:s}) is not consistent with that at mRNA level ({1:s})'.format(i,j)
-
-            del line['attributes']['replace']
-
-
+            if user_defined1 == None:
+                del line['attributes']['replace']
+            else:
+                if line['type'] not in u_types:
+                    del line['attributes']['replace']
 
             # add an exon features with the same coordiantes to the ncRNA feature if the ncRNA does not contain at least one exon.
             if user_defined1 == None:
                 children = line['children']
             else:
                 children = []
-                for child in gff3.collect_descendants(line):
-                    if child['type'] in u_type:
-                        children.append(child)
+                if line['type'] in u_types:
+                    children.append(line)
+                else:
+                    for child in gff3.collect_descendants(line):
+                        if child['type'] in u_types:
+                            children.append(child)
             for child in children:
                 exonflag = 0
                 if child['type'] in NCRNA:

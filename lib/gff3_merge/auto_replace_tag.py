@@ -181,14 +181,20 @@ def main(gff1, gff2, fasta, outdir, scode, user_defined1, user_defined2, logger)
                 pass
     if len(transcripts) >0:
         cmd = lib_path + '/auto_assignment/makeblastdb'
-        bdb = '{0:s}_{1:s}'.format(out2, 'trans.fa')
-        logger.info('Make blastDB for transcript sequences from {0:s}...'.format(bdb))
+        if user_defined2 == None:
+            bdb = '{0:s}_{1:s}'.format(out2, 'trans.fa')
+        else:
+            bdb = '{0:s}_{1:s}'.format(out2, 'cds.fa')
+            logger.info('Make blastDB for transcript sequences from {0:s}...'.format(bdb))
         subprocess.Popen([cmd, '-in', bdb, '-dbtype', 'nucl']).wait()
         cmd = lib_path + '/auto_assignment/blastn'
         print('\n')
         logger.info('Sequence alignment for transcript fasta files between {0:s} and {1:s}...'.format(gff1, gff2))
-        binput  = '{0:s}_{1:s}'.format(out1, 'trans.fa')
-        bout = '{0:s}/{1:s}'.format(tmpdir, 'blastn.out')
+        if user_defined1 == None:
+            binput  = '{0:s}_{1:s}'.format(out1, 'trans.fa')
+        else:
+            binput = '{0:s}_{1:s}'.format(out1, 'cds.fa')
+            bout = '{0:s}/{1:s}'.format(tmpdir, 'blastn.out')
         subprocess.Popen([cmd, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
 
         logger.info('Find transcript matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))

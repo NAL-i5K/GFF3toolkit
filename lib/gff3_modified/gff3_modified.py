@@ -174,18 +174,22 @@ class Gff3(object):
         return(collected_list)
     def collect_roots(self, line_data): #Function defined by Li-Mei Chiang 10/06/2017
         collected_list = []
-        if line_data.has_key('parents'):
-            for p_line in line_data['parents']:
-                for p in p_line:
-                    try:
-                        if not p['attributes'].has_key('Parent'):
-                            collected_list.append(p)
-                        else:
-                            collected_list.extend(self.collect_roots(p))
-                    except:
-                        pass
-        else:
-            return
+        try:
+            if line_data['attributes'].has_key('Parent'):
+                for p_line in line_data['parents']:
+                    for p in p_line:
+                        try:
+                            if not p['attributes'].has_key('Parent'):
+                                collected_list.append(p)
+                            else:
+                                collected_list.extend(self.collect_roots(p))
+                        except:
+                            pass
+            else:
+                collected_list.append(line_data)
+                return(collected_list)
+        except:
+            pass
         return(collected_list)
 
 
