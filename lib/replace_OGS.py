@@ -891,6 +891,7 @@ class Groups(object):
                         for child in Mgff.collect_descendants(feature):
                             if child['type'] in u2_types:
                                 children.append(child)
+                    children = sorted(children, key=lambda kid: kid['line_index'])
                 # Remove the genes that do not have any child features
                 num = len(children)
                 count = 0
