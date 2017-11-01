@@ -131,6 +131,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
 
     roots = []
     transcripts = []
+    unique = set()
     for line in gff3.lines:
         if user_defined1 == None:
             try:
@@ -141,8 +142,10 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
         else:
             if line['type'] in u_types:
                 transcripts.append(line)
-                roots.extend(gff3.collect_roots(line))
-
+                for root in gff3.collect_roots(line):
+                    if root['line_raw'] not in unique:
+                        roots.append(root)
+                        unique.add(root['line_raw'])
 
     #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     for line in roots:
@@ -153,12 +156,16 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                 children = line['children']
             else:
                 children = []
+                unique = set()
                 if line['type'] in u_types:
                     children.append(line)
                 else:
                     for child in gff3.collect_descendants(line):
                         if child['type'] in u_types:
-                            children.append(child)
+                            if child['line_raw'] not in unique:
+                                children.append(child)
+                                unique.add(child['line_raw'])
+                children = sorted(children, key=lambda k: k['line_index'])
             flag = 0
             for child in children:
                 f=0
@@ -187,12 +194,16 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                 children = line['children']
             else:
                 children = []
+                unique = set()
                 if line['type'] in u_types:
                     children.append(line)
                 else:
                     for child in gff3.collect_descendants(line):
                         if child['type'] in u_types:
-                            children.append(child)
+                            if child['line_raw'] not in unique:
+                                children.append(child)
+                                unique.add(child['line_raw'])
+                children = sorted(children, key=lambda k: k['line_index'])
             for child in children:
                 exonflag = 0
                 if child['type'] in NCRNA:

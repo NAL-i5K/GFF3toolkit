@@ -69,12 +69,17 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     if user_defined1 != None:
         for line in user_defined1:
             u1_types.add(line[0])
+    else:
+        u1_types = None
     u2_types = set()
     if user_defined2 != None:
         for line in user_defined2:
             u2_types.add(line[0])
+    else:
+        u2_types = None
     roots = []
     transcripts = []
+    unique = set()
     for line in gff3.lines:
         if user_defined1 == None:
             try:
@@ -85,7 +90,10 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
         else:
             if line['type'] in u1_types:
                 transcripts.append(line)
-                roots.extend(gff3.collect_roots(line))
+                for root in gff3.collect_roots(line):
+                    if root['line_raw'] not in unique:
+                        roots.append(root)
+                        unique.add(root['line_raw'])
 
     #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     rnum, cnum, changed = 0, 0, 0
@@ -97,11 +105,16 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
             children = root['children']
         else:
             children = []
+            unique = set()
             if root['type'] in u1_types:
                 children.append(root)
-            for child in gff3.collect_descendants(root):
-                if child['type'] in u1_types:
-                    children.append(child)
+            else:
+                for child in gff3.collect_descendants(root):
+                    if child['type'] in u1_types:
+                        if child['line_raw'] not in unique:
+                            children.append(child)
+                            unique.add(child['line_raw'])
+            children = sorted(children, key=lambda k: k['line_index'])
 
         tags = {}
         cnum += len(children)
@@ -128,8 +141,10 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                 root['attributes']['replace_type'] = 'multi-ref'
                 for child in children:
                     child['attributes']['replace_type'] = 'multi-ref'
-                ans = ReplaceGroups.replacer_multi(root, ReplaceGroups, gff3M, u2_types)
-
+                if user_defined1 == None:
+                    ans = ReplaceGroups.replacer_multi(root, ReplaceGroups, gff3M, u1_types, u2_types)
+                else:
+                    ans = ReplaceGroups.replacer_multi(root, ReplaceGroups, gff3M, u1_types, u2_types, gff3)
                 report_fh.write('{0:s}\n'.format(ans))
                 changed_rootid.add(root['attributes']['ID'])
                 changed += 1
@@ -174,6 +189,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
 
     roots = []
     transcripts = []
+    unique = set()
     for line in gff3M.lines:
         if user_defined2 == None:
             try:
@@ -184,7 +200,10 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
         else:
             if line['type'] in u2_types:
                 transcripts.append(line)
-                roots.extend(gff3M.collect_roots(line))
+                for root in gff3M.collect_roots(line):
+                    if root['line_raw'] not in unique:
+                        roots.append(root)
+                        unique.add(root['line_raw'])
 
     #roots = [line for line in gff3M.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     for root in roots:
@@ -194,20 +213,28 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
 
             else:
                 children = []
+                unique = set()
                 if root['type'] in u2_types:
                     children.append(root)
                 else:
                     for child in gff3M.collect_descendants(root):
                         if child['type'] in u2_types:
-                            children.append(child)
+                            if child['line_raw'] not in unique:
+                                children.append(child)
+                                unique.add(child['line_raw'])
+                children = sorted(children, key=lambda k: k['line_index'])
         elif root['attributes']['ID'] in changed_rootid and user_defined1 != None:
             children = []
+            unique = set()
             if root['type'] in u1_types:
                 children.append(root)
             else:
                 for child in gff3.collect_descendants(root):
                     if child['type'] in u1_types:
-                        children.append(child)
+                        if child['line_raw'] not in unique:
+                            children.append(child)
+                            unique.add(child['line_raw'])
+            children = sorted(children, key=lambda k: k['line_index'])
         else:
             children = root['children']
 
