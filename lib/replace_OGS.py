@@ -750,7 +750,7 @@ class Groups(object):
             # Final return
             return(newID)
 
-    def replacer (self, line, RG, Mgff):
+    def replacer (self, line, RG, Mgff, u1_types=None, gff3=None):
         '''
         line should be root line.
         '''
@@ -818,8 +818,19 @@ class Groups(object):
                     Mgff.remove(t['line'])
                 else:
                     t['line']['line_status'] = 'removed'
-
-        children = newtarget['children']
+        if u1_types != None:
+            children = []
+            unique = set()
+            if newtarget['type'] in u1_types:
+                children.append(newtarget)
+            else:
+                for child in gff3.collect_descendants(newtarget):
+                    if child['type'] in u1_types:
+                        if child['line_raw'] not in unique:
+                            children.append(child)
+                            unique.add(child['line_raw'])
+        else:
+            children = newtarget['children']
         num = len(children)
         for child in children:
             if child['attributes'].has_key('status') and (child['attributes']['status'] == 'Delete' or child['attributes']['status'] == 'delete'):
