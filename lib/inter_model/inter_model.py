@@ -140,7 +140,7 @@ def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
         return eSet
 
 
-def main(gff, gff_file, fasta_file, logger=None):
+def main(gff, gff_file, fasta_file, logger=None, noncanonical_gene = False):
     function4gff.FIX_MISSING_ATTR(gff, logger=logger)
     roots = []
     for line in gff.lines:
@@ -157,13 +157,14 @@ def main(gff, gff_file, fasta_file, logger=None):
         children = root['children']
         for child in children:
             trans_list.append(child)
-
-    r = check_duplicate(gff, trans_list)
+    r = None
+    if noncanonical_gene == False:
+        r = check_duplicate(gff, trans_list)
     if r is not None:
         error_set.extend(r)
     r = None
-
-    r = check_incorrectly_split_genes(gff, gff_file, fasta_file, logger)
+    if noncanonical_gene == False:
+        r = check_incorrectly_split_genes(gff, gff_file, fasta_file, logger)
     if r is not None:
         error_set.extend(r)
     r = None

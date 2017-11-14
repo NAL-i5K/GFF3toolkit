@@ -60,6 +60,7 @@ if __name__ == '__main__':
     """))
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format') 
     parser.add_argument('-f', '--fasta', type=str, help='Genome sequences, fasta format')
+    parser.add_argument('-noncg', '--noncanonical_gene', action="store_true", help='gff3 file is not formatted in the canonical gene model format.')
     parser.add_argument('-i', '--initial_phase', action="store_true", help='Check whether initial CDS phase is 0 (default: no check)')
     parser.add_argument('-n', '--allowed_num_of_n', type=int, default=0, help='Max number of Ns allowed in a feature, anything more will be reported as an error (default: 0)')
     parser.add_argument('-t', '--check_n_feature_types', nargs='*', default=['CDS'], help='Count the number of Ns in each feature with the type specified, multiple types may be specified, ex: -t CDS exon (default: "CDS")')
@@ -97,7 +98,8 @@ if __name__ == '__main__':
         sys.exit()
 
     gff3.check_unresolved_parents()
-    gff3.check_phase(args.initial_phase)
+    if args.noncanonical_gene == False:
+        gff3.check_phase(args.initial_phase)
     gff3.check_reference(check_n=check_n, allowed_num_of_n=args.allowed_num_of_n, feature_types=args.check_n_feature_types)
     logger_stderr.info('\t- Checking missing attributes: (%s)...\n', 'function4gff.FIX_MISSING_ATTR()')
     function4gff.FIX_MISSING_ATTR(gff3, logger=logger_stderr)
@@ -109,12 +111,12 @@ if __name__ == '__main__':
         error_set.extend(cmd)
     cmd = None
     logger_stderr.info('\t- Checking intra-model errors: (%s)...\n', args.gff)
-    cmd = intra_model.main(gff3, logger=logger_stderr)
+    cmd = intra_model.main(gff3, logger=logger_stderr, noncanonical_gene=args.noncanonical_gene)
     if cmd:
         error_set.extend(cmd)
     cmd = None
     logger_stderr.info('\t- Checking inter-model errors: (%s)...\n', args.gff)
-    cmd = inter_model.main(gff3, args.gff, args.fasta, logger=logger_stderr)
+    cmd = inter_model.main(gff3, args.gff, args.fasta, logger=logger_stderr, noncanonical_gene=args.noncanonical_gene)
     if cmd:
         error_set.extend(cmd)
     cmd = None
