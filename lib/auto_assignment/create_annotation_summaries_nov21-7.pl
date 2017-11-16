@@ -19,7 +19,7 @@ use strict;
 
 die "
 
-	Example: $0 [gff] [fasta] [out] [species code]
+	Example: $0 [gff] [fasta] [out] [species code] [transcripts type set]
 
 " if !@ARGV;
 
@@ -29,6 +29,7 @@ my $fasta = shift @ARGV or die;
 my $out = shift @ARGV or die;
 #species code (e.g. anogla) - needed to generate URL
 my $species_code = shift @ARGV or die;
+my $transcript_type = shift @ARGV or die;
 
 open ( my $GFF, $gff ) or die;
 my %gene_ids = ();
@@ -42,6 +43,15 @@ my %num_exon_introns = ();
 my %cds_true_stop_coordinate = ();
 my %CDS_phase = ();
 my %stop_codon_readthrough = ();
+my %trans_type = ();
+
+open FI, "$transcript_type" or die "[Error] Cannot open $transcript_type.";
+while (<FI>){
+        chomp $_;        
+        $trans_type{$_} = $_;
+} 
+close FI;    
+
 while ( my $line = <$GFF> ){
     chomp $line;
 #ignore commented lines
@@ -103,11 +113,16 @@ while ( my $line = <$GFF> ){
 	    $gene_ids{$id} = "$name\t$id\t$array[2]\t$mod_date\t$comments\t$replace\t$status";
 	}
 #populate transcript hash
-	elsif ( $array[2] =~ /mRNA|transcript|pseudogenic_transcript|rRNA|miRNA|ncRNA|snRNA|snoRNA|tRNA/ ){
+	elsif ( defined $trans_type{$array[2]} ){
 	    if ( defined $gene_ids{$parent} ){
 		my $link = "https://apollo.nal.usda.gov/".$species_code."/jbrowse/?loc=".$scaffold."%3A".$start."..".$stop."&tracks=DNA%2CAnnotations%2C".$species_code."_current_models&highlight=";
                 $transcript_ids{$id} = "$gene_ids{$parent}\t$owner\t$scaffold\t$start\t$stop\t$strand\t$array[2]\t$name\t$id\t$comments\t$replace\t$status\t$link";
 	    }
+	    elsif ($parent eq "NA" ){
+	        $gene_ids{$parent} = "NA\tNA\tNA\tNA\tNA\tNA\tNA";
+            my $link = "https://apollo.nal.usda.gov/".$species_code."/jbrowse/?loc=".$scaffold."%3A".$start."..".$stop."&tracks=DNA%2CAnnotations%2C".$species_code."_current_models&highlight=";
+                $transcript_ids{$id} = "$gene_ids{$parent}\t$owner\t$scaffold\t$start\t$stop\t$strand\t$array[2]\t$name\t$id\t$comments\t$replace\t$status\t$link";        
+        }
 	    else {
 		warn "parents and children out of synch here:\n$parent\t$id\n";
 	    }

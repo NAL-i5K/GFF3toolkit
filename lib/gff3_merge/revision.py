@@ -34,7 +34,7 @@ import id_processor
 
 __version__ = '1.0.3'
 
-def main(gff_file, revision_file, output_gff, report_file=None, logger=None):
+def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=None, logger=None):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -80,12 +80,11 @@ def main(gff_file, revision_file, output_gff, report_file=None, logger=None):
     report_fh.write('\n\n')
 
     report_fh.write('# Summary\n')
-    
+
     if len(revision_id) == 0:
         report_fh.write('* Found 0 lines to be revised\n')
     else:
         report_fh.write('* Found {0:d} lines of the revision file\n'.format(len(revision_id)))
-
 
     match = 0
     for line in gff3.lines:
@@ -124,20 +123,49 @@ def main(gff_file, revision_file, output_gff, report_file=None, logger=None):
                     count += 1
         if count == 0:
             report_fh.write('\t- All IDs are properly found in the gff.\n')
+
+    u_types = set()
+    if user_defined1 != None:
+        for line in user_defined1:
+            u_types.add(line[0])
+
     roots = []
+    transcripts = []
+    unique = set()
     for line in gff3.lines:
-        try:
-            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
-                roots.append(line)
-        except:
-            print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-     
+        if user_defined1 == None:
+            try:
+                if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                    roots.append(line)
+            except:
+                print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+        else:
+            if line['type'] in u_types:
+                transcripts.append(line)
+                for root in gff3.collect_roots(line):
+                    if root['line_raw'] not in unique:
+                        roots.append(root)
+                        unique.add(root['line_raw'])
+
     #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     for line in roots:
         if line['attributes'].has_key('replace') and line.has_key('children'):
             for index in range(len(line['attributes']['replace'])):
                 line['attributes']['replace'][index] = re.sub('\s+', '', line['attributes']['replace'][index])
-            children = line['children']
+            if user_defined1 == None:
+                children = line['children']
+            else:
+                children = []
+                unique = set()
+                if line['type'] in u_types:
+                    children.append(line)
+                else:
+                    for child in gff3.collect_descendants(line):
+                        if child['type'] in u_types:
+                            if child['line_raw'] not in unique:
+                                children.append(child)
+                                unique.add(child['line_raw'])
+                children = sorted(children, key=lambda k: k['line_index'])
             flag = 0
             for child in children:
                 f=0
@@ -155,39 +183,55 @@ def main(gff_file, revision_file, output_gff, report_file=None, logger=None):
                     j = str(sorted(child['attributes']['replace']))
                     if not i == j:
                         print '[Warning!] replace tag at gene level ({0:s}) is not consistent with that at mRNA level ({1:s})'.format(i,j)
+            if user_defined1 == None:
+                del line['attributes']['replace']
+            else:
+                if line['type'] not in u_types:
+                    del line['attributes']['replace']
 
-            del line['attributes']['replace']
+            # add an exon features with the same coordiantes to the ncRNA feature if the ncRNA does not contain at least one exon.
+            if user_defined1 == None:
+                children = line['children']
+            else:
+                children = []
+                unique = set()
+                if line['type'] in u_types:
+                    children.append(line)
+                else:
+                    for child in gff3.collect_descendants(line):
+                        if child['type'] in u_types:
+                            if child['line_raw'] not in unique:
+                                children.append(child)
+                                unique.add(child['line_raw'])
+                children = sorted(children, key=lambda k: k['line_index'])
+            for child in children:
+                exonflag = 0
+                if child['type'] in NCRNA:
+                    gchildren = child['children']
+                    for gchild in gchildren:
+                        if gchild['type'] == 'exon':
+                            exonflag += 1
+                    if exonflag == 0:
+                        newid = '{0:s}-EXON1'.format(child['attributes']['ID'])
+                        newExon = copy.deepcopy(child)
+                        eofindex = len(gff3.lines)
+                        newExon['line_index'] = eofindex
+                        newExon['parents'] = []
+                        newExon['attributes']['Parent']=[]
+                        newExon['attributes']['ID'] = newid
+                        newExon['attributes']['Name'] = newid
+                        newExon['type'] = 'exon'
+                        if newExon['attributes'].has_key('replace'):
+                           del newExon['attributes']['replace']
+                        newExon['parents'].append(child)
+                        newExon['attributes']['Parent'].append(child['attributes']['ID'])
+                        child['children'].append(newExon)
+                        gff3.features[newExon['attributes']['ID']].append(newExon)
+                        gff3.lines.append(newExon)
 
-        # add an exon features with the same coordiantes to the ncRNA feature if the ncRNA does not contain at least one exon.
-        children = line['children']
-        for child in children:
-            exonflag = 0
-            if child['type'] in NCRNA:
-                gchildren = child['children']
-                for gchild in gchildren:
-                    if gchild['type'] == 'exon':
-                        exonflag += 1
-                if exonflag == 0:
-                    newid = '{0:s}-EXON1'.format(child['attributes']['ID'])
-                    newExon = copy.deepcopy(child)
-                    eofindex = len(gff3.lines)
-                    newExon['line_index'] = eofindex
-                    newExon['parents'] = []
-                    newExon['attributes']['Parent']=[]
-                    newExon['attributes']['ID'] = newid
-                    newExon['attributes']['Name'] = newid
-                    newExon['type'] = 'exon'
-                    if newExon['attributes'].has_key('replace'):
-                       del newExon['attributes']['replace']
-                    newExon['parents'].append(child)
-                    newExon['attributes']['Parent'].append(child['attributes']['ID'])
-                    child['children'].append(newExon)
-                    gff3.features[newExon['attributes']['ID']].append(newExon)
-                    gff3.lines.append(newExon)
-
-        if line['type'] == 'gene' or line['type'] == 'pseudogene':
-            if not line.has_key('children'):
-                gff3.remove(line)
+            if line['type'] == 'gene' or line['type'] == 'pseudogene':
+                if not line.has_key('children'):
+                    gff3.remove(line)
 
     if report_file:
         report_fh.close()
@@ -228,8 +272,8 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--report_file', type=str, help='Validation report file (default: STDOUT)')
     parser.add_argument('-og', '--output_gff', type=str, help='Revised gff (default: STDOUT)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-    
- 
+
+
     test_lv = 1 # debug
     if test_lv == 0:
         args = parser.parse_args(['-g', 'annotations.gff'])

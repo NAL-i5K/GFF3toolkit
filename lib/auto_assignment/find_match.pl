@@ -4,12 +4,12 @@ use strict;
 
 die "
 
-	Comand: $0 [gff] [blast] [species code] [ouput file name]
-	Exmpale: $0 lepdec_5-26-2015_annotations.gff lepdec_cdna_self_all_-5_50_3.blastn lepdec splited_gene_parent.txt
+	Comand: $0 [gff] [blast] [species code] [ouput file name] [transcripts type set]
+	Exmpale: $0 lepdec_5-26-2015_annotations.gff lepdec_cdna_self_all_-5_50_3.blastn lepdec splited_gene_parent.txt transcripts_type_set.txt
 
 " if !@ARGV;
 
-my ($gff, $blast, $scode, $out) = @ARGV;
+my ($gff, $blast, $scode, $out, $transcript_type) = @ARGV;
 
 
 my %gene = ();
@@ -19,6 +19,16 @@ my %id2owner = ();
 my $line = 0;
 my $typeflag = 0;
 my $pid='';
+my %trans_type = ();
+
+print "Reading the transcript type file: $transcript_type...\n";
+open FI, "$transcript_type" or die "[Error] Cannot open $transcript_type.";
+while (<FI>){
+        chomp $_;
+        $trans_type{$_} = $_;
+} 
+close FI;     
+   
 print "Reading the gff file: $gff...\n";
 open FI, "$gff" or die "[Error] Cannot open $gff.";
 while (<FI>){
@@ -40,10 +50,8 @@ while (<FI>){
 		my $url = "<https://apollo.nal.usda.gov/".$scode."/jbrowse/?loc=".$t[0].":".$t[3]."..".$t[4]."&tracks=DNA,Annotations,$scode\_current_models>";
 		$gene2url{$pid} = $url;
 		$typeflag = 0;
-	}elsif ($t[2] eq "pseudogene"){ #debug 07082015
-		$typeflag = 1; #debug 07082015
-	}elsif ($t[2] eq "mRNA"){
-			if ($typeflag==1){print "Warning: pseudogene has isoforms with mRNA type: $t[8]\n"; next;} #debug 07082015
+	}elsif (defined $trans_type{$t[2]}){
+			#if ($typeflag==1){print "Warning: pseudogene has isoforms with mRNA type: $t[8]\n"; next;} #debug 07082015
 			if ($t[8] =~ /ID=(.+?);/ || $t[8] =~ /ID=(.+?)$/){
 				my $id = $1;
 				if ($t[8] =~ /Parent=(.+?);/ || $t[8] =~ /Parent=(.+?)$/){
@@ -57,7 +65,8 @@ while (<FI>){
 						$id2name{$id} = $1;
 					}else{
                         #print "Warning: $id: Name is missing!\n";
-						$id2name{$id} = "Unassigned";
+                        #$id2name{$id} = "Unassigned";
+                        $id2name{$id} = $id;
 					}
 					if ($t[8] =~ /owner=(.+?);/ || $t[8] =~ /owner=(.+?)$/){
 						$id2owner{$id} = $1;
@@ -68,8 +77,33 @@ while (<FI>){
                         #print "Warning: $id: owner is missing!\n";
 					}
 				}else{
-					print "Warning: $id: Parent is missing!\n";
-					next;
+                    #print "Warning: $id: Parent is missing!\n";
+                    #next;
+                    my $par = $id;
+                    if (defined $gene{$par}){
+                        print "Warning: duplicate ID: $id!\n";
+                        next;
+                    }else{
+                        $gene{$par} = "$id";
+                    }
+                    if ($t[8] =~ /Name=(.+?);/ || $t[8] =~ /Name=(.+?)$/){
+						$id2name{$id} = $1;
+					}else{
+                        #print "Warning: $id: Name is missing!\n";
+                        #$id2name{$id} = "Unassigned";
+                        $id2name{$id} = $id;
+					}
+					if ($t[8] =~ /owner=(.+?);/ || $t[8] =~ /owner=(.+?)$/){
+						$id2owner{$id} = $1;
+                        $id2owner{$pid} = $1;
+					}else{
+						$id2owner{$id} = 'Unassigned';
+                        $id2owner{$pid} = 'Unassigned';
+                        #print "Warning: $id: owner is missing!\n";
+					}
+
+
+
 				}
 			}else{
 				print "Warning: ID is missing!: $_\n";
@@ -110,13 +144,15 @@ while (<FI>){
     }elsif ($t[0] =~ /\|Parent=(.+?)\|ID=(.+?)\|/ or $t[0] =~ /\|Parent=(.+?)\|ID=(.+?)$/){
 		($qpar, $qid) = ($1, $2);
 	}
+	
+
     if ($t[1] !~ /Parent/){
         $t[1] =~ /ID=(.+?)\|/;
         ($spar, $sid) = ($1, $1);
     }elsif ($t[1] =~ /\|Parent=(.+?)\|ID=(.+?)\|/ or $t[1] =~ /\|Parent=(.+?)\|ID=(.+?)$/){
 		($spar, $sid) = ($1, $2);
 	}
-#	print "$qpar, $spar, $qid, $sid\n";
+    #	print "$qpar, $spar, $qid, $sid\n";
 	my @sort = ($qid, $sid);
 	@sort = sort @sort;
 	my $pair = join("\t", @sort);
@@ -173,10 +209,16 @@ print FO "Gene_ID1\tGene_ID2\tmRNA_ID1\tmRNA_ID2\tName1\tName2\tOwner1\tOwner2\t
 foreach my $e (sort keys %diffparent){
 	my @pid = split("\t", $diffparent{$e}->{PAR});
 	my @t = split("\t", $diffparent{$e}->{BEST});
-	$t[0] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;
-	my ($scaf1, $s1, $e1, $d1) = ($1, $2, $3, $4);
-	$t[1] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;
+	$t[0] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;	
+	my ($scaf1, $s1, $e1, $d1) = ($1, $2, $3, $4);	
+	$t[1] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;	
 	my ($scaf2, $s2, $e2, $d2) = ($1, $2, $3, $4);
+
+	if ( !defined $gene2url{$pid[0]} ){
+	    $gene2url{$pid[0]} = 'Unassigned';
+    }
+    
+
 	if ($scaf1 eq $scaf2 && $d1 eq $d2){
 		if (($s1 >= $s2 && $s1 <= $e2) || ($s2 >= $s1 && $s2 <= $e1)){
 			print FO "$diffparent{$e}->{PAR}\t$diffparent{$e}->{ID}\t$diffparent{$e}->{NAME}\t$diffparent{$e}->{OWNER}\t$gene2url{$pid[0]}\t$diffparent{$e}->{BEST}\n";

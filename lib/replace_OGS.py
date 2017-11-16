@@ -31,8 +31,8 @@ if not logger.handlers:
 
 def featureSort(linelist, reverse=False):
     FEATURECODE = {
-        'gene': 0, 
-        'pseudogene': 0, 
+        'gene': 0,
+        'pseudogene': 0,
         'mRNA': 1,
         'pseudogenic_transcript': 1,
         'exon': 2,
@@ -238,7 +238,7 @@ def merge(gff, line, line2, oID):
         report.extend(["#\t\t- {0:s}: {1:s}".format(p1['attributes']['ID'],str(vector1))])
         report.extend(["#\t\t- {0:s}: {1:s}".format(oID, str(vector2))])
 
-    
+
     if len(pinfo)>0:
         report.insert(0, "{0:s} (primary gene)".format(pinfo))
     return(report)
@@ -246,10 +246,12 @@ def merge(gff, line, line2, oID):
 
 class Groups(object):
 
-    def __init__(self, WAgff=None, Pgff=None, outsideNum=int, logger=logger):
+    def __init__(self, WAgff=None, Pgff=None, outsideNum=int, user_defined1=None, user_defined2=None, logger=logger):
         self.logger = logger
         self.WAgff = WAgff
         self.Pgff = Pgff
+        self.user_defined1 = user_defined1
+        self.user_defined2 = user_defined2
         self.outsideNum = outsideNum
         self.mapType2Log = {'simple':'replaced by WA model: simple replacement','merge':'replaced by WA model: merge','split':'replaced by WA model: split','add':'newly added WA model: add','other':'no change', 'Delete':'removed', 'multi-ref':'replaced by WA model: deal with reference gene with multiple transcripts'}
 
@@ -260,26 +262,75 @@ class Groups(object):
         self.info = []
         self.id2name = {}
         if Pgff:
-            self.name2id(Pgff)
+            self.name2id(Pgff, user_defined2)
         if WAgff:
-            self.grouping(WAgff)
+            self.grouping(WAgff, user_defined1)
 
-    def grouping(self, WAgff):
-        roots = [line for line in WAgff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    def grouping(self, WAgff, user_defined1):
+        u_type = set()
+        if user_defined1 != None:
+            for line in user_defined1:
+                u_type.add(line[0])
+
+        roots = []
+        transcripts = []
+        unique = set()
+        for line in WAgff.lines:
+            if user_defined1 == None:
+                try:
+                    if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                        roots.append(line)
+                except:
+                    pass
+            else:
+                if line['type'] in u_type:
+                    transcripts.append(line)
+                    for root in WAgff.collect_roots(line):
+                        if root['line_raw'] not in unique:
+                            roots.append(root)
+                            unique.add(root['line_raw'])
+
+        #roots = [line for line in WAgff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
         uniqueReplaceID = {}
         for root in roots:
-            children = root['children']
+            if user_defined1 == None:
+                children = root['children']
+            else:
+                children = []
+                if root['type'] in u_type:
+                    children.append(root)
+                else:
+                    for child in WAgff.collect_descendants(root):
+                        if child['type'] in u_type:
+                            children.append(child)
+                children = sorted(children, key=lambda k: k['line_index'])
             for child in children:
                 child['attributes']['replace'].sort()
                 if len(child['attributes']['replace']) == 1 and child['attributes']['replace'][0] == 'NA':
-                    parent = child['parents']
-                    childrtag = {}
-                    for parent_lines in parent:
-                        for line in parent_lines:
-                            tmpchildren = line['children']
+                    if user_defined1 == None:
+                        parent = child['parents']
+                        childrtag = {}
+                        for parent_lines in parent:
+                            for line in parent_lines:
+                                tmpchildren = line['children']
+                                for tmpchild in tmpchildren:
+                                    tmpline = ','.join(tmpchild['attributes']['replace'])
+                                    childrtag[tmpline] = 0
+                    else:
+                        childrtag = {}
+                        for line in WAgff.collect_roots(child):
+                            tmpchildren = []
+                            if line['type'] in u_type:
+                                tmpchildren.append(line)
+                            else:
+                                for tmpchild in WAgff.collect_descendants(line):
+                                    if tmpchild['type'] in u_type:
+                                        tmpchildren.append(tmpchild)
+                            tmpchildren = sorted(tmpchildren, key=lambda k: k['line_index'])
                             for tmpchild in tmpchildren:
                                 tmpline = ','.join(tmpchild['attributes']['replace'])
                                 childrtag[tmpline] = 0
+
                     if len(childrtag) == 1:
                         pass
                     elif len(childrtag) == 2:
@@ -289,10 +340,10 @@ class Groups(object):
                                 tmplist = tmptag.split(',')
                                 child['attributes']['replace'] = tmplist
                     else:
-                        # The case cannot be processed.
+                            # The case cannot be processed.
                         print('Warning -- inconsitent replace tags, one is NA: {0:s}'.format(child['attributes']['ID']))
 
-                rIDs = child['attributes']['replace']			 
+                rIDs = child['attributes']['replace']
                 for i in rIDs:
                     if (uniqueReplaceID.has_key(i)):
                         uniqueReplaceID[i].append(child)
@@ -303,18 +354,37 @@ class Groups(object):
         for k, v in uniqueReplaceID.items():
             parents = {} # for each replace tag, all the gene IDs involved.
             for i in v:
-                parent = i['parents']
-                for parent_lines in parent:
-                    for line in parent_lines:
+                if user_defined1 == None:
+                    parent = i['parents']
+                    for parent_lines in parent:
+                        for line in parent_lines:
+                            parents[line['attributes']['ID']]=0
+                else:
+                    parent = WAgff.collect_roots(i)
+                    for line in parent:
                         parents[line['attributes']['ID']]=0
 
             for i in v:
                 if k == 'NA':
-                    parent = i['parents']
-                    childrtag = {}
-                    for parent_lines in parent:
-                        for line in parent_lines:
-                            tmpchildren = line['children']
+                    if user_defined1 == None:
+                        parent = i['parents']
+                        childrtag = {}
+                        for parent_lines in parent:
+                            for line in parent_lines:
+                                tmpchildren = line['children']
+                                for tmpchild in tmpchildren:
+                                    childrtag[str(tmpchild['attributes']['replace'])] = 0
+                    else:
+                        childrtag = {}
+                        for line in WAgff.collect_roots(i):
+                            tmpchildren = []
+                            if line['type'] in u_type:
+                                tmpchildren.append(line)
+                            else:
+                                for tmpchild in WAgff.collect_descendants(line):
+                                    if tmpchild['type'] in u_type:
+                                        tmpchildren.append(tmpchild)
+                            tmpchildren = sorted(tmpchildren, key=lambda kid: kid['line_index'])
                             for tmpchild in tmpchildren:
                                 childrtag[str(tmpchild['attributes']['replace'])] = 0
                     if len(childrtag) == 1:
@@ -339,8 +409,20 @@ class Groups(object):
             for i in v:
                 print("  Detail:", i['attributes']['replace_type'], i['attributes']['replace'])
             '''
+
         for root in roots:
-            children = root['children']
+            if user_defined1 == None:
+                children = root['children']
+            else:
+                children = []
+                if root['type'] in u_type:
+                    children.append(root)
+                else:
+                    for child in WAgff.collect_descendants(root):
+                        if child['type'] in u_type:
+                            children.append(child)
+                children = sorted(children, key=lambda k: k['line_index'])
+
             rtypes={}
             rtags={}
             for child in children:
@@ -361,17 +443,53 @@ class Groups(object):
                 print('Warning! Two or more replace types for a gene model: {0:s}. This gene model is not processed!'.format(root['attributes']['ID']))
                 root['attributes']['replace_type'] = 'internal_review'
         for root in roots:
-            children = root['children']
+            if user_defined1 == None:
+                children = root['children']
+            else:
+                children = []
+                if root['type'] in u_type:
+                    children.append(root)
+                else:
+                    for child in WAgff.collect_descendants(root):
+                        if child['type'] in u_type:
+                            children.append(child)
+                children = sorted(children, key=lambda k: k['line_index'])
+
             for child in children:
                 if child['attributes'].has_key('status') and (child['attributes']['status'] == 'Delete' or child['attributes']['status'] == 'delete'):
                     child['attributes']['replace_type'] == 'Delete'
-                    for p_line in child['parents']:
-                        for p in p_line:
+                    if user_defined1 == None:
+                        for p_line in child['parents']:
+                            for p in p_line:
+                                p['attributes']['replace_type'] == 'Delete'
+                    else:
+                        for p in WAgff.collect_roots(child):
                             p['attributes']['replace_type'] == 'Delete'
 
 
-    def name2id(self, Mgff):
-        roots = [line for line in Mgff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    def name2id(self, Mgff, user_defined2=None):
+        u_types = set()
+        if user_defined2 != None:
+            for line in user_defined2:
+                u_types.add(line[0])
+        roots = []
+        transcripts = []
+        unique = set()
+        for line in Mgff.lines:
+            if user_defined2 == None:
+                try:
+                    if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                        roots.append(line)
+                except:
+                    pass
+            else:
+                if line['type'] in u_types:
+                    transcripts.append(line)
+                    for root in Mgff.collect_roots(line):
+                        if root['line_raw'] not in unique:
+                            roots.append(root)
+                            unique.add(root['line_raw'])
+        #roots = [line for line in Mgff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
         mapName2ID = {}
         tmp  = re.search('(.+?)(\d+)',roots[0]['attributes']['ID'])
         idprefix = tmp.groups()[0]
@@ -391,7 +509,17 @@ class Groups(object):
                 #digitlen = len(IDnumber)
                 #if int(IDnumber) > maxIDnumber:
                     #maxIDnumber = int(IDnumber)
-            children = root['children']
+            if user_defined2 == None:
+                children = root['children']
+            else:
+                children = []
+                if root['type'] in u_types:
+                    children.append(root)
+                else:
+                    for child in Mgff.collect_descendants(root):
+                        if child['type'] in u_types:
+                            children.append(child)
+                children = sorted(children, key=lambda k: k['line_index'])
             for child in children:
                 if child['attributes'].has_key('Name'):
                     mapName2ID[child['attributes']['Name']] = child['attributes']['ID']
@@ -407,7 +535,6 @@ class Groups(object):
                 calexon = 0
                 for gchild in gchildren:
                     otherlines = []
-
                     if gchild['type'] == 'exon':
                         exonnum = id_processor.idgenerator('EXON', calexon, 2)
                         pids = {}
@@ -436,6 +563,7 @@ class Groups(object):
                                 #self.replaceIDName(k, newid)
                                 #k['attributes']['Parent'] = p[-1]['attributes']['ID']
                                 #print ('[renameID]',str(k['attributes']['Parent']), k['attributes']['ID'], p[-1]['attributes']['ID'])
+
 
         self.mapName2ID = mapName2ID
         self.idprefix = idprefix
@@ -516,7 +644,7 @@ class Groups(object):
                                 k['attributes']['Parent'] = p[-1]['attributes']['ID']
                                 print ('[renameID]',str(k['attributes']['Parent']), k['attributes']['ID'], p[-1]['attributes']['ID'])
 
-    
+
     def newUTRfeature(self, fname, exonline, ID, gff):
         newf = id_processor.newChildModel(exonline, ID, gff)
         newf['parents'] = exonline['parents']
@@ -528,7 +656,7 @@ class Groups(object):
         gff.features[newf['attributes']['ID']].append(newf)
         for parent in newf['parents']:
             for p in parent:
-                p['children'].append(newf)       
+                p['children'].append(newf)
         return newf
 
     def gen5UTR(self, fname, cdsline, exonlist, ID, gff):
@@ -569,7 +697,7 @@ class Groups(object):
             RG.maxIDnumber = newID['maxnum']
             # New model with replaced information in predicted gff
             #self.renameID(lparent, newID['ID'])
-            id_processor.general_newModel(lparent, Mgff) 
+            id_processor.general_newModel(lparent, Mgff)
             '''
             # Generate utr features for each curated models
             t = Mgff.features[newID['ID']][0]
@@ -622,7 +750,7 @@ class Groups(object):
             # Final return
             return(newID)
 
-    def replacer (self, line, RG, Mgff):
+    def replacer (self, line, RG, Mgff, u1_types=None, gff3=None):
         '''
         line should be root line.
         '''
@@ -636,14 +764,16 @@ class Groups(object):
         if line['attributes']['replace_type'] == 'simple' and len(line['attributes']['replace']) > 1:
             print('Warning: Wrong grouping!!!! simple replacement with multiple replace tags! - ', line['attributes']['replace'], 'at', line['line_raw'])
             sys.exit()
-       
+
         if line['attributes']['replace_type'] == 'add':
             if not line['attributes'].has_key('modified_track'):
                 newid = self.replacer_add(line, RG, Mgff)
                 newtarget = Mgff.features[newid['ID']][0]
                 newtarget['attributes']['modified_track'] = '{0:s}:{1:s}'.format(line['attributes']['replace_type'], originalID)
-                self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
-        
+                try:
+                    self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
+                except:
+                    pass
         #elif line['attributes']['replace_type'] == 'simple': # Simple replacement for a model should inherite the original ID.
         #    if len(line['attributes']['replace']) > 1:
         #        print('Warning: Wrong grouping!!!! simple replacement with multiple replace tags! - ', line['attributes']['replace'], 'at', line['line_raw'])
@@ -657,14 +787,19 @@ class Groups(object):
         #        self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
                 #print('simple_replacement: ',newid['ID'],keepID.groups()[0])
         #    Mgff.remove(Mgff.features[keepID.groups()[0]][0])
-        
+
         else: # other replace_types
+            #print(line['children'][0]['line_raw'])
             for tag in rtags:
                 t = Mgff.features[Name2ID[tag]][0]
                 tmp = {}
                 tmp['line'] = t
-                tmp['parent'] = t['parents'][0][-1]
-                tmp['num_isoforms'] = len(t['parents'][0][-1]['children'])
+                if len(t['parents']) == 0:
+                    tmp['parent'] = t
+                    tmp['num_isoforms'] = 1
+                else:
+                    tmp['parent'] = t['parents'][0][-1]
+                    tmp['num_isoforms'] = len(t['parents'][0][-1]['children'])
                 targets.append(tmp)
                 mid.append(t['attributes']['ID'])
             if not line['attributes'].has_key('modified_track'):
@@ -672,16 +807,30 @@ class Groups(object):
                 newtarget = Mgff.features[newid['ID']][0]
                 midline = ','.join(mid)
                 newtarget['attributes']['modified_track'] = '{0:s}:{1:s}'.format(line['attributes']['replace_type'], midline)
-                self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
-
+                try:
+                    self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
+                    #print('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
+                except:
+                    pass
 
             for t in targets:
                 if t['num_isoforms'] == 1:
                     Mgff.remove(t['line'])
                 else:
                     t['line']['line_status'] = 'removed'
-
-        children = newtarget['children']
+        if u1_types != None:
+            children = []
+            unique = set()
+            if newtarget['type'] in u1_types:
+                children.append(newtarget)
+            else:
+                for child in gff3.collect_descendants(newtarget):
+                    if child['type'] in u1_types:
+                        if child['line_raw'] not in unique:
+                            children.append(child)
+                            unique.add(child['line_raw'])
+        else:
+            children = newtarget['children']
         num = len(children)
         for child in children:
             if child['attributes'].has_key('status') and (child['attributes']['status'] == 'Delete' or child['attributes']['status'] == 'delete'):
@@ -692,7 +841,7 @@ class Groups(object):
                 else:
                     child['line_status'] = 'removed'
 
-    def replacer_multi (self, line, RG, Mgff):
+    def replacer_multi (self, line, RG, Mgff, u1_types=None, u2_types=None, gff3=None):
         Name2ID = RG.mapName2ID
         rtags = line['attributes']['replace']
         originalID = line['attributes']['ID']
@@ -700,7 +849,20 @@ class Groups(object):
         mid = []
         newtarget=line
         if line['attributes']['replace_type'] == 'multi-ref':
-            children = line['children']
+            if u1_types == None:
+                children = line['children']
+            else:
+                children = []
+                unique = set()
+                if line['type'] in u1_types:
+                    children.append(line)
+                else:
+                    for child in gff3.collect_descendants(line):
+                        if child['type'] in u1_types:
+                            if child['line_raw'] not in unique:
+                                children.append(child)
+                                unique.add(child['line_raw'])
+                children = sorted(children, key=lambda k: k['line_index'])
             cid = list()
             for child in children:
                 cid.append('# \t- Transcripts: {0:s}'.format(child['attributes']['ID']))
@@ -710,13 +872,17 @@ class Groups(object):
                 newtarget = Mgff.features[newid['ID']][0]
                 newtarget['attributes']['modified_track'] = '{0:s}:{1:s}'.format(line['attributes']['replace_type'], originalID)
                 self.info.append('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(originalID, newtarget['attributes']['ID'], newtarget['attributes']['replace'], newtarget['attributes']['modified_track']))
-            
+
             replace_parent = {}
             for ri in line['attributes']['replace']:
                 feature = Mgff.features[Name2ID[ri]][0]
-                parents = feature['parents']
-                for p_line in parents:
-                    for p in p_line:
+                if u2_types == None:
+                    parents = feature['parents']
+                    for p_line in parents:
+                        for p in p_line:
+                            replace_parent[p['attributes']['ID']] = 1
+                else:
+                    for p in Mgff.collect_roots(feature):
                         replace_parent[p['attributes']['ID']] = 1
                 feature['line_status'] = 'removed'
                 descendants = Mgff.collect_descendants(feature)
@@ -726,7 +892,17 @@ class Groups(object):
             tmp=[]
             for k in replace_parent.keys():
                 feature = Mgff.features[k][0]
-                children = feature['children']
+                if u2_types == None:
+                    children = feature['children']
+                else:
+                    children = []
+                    if feature['type'] in u2_types:
+                        children.append(feature)
+                    else:
+                        for child in Mgff.collect_descendants(feature):
+                            if child['type'] in u2_types:
+                                children.append(child)
+                    children = sorted(children, key=lambda kid: kid['line_index'])
                 # Remove the genes that do not have any child features
                 num = len(children)
                 count = 0
