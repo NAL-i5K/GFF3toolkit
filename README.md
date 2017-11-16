@@ -23,7 +23,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 ## Merge two GFF3 files ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * bin/gff3_merge.py - Merge two GFF3 files
-    - [gff3_merge.py readme](gff3-merge.md)
+    - [gff3_merge.py readme](gff3_merge.md)
     - [gff3_merge.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Merge-two-GFF3-files)
     - Quick start:
         - Merge the two file with auto-assignment of replace tags (default)
