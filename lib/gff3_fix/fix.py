@@ -476,11 +476,7 @@ def fix_attributes(gff3, error_list, logger):
                                     continue
                                 else:
                                     fixed_attributes[tag] = fixed_attributes[tag] + '%2C' + value
-                            else:
-                                if value in fixed_attributes[tag]:
-                                    continue
-                                else:
-                                    fixed_attributes[tag].append(value)
+
                         if tag in multi_value_attributes:
                             if value.find(', ') >= 0 or value.find(' ,') >= 0:
                                 value = value.replace(', ', '%2C')
