@@ -262,9 +262,32 @@ def merge(gff3, error_list, logger):
     """
     Emr0002 : Incorrectly split gene parent?
     """
+    # join overlap error list
+    error_list_dict = {}
+    updated_error_list = []
+    for error in error_list:
+        if len(error) == 2:
+            if error[0] not in error_list_dict:
+                error_list_dict[error[0]] = set([error[0],error[1]])
+            else:
+                if error[1] not in error_list_dict[error[0]]:
+                    error_list_dict[error[0]].add(error[1])
+            if error[1] not in error_list_dict:
+                error_list_dict[error[1]] = set([error[0],error[1]])
+            else:
+                if error[0] not in error_list_dict[error[1]]:
+                    error_list_dict[error[1]].add(error[0])
+        else:
+            logger.warning('The length of error line list is not equal to 2.')
+    for error in error_list_dict.values():
+        error = list(error)
+        error.sort()
+        if error not in updated_error_list:
+            updated_error_list.append(error)      
+
     # assume the 'parent' feature of a transcript is a 'root' feature 
     # Merge wrongly split model
-    for error in error_list:
+    for error in updated_error_list:
         Merge_trans = []
         Old_ID_list = []
         eofindex = len(gff3.lines)-1
