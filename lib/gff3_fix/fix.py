@@ -340,7 +340,8 @@ def merge(gff3, error_list, logger):
                             logger.warning('[Missing ID] - Line %s', str(child['line_index']+1))
                         
                     if child_num == 0:
-                        gff3.lines[root['line_index']]['line_status'] = 'removed'    
+                        gff3.lines[root['line_index']]['line_status'] = 'removed'
+                        gff3.lines[root['line_index']]['children'] = []   
 
      
          
