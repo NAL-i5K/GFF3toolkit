@@ -23,6 +23,7 @@ open FI, "$gff" or die "[Error] Cannot open $gff.";
 while (<FI>){
 	$line++;
 	chomp $_;
+        $_ =~ s/\R//g;
 	if ( $_ =~ /^##FASTA/ ){last;}#go to end of file if there's a FASTA section in the gff3 file
         elsif ($_ =~ /^#/){next;}
 	my @t = split("\t", $_);
