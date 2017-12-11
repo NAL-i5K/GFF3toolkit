@@ -544,6 +544,89 @@ def fix_attributes(gff3, error_list, logger):
                             fixed_attributes[tag] = value  
                 gff3.lines[line_num-1]['attributes'] = fixed_attributes
                             
+def write(gff3, output_gff, embed_fasta=None, fasta_char_limit=None, logger=None):
+    gff_fp = output_gff
+    if isinstance(output_gff, str):
+        gff_fp = open(output_gff, 'wb')
+
+    wrote_sequence_region = set()
+    # build sequence region data
+    sequence_regions = {}
+    if gff3.fasta_external:
+        for seqid in gff3.fasta_external:
+            sequence_regions[seqid] = (1, len(gff3.fasta_external[seqid]['seq']))
+    elif gff3.fasta_embedded:
+        for seqid in gff3.fasta_embedded:
+            sequence_regions[seqid] = (1, len(gff3.fasta_embedded[seqid]['seq']))
+    else:
+        directives_lines = [line_data for line_data in gff3.lines if line_data['line_type'] == 'directive' and line_data['directive'] == '##sequence-region']
+        for sequence_region in directives_lines:
+            sequence_regions[sequence_region['seqid']] = (sequence_region['start'], sequence_region['end'])
+
+
+    wrote_lines = set()
+    field_keys = ['seqid', 'source', 'type', 'start', 'end', 'score', 'strand', 'phase']
+    reserved_attributes = ['ID', 'Name', 'Alias', 'Parent', 'Target', 'Gap', 'Derives_from', 'Note', 'Dbxref', 'Ontology_term', 'Is_circular']
+    attributes_sort_map = defaultdict(int, zip(reserved_attributes, range(len(reserved_attributes), 0, -1)))
+    def write_feature(line_data):
+        if line_data['line_status'] == 'removed':
+            return
+        field_list = [str(line_data[k]) for k in field_keys]
+        attribute_list = []
+        try:
+            for k, v in sorted(line_data['attributes'].items(), key=lambda x: attributes_sort_map[x[0]], reverse=True):
+                if isinstance(v, list):
+                    v = ','.join(v)
+                attribute_list.append('%s=%s' % (str(k), str(v)))
+            field_list.append(';'.join(attribute_list))
+            gff_fp.write('\t'.join(field_list) + '\n')
+            wrote_lines.add(line_data['line_index'])
+        except:
+            logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line_data['line_index']+1), line_data['line_raw']))
+    # write directives
+    ignore_directives = ['##sequence-region', '###', '##FASTA']
+    directives_lines = [line_data for line_data in gff3.lines if line_data['line_type'] == 'directive' and line_data['directive'] not in ignore_directives]
+    for directives_line in directives_lines:
+        gff_fp.write(directives_line['line_raw'])
+
+    # write features
+    # get a list of root nodes
+    root_lines = [line_data for line_data in gff3.lines if line_data['line_type'] == 'feature' and not line_data['parents']]
+    root_lines = sorted(root_lines, key=lambda k: k['seqid'])
+    for root_line in root_lines:
+        lines_wrote = len(wrote_lines)
+        if root_line['line_index'] in wrote_lines:
+            continue
+        # write #sequence-region if new seqid
+        if root_line['seqid'] not in wrote_sequence_region:
+            if root_line['seqid'] in sequence_regions:
+                gff_fp.write('##sequence-region %s %d %d\n' % (root_line['seqid'], sequence_regions[root_line['seqid']][0], sequence_regions[root_line['seqid']][1]))
+            wrote_sequence_region.add(root_line['seqid'])
+        try:
+            root_feature = gff3.features[root_line['attributes']['ID']]
+        except KeyError:
+            root_feature = [root_line]
+        for line_data in root_feature:
+            write_feature(line_data)
+        descendants = gff3.descendants(root_line)
+        for descendant in descendants:
+            if descendant['line_index'] in wrote_lines:
+                continue
+            write_feature(descendant)
+        # check if we actually wrote something
+        if lines_wrote != len(wrote_lines):
+            gff_fp.write('###\n')
+    # write fasta
+    fasta = embed_fasta or gff3.fasta_external or gff3.fasta_embedded
+    if fasta and embed_fasta != False:
+        gff_fp.write('##FASTA\n')
+        fasta_dict_to_file(fasta, gff_fp, line_char_limit=fasta_char_limit)
+
+    if isinstance(output_gff, str):
+        gff_fp.close()
+
+
+
 
 def main(gff3, output_gff, error_dict, line_num_dict, logger=None):
     stderr_handler = logging.StreamHandler()
@@ -587,7 +670,7 @@ def main(gff3, output_gff, error_dict, line_num_dict, logger=None):
                 #print('add_gff3_version\n')
                 add_gff3_version(gff3=gff3, logger=logger)
 
-    gff3.write(output_gff)
+    write(gff3=gff3,output_gff=output_gff,logger=logger)
 
             
 
