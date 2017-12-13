@@ -22,8 +22,8 @@ def remove_duplicate_trans(gff3, error_list, logger):
             gff3.lines[remove_line-1]['line_status'] = 'removed'
             for child in gff3.collect_descendants(gff3.lines[remove_line-1]):
                 child['line_status'] = 'removed'
-    
-            
+
+
 
 def delete_model(gff3, error_list, logger):
     """
@@ -32,7 +32,7 @@ def delete_model(gff3, error_list, logger):
     Esf0002 : Start/End is not a valid 1-based integer coordinate
     Esf0017 : Start/End is not a valid integer
     Esf0018 : Start is not less than or equal to end
-    Esf0022 : Features should contain 9 fields 
+    Esf0022 : Features should contain 9 fields
     Esf0025 : Strand has illegal characters
     Ema0007 : CDS and parent feature on different strands
     """
@@ -92,7 +92,7 @@ def fix_boundary(gff3=gff3, error_list=None, line=None, logger=logger):
                         minc = min(cPos)
                         root['start'] = minc
                         root['end'] = maxc
-                    
+
 
 
 def pseudogene(gff3, error_list, logger):
@@ -100,7 +100,7 @@ def pseudogene(gff3, error_list, logger):
     Ema0005 : Pseudogene has invalid child feature type
     Esf0001 : Feature type may need to be changed to pseudogene
     """
-    # first-level -> pseudogene; second-level -> pseudogenic_transcript; third-level(exon) -> pseudogenic_exon 
+    # first-level -> pseudogene; second-level -> pseudogenic_transcript; third-level(exon) -> pseudogenic_exon
     # change mRNA to pseudogenic_transcript; change exon to pseudogenic_exon; remove CDS lines mRNA in the type of pseudogene found pseudogene or not?
     for error in error_list:
         for line_num in error:
@@ -112,9 +112,12 @@ def pseudogene(gff3, error_list, logger):
                         for grandchild in child['children']:
                             if grandchild['type'] == 'CDS':
                                 grandchild['line_status'] = 'removed'
+                                # remove child feature of CDS
+                                for CDS_child in gff3.collect_descendants(grandchild):
+                                    CDS_child['line_status'] = 'removed'
                             elif grandchild['type'] == 'exon':
                                 grandchild['type'] = 'pseudogenic_exon'
-            
+
 
 
 def split(gff3, error_list, logger):
@@ -177,7 +180,7 @@ def split(gff3, error_list, logger):
                         newparent['attributes']['modified_track'] = newID
                         gff3.features[newID].append(newparent)
                         gff3.lines.append(newparent)
-                        # update the child's parent list and parent attribute 
+                        # update the child's parent list and parent attribute
                         for j in childgroup[i]:
                             children = gff3.features[j]
                             for child in children:
@@ -193,7 +196,7 @@ def split(gff3, error_list, logger):
                     for old_ld in old_feature:
                         old_ld['children'] = []
                     root['line_status'] = 'removed'
-                
+
 def connected_compoents(child_list, pair_list):
     # The graph nodes
     class Data(object):
@@ -281,9 +284,9 @@ def merge(gff3, error_list, logger):
         error = list(error)
         error.sort()
         if error not in updated_error_list:
-            updated_error_list.append(error)  
+            updated_error_list.append(error)
 
-    # assume the 'parent' feature of a transcript is a 'root' feature 
+    # assume the 'parent' feature of a transcript is a 'root' feature
     # Merge wrongly split model
     for error in updated_error_list:
         Merge_trans = []
@@ -301,9 +304,9 @@ def merge(gff3, error_list, logger):
         if len(Merge_trans) > 1:
             parents = Merge_trans[0]['parents']
             flag = 1
-            for parent in parents:                
+            for parent in parents:
                 for p in parent:
-                    oldID = p['attributes']['ID']                   
+                    oldID = p['attributes']['ID']
                     newID = '{0:s}.m{1:d}'.format(oldID, flag)
                     if newID in gff3.features:
                         import uuid
@@ -315,10 +318,10 @@ def merge(gff3, error_list, logger):
                             newparent['attributes']['Name'] = newID
                     eofindex += 1
                     newparent['line_index'] = eofindex
-                    # update the child's parent list and parent attribute                      
+                    # update the child's parent list and parent attribute
                     newparent['children'] = []
                     children_id = []
-        
+
                     for children in Merge_trans:
                         try:
                             children_id.append(children['attributes']['ID'])
@@ -327,7 +330,7 @@ def merge(gff3, error_list, logger):
                                 newparent['children'].append(child)
                         except:
                             logger.warning('[Missing ID] - Line %s', str(children['line_index']+1))
-    
+
                     gff3.features[newID].append(newparent)
                     gff3.lines.append(newparent)
 
@@ -339,12 +342,12 @@ def merge(gff3, error_list, logger):
                             child['line_status'] = 'merge'
                             # make gene boundary to go with transcript boundary
                             fix_boundary(gff3=gff3, line=child, logger=logger)
-                    
+
                     flag += 1
                     # update new model line_index
 
-            
-            # remove the old model 
+
+            # remove the old model
             for ID in Old_ID_list:
                 for root in gff3.features[ID]:
                     children = root['children']
@@ -359,18 +362,18 @@ def merge(gff3, error_list, logger):
                                     gff3.lines[grandchild['line_index']]['line_status'] = 'removed'
                         except:
                             logger.warning('[Missing ID] - Line %s', str(child['line_index']+1))
-                        
+
                     if child_num == 0:
                         gff3.lines[root['line_index']]['line_status'] = 'removed'
-                        gff3.lines[root['line_index']]['children'] = []   
+                        gff3.lines[root['line_index']]['children'] = []
 
-     
-         
+
+
 def fix_phase(gff3, error_list, line_num_dict, logger):
     """
     Ema0006 : Wrong phase
     Esf0026 : Phase is not 0, 1, or 2, or not a valid integer
-    Esf0027 : Phase is required for all CDS features 
+    Esf0027 : Phase is required for all CDS features
     """
     CDS_list = []
     CDS_set = set()
@@ -399,7 +402,7 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
                         else:
                             phase = CDS_list[0]['line_index']['phase']
                         gff3.lines[CDS_list[0]['line_index']]['phase'] = phase
-                        
+
                     else:
                         phase = CDS_list[0]['phase']
                     for CDS in sorted_CDS_list:
@@ -407,8 +410,8 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
                             gff3.lines[CDS['line_index']]['phase'] = phase
                         phase = (3 - ((CDS['end'] - CDS['start'] + 1 - phase) % 3)) % 3
 
-                    
-                      
+
+
 
 def remove_directive(gff3, error_list, logger):
     """
@@ -425,7 +428,7 @@ def add_gff3_version(gff3, logger):
     """
     Esf0014 : ##gff-version missing from the first line
     """
-    # 
+    #
     line_data = {
                 'line_index': 0,
                 'line_raw': '##gff-version 3\n',
@@ -441,7 +444,7 @@ def add_gff3_version(gff3, logger):
     for line in gff3.lines:
         line['line_index'] += 1
     gff3.lines.insert(0, line_data)
-       
+
 
 
 def fix_attributes(gff3, error_list, logger):
@@ -478,13 +481,13 @@ def fix_attributes(gff3, error_list, logger):
                             equal_pos = [i for i, ltr in enumerate(attribute) if ltr == '=']
                             for equal in equal_pos[1:]:
                                 attribute = attribute[:equal] + attribute[equal+1:]
-                            a = attribute.split('=')                                                           
+                            a = attribute.split('=')
                         try:
                             tag, value = a
                         except ValueError:
                             tag, value = a[0], ''
                         if not tag:
-                            # Esf0030 
+                            # Esf0030
                             continue
                         if not value.strip():
                             # Esf0031
@@ -538,12 +541,12 @@ def fix_attributes(gff3, error_list, logger):
                                 pass
                         elif tag not in fixed_attributes:
                             if value.find(',') >= 0:
-                                value = value.replace(',','%2C')                           
+                                value = value.replace(',','%2C')
                             if tag[:1].isupper() and tag not in reserved_attributes:
                                 tag = tag[0].lower() + tag[1:]
-                            fixed_attributes[tag] = value  
+                            fixed_attributes[tag] = value
                 gff3.lines[line_num-1]['attributes'] = fixed_attributes
-                            
+
 def write(gff3, output_gff, embed_fasta=None, fasta_char_limit=None, logger=None):
     gff_fp = output_gff
     if isinstance(output_gff, str):
@@ -672,7 +675,7 @@ def main(gff3, output_gff, error_dict, line_num_dict, logger=None):
 
     write(gff3=gff3,output_gff=output_gff,logger=logger)
 
-            
+
 
 
 
