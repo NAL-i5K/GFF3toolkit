@@ -46,10 +46,10 @@ if __name__ == '__main__':
 
     Output:
     1. Corrected GFF3
-    2. report for the corrected GFF3 file
+
 
     Quick start:
-    python2.7 bin/gff3_fix.py -qc_r error.txt -g example.gff3 -r report.txt -og corrected.gff3
+    python2.7 bin/gff3_fix.py -qc_r error.txt -g example.gff3 -og corrected.gff3
     """))
 
     parser.add_argument('-qc_r', '--qc_report', type=str, help='Error report from gff3_QC.py')
