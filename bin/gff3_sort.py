@@ -165,10 +165,32 @@ def main(gff, output=None, logger=None):
     roots_sorted = PositionSort(roots)
 
     # Write the gff version
-    report.write('##gff-version 3\n')
+    # report.write('##gff-version 3\n')
+
+    wrote_sequence_region = set()
+    # build sequence region data
+    sequence_regions = {}
+    if gff3.fasta_embedded:
+        for seqid in gff3.fasta_embedded:
+            sequence_regions[seqid] = (1, len(gff3.fasta_embedded[seqid]['seq']))
+    else:
+        directives_lines = [line_data for line_data in gff3.lines if line_data['line_type'] == 'directive' and line_data['directive'] == '##sequence-region']
+        for sequence_region in directives_lines:
+            sequence_regions[sequence_region['seqid']] = (sequence_region['start'], sequence_region['end'])
+    ignore_directives = ['##sequence-region', '###', '##FASTA']
+    # write directive
+    directives_lines = [line_data for line_data in gff3.lines if line_data['line_type'] == 'directive' and line_data['directive'] not in ignore_directives]
+    for directives_line in directives_lines:
+        report.write(directives_line['line_raw'])
     
     # Visit every root-level feature
     for root in roots_sorted:
+        # write ##sequence-region
+        if root['seqid'] not in wrote_sequence_region:
+            if root['seqid'] in sequence_regions:
+                report.write('##sequence-region %s %d %d\n' % (root['seqid'], sequence_regions[root['seqid']][0], sequence_regions[root['seqid']][1]))
+            wrote_sequence_region.add(root['seqid'])
+        
         report.write(root['line_raw'])
         gff3_linenum_Set.discard(root['line_index']) 
         children = root['children'] # Collect the second-level features (eg. mRNA, ncRNA, and etc.)
@@ -266,6 +288,14 @@ def main(gff, output=None, logger=None):
         logger.warning('The following lines are omitted from the output file, because there is a problem with the input file. Please review the input file or run gff-QC.py to identify the error.\n')
         for line_num in gff3_linenum_Set:
             print('\t\t- Line {0:s}: {1:s}'.format(str(line_num+1), gff3.lines[line_num]['line_raw']))
+
+    # write fasta
+    fasta = gff3.fasta_embedded
+    if fasta != False:
+        report.write('##FASTA\n')
+        for key in fasta:
+            seq = fasta[key]['seq']
+            report.write(u'{0:s}\n{1:s}\n'.format(fasta[key]['header'],seq))
         
      
 
