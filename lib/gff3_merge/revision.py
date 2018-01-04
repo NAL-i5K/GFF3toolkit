@@ -34,7 +34,7 @@ import id_processor
 
 __version__ = '1.0.3'
 
-def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=None, logger=None):
+def main(gff_file, revision_file, output_gff, report_file=None,user_defined1=None, auto=True,logger=None):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -232,6 +232,36 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
             if line['type'] == 'gene' or line['type'] == 'pseudogene':
                 if not line.has_key('children'):
                     gff3.remove(line)
+        if auto:
+            if line.has_key('children'):
+                if user_defined1 == None:
+                    children = line['children']
+                else:
+                    children = []
+                    unique = set()
+                    if line['type'] in u_types:
+                        children.append(line)
+                    else:
+                        for child in gff3.collect_descendants(line):
+                            if child['type'] in u_types:
+                                if child['line_raw'] not in unique:
+                                    children.append(child)
+                                    unique.add(child['line_raw'])
+                tags = {}
+                for child in children:
+                    tags[tuple(child['attributes']['replace'])] = 0
+                # multi-isoforms have different replace tags
+                if len(tags) > 1:
+                    flag = 0
+                    merged_tag = set()
+                    for tag in tags.keys():
+                        if 'NA' in tag:
+                            flag = 1
+                        merged_tag.update(list(tag))
+                    if flag == 0:
+                        for child in children:
+                            child['attributes']['replace'] = list(merged_tag)
+                            print(merged_tag)
 
     if report_file:
         report_fh.close()

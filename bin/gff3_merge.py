@@ -82,7 +82,7 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, user_define
 
         logger.info('========== Auto-assignment of replace tags for each transcript model ==========')
         gff3_merge.auto_replace_tag.main(gff_file1, gff_file2, fasta, autoDIR, 'TEMP', user_defined1, user_defined2, logger)
-        gff3_merge.revision.main(gff_file1, autoFILE, autoReviseGff, autoReviseReport, user_defined1, logger)
+        gff3_merge.revision.main(gff_file1, autoFILE, autoReviseGff, autoReviseReport, user_defined1, auto, logger)
 
         logger.info('========== Check whether there are missing replace tags ==========')
         gff3 = Gff3(gff_file=autoReviseGff, logger=logger_null)
