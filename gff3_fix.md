@@ -9,8 +9,7 @@ gff3_fix.py [-h] [-qc_r QC_REPORT] [-g GFF] [-og OUTPUT_GFF] [-v]
 Python 2.7
 
 ## Inputs
-1. Error report: Error report from gff3_QC.py. Specify the file name with the -qc_r or --qc_report argument;
-1a. Error report should only include those errors that should be fixed. If errors identified by gff3_QC.py should not be fixed, remove lines containing errors from report file. 
+1. Error report: Error report from gff3_QC.py. Specify the file name with the -qc_r or --qc_report argument. Error report should only include those errors that should be fixed. If errors identified by gff3_QC.py should not be fixed, remove lines containing errors from report file. 
 2. GFF3: Specify the file name with the -g or --gff argument.
 
 
