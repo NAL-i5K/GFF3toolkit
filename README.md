@@ -1,13 +1,14 @@
 # GFF3toolkit - Python programs for processing GFF3 files
 * Current functions
     - [Detect GFF3 format errors](#detect-gff3-format-errors-back)
+    - [Correct GFF3 format errors](#correct-gff3-format-errors-back)
     - [Merge two GFF3 files](#merge-two-gff3-files-back)
     - [Sort a GFF3 file](#sort-a-gff3-file-back)
     - [Generate biological sequences from a GFF3 file](#generate-biological-sequences-from-a-gff3-file-back)
 
 ## Background
 
-The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md) (Generic Feature Format Version 3) is one of the standard formats to describe and represent genomic features. It is an incredibly flexible, 9-column format, which is easily manipulated by biologists. This flexibility, however, makes it very easy to break the format. We have developed the GFF3toolkit to help identify common problems with GFF3 files; sort GFF3 files (which can aid in using down-stream processing programs and custom parsing); merge two GFF3 files into a single, non-redundant GFF3 file; and generate FASTA files from a GFF3 file for many use cases (e.g. feature types beyond mRNA).
+The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md) (Generic Feature Format Version 3) is one of the standard formats to describe and represent genomic features. It is an incredibly flexible, 9-column format, which is easily manipulated by biologists. This flexibility, however, makes it very easy to break the format. We have developed the GFF3toolkit to help identify common problems with GFF3 files; fix 30 of these common problems; sort GFF3 files (which can aid in using down-stream processing programs and custom parsing); merge two GFF3 files into a single, non-redundant GFF3 file; and generate FASTA files from a GFF3 file for many use cases (e.g. feature types beyond mRNA).
 
 [Frequently Asked Questions/FAQ](https://github.com/NAL-i5K/GFF3toolkit/wiki/FAQ) 
 
@@ -19,6 +20,14 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
     - Quick start:
         `python2.7 GFF3toolkit/bin/gff3_QC.py -g GFF3toolkit/example_file/example.gff3 -f GFF3toolkit/example_file/reference.fa -o test2.txt`
     - Please refer to lib/ERROR/ERROR.py to see the full list of Error codes and the corresponding Error tags.
+
+## Correct GFF3 format errors ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
+
+* bin/gff3_fix.py - Correct GFF3 errors detected by gff3_QC.py (30 types of errors).
+    - [gff3_fix.py readme](gff3_fix.md)
+    - [gff3_fix.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/gff3_fix.py-documentation/)
+    - Quick start:
+        `python2.7 bin/gff3_fix.py -qc_r error.txt -g example.gff3 -og corrected.gff3`
 
 ## Merge two GFF3 files ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
