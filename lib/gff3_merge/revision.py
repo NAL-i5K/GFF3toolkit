@@ -249,7 +249,9 @@ def main(gff_file, revision_file, output_gff, report_file=None,user_defined1=Non
                                     unique.add(child['line_raw'])
                 tags = {}
                 for child in children:
-                    tags[tuple(child['attributes']['replace'])] = 0
+                    tag = ','.join(child['attributes']['replace']).replace(' ','')
+                    tag = tag.split(',')
+                    tags[tuple(tag)] = 0
                 # multi-isoforms have different replace tags
                 if len(tags) > 1:
                     flag = 0
@@ -261,7 +263,6 @@ def main(gff_file, revision_file, output_gff, report_file=None,user_defined1=Non
                     if flag == 0:
                         for child in children:
                             child['attributes']['replace'] = list(merged_tag)
-                            print(merged_tag)
 
     if report_file:
         report_fh.close()
