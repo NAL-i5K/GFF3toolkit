@@ -93,7 +93,7 @@ def StrandSort(linelist):
 
     # Sort by ascending order of genomic coordinates if the stran is '+', and by descending order if '-'. If the strand information is unclear, report error.
     newlinelist=[]
-    for k, v in strand.items():
+    for k in strand:
         if k == '+':
             try:
                 id_sorted = sorted(id2start, key=lambda i: int(id2start[i][0]))
@@ -257,9 +257,7 @@ def main(gff, output=None, logger=None):
                             report.write(cds['line_raw'])
             # Sort other features by PositionSort
             if len(others):
-                others_sorted =[]
                 if PositionSort(others):
-                    others_sorted = PositionSort(others)
                     for other in others:
                         if other['attributes'].has_key('Parent'):
                             if type(other['attributes']['Parent']) == type([]) and len(other['attributes']['Parent']) > 1:

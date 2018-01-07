@@ -8,13 +8,11 @@ QC functions for processing every single feature in GFF3 file.
 from __future__ import print_function
 
 #from collections import OrderedDict # not available in 2.6
-from collections import defaultdict
 from itertools import groupby
 try:
     from urllib import quote, unquote
 except ImportError:
     from urllib.parse import quote, unquote
-from textwrap import wrap
 import sys
 import re
 import logging
@@ -77,7 +75,7 @@ def check_pseudogene(gff, line):
     flag = 0
     result=dict()
     try:
-        for k,v in line['attributes'].items():
+        for v in line['attributes'].itervalues():
             if re.search(r"[Pp][Ss][EUeu][EUeu][Dd][Oo][Gg][Ee][Nn]*", str(v)):
                 flag += 1
         if flag and not re.search(r"pseudogen*", line['type']):
@@ -94,8 +92,7 @@ def check_pseudogene(gff, line):
 
 def check_strand(gff, line):
     eCode = 'Esf0003'
-    flag = 0
-    result=dict()
+    result = dict()
     try:
         if line['strand'] is '+' or line['strand'] is '-':
             pass

@@ -8,13 +8,11 @@ QC functions for processing multiple features between models (inter-model) in GF
 from __future__ import print_function
 
 #from collections import OrderedDict # not available in 2.6
-from collections import defaultdict
 from itertools import groupby
 try:
     from urllib import quote, unquote
 except ImportError:
     from urllib.parse import quote, unquote
-from textwrap import wrap
 import sys
 import re
 import logging
@@ -33,7 +31,6 @@ if dirname(__file__) == '':
 else:
     lib_path = dirname(__file__) + '/../../lib'
 sys.path.insert(1, lib_path)
-from gff3_modified import Gff3
 
 __version__ = '0.0.1'
 
@@ -65,8 +62,9 @@ def FIX_MISSING_ATTR(gff, logger=None):
         sys.exit()
 
 def featureSort(linelist, reverse=False):
-    ''' Used by replace_OGS.py'''
-    ''' Used by gff3_to_fasta.py'''
+    """
+    Used by replace_OGS.py and gff3_to_fasta.py
+    """
     FEATURECODE = {
         'gene': 0, 
         'pseudogene': 0, 

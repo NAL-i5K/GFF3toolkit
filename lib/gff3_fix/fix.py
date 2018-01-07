@@ -138,7 +138,6 @@ def split(gff3, error_list, logger):
                     except:
                         logger.warning('[Missing ID] - Line %s', str(line_num))
                     children = root['children']
-                    gflag = 1
                     hitpair = []
                     childrenlist = []
                     for i in range((len(children)-1)):
@@ -252,7 +251,7 @@ def connected_compoents(child_list, pair_list):
         tokens = pair.split(' ')
         nodelist[tokens[0]].add_link(nodelist[tokens[1]])
     nodes=set()
-    for k,v in nodelist.items():
+    for v in nodelist.itervalues():
         nodes.add(v)
     result=[]
     for components in cc(nodes):
@@ -383,7 +382,7 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
             if gff3.lines[line_num-1]['line_status'] != 'removed':
                 for root in gff3.collect_roots(gff3.lines[line_num-1]):
                     if root['type'] != 'CDS':
-                        root['type'] == '.'
+                        root['type'] = '.'
                     for child in gff3.collect_descendants(root):
                         if child['type'] == 'CDS':
                             if child['line_raw'] not in CDS_set:
@@ -514,7 +513,6 @@ def fix_attributes(gff3, error_list, logger):
                                 fixed_attributes[tag] = value.split(',')
                             # check for duplicate values
                             if tag != 'Note' and len(fixed_attributes[tag]) != len(set(fixed_attributes[tag])):
-                                count_values = [(len(list(group)), key) for key, group in groupby(sorted(fixed_attributes[tag]))]
                                 # remove duplicate
                                 fixed_attributes[tag] = list(set(fixed_attributes[tag]))
                         elif tag == 'Target':

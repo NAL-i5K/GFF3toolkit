@@ -20,8 +20,6 @@ try:
     from urllib import quote, unquote
 except ImportError:
     from urllib.parse import quote, unquote
-from textwrap import wrap
-import sys
 import re
 import string
 import logging
@@ -262,7 +260,7 @@ class Gff3(object):
                 phase = (3 - ((line['end'] - line['start'] + 1 - phase) % 3)) % 3
 
     def parse_fasta_external(self, fasta_file):
-        self.fasta_external, count = fasta_file_to_dict(fasta_file)
+        self.fasta_external, _ = fasta_file_to_dict(fasta_file)
 
     def check_reference(self, sequence_region=False, fasta_embedded=False, fasta_external=False, check_bounds=True, check_n=True, allowed_num_of_n=0, feature_types=('CDS',)):
         """
@@ -872,7 +870,6 @@ class Gff3(object):
             except TypeError: # assume feature_id(str)
                 new_id = new_parent
         new_feature = self.features[new_id]
-        new_indexes = [ld['line_index'] for ld in new_feature]
         # build a list of children to be moved
         # add the child to the new parent's children list if its not already there
         # update the child's parent list and parent attribute
