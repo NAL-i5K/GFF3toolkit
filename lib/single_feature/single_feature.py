@@ -46,10 +46,10 @@ def FIX_PSEUDOGENE(gff):
                     roots.append(line)
                 else:
                     print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-        except:
+        except KeyError:
             print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-            
-        
+
+
     #roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
     for root in roots:
         if root['type'] == 'pseudogene':
@@ -66,7 +66,7 @@ def FIX_PSEUDOGENE(gff):
                         other['line_status'] = 'removed'
 
 def check_pseudogene(gff, line):
-    ''' 
+    '''
     Note:
     1. This funtion should be only applied on a gff file that has been fixed by FIX_PSEUDOGENE function.
     2. This function should be only applied on loci/transcript level features.
@@ -133,7 +133,7 @@ def main(gff, logger=None):
             error_set.extend(r)
         r = None
 
-    if len(error_set): 
+    if len(error_set):
         return(error_set)
 
 if __name__ == '__main__':
@@ -160,7 +160,7 @@ if __name__ == '__main__':
     1. GFF3: fixed GFF file
 
     """))
-    parser.add_argument('-g', '--gff', type=str, help='Summary Report from Monica (default: STDIN)') 
+    parser.add_argument('-g', '--gff', type=str, help='Summary Report from Monica (default: STDIN)')
     parser.add_argument('-o', '--output', type=str, help='Output file name (default: STDIN)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     

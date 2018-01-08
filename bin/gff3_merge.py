@@ -30,23 +30,24 @@ def check_replace(gff, user_defined1=None):
             u_type.add(line[0])
 
     roots = []
+    error_lines = list()
     for line in gff.lines:
         if not user_defined1:
             try:
                 if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
                    roots.append(line)
-            except:
+            except KeyError:
                 print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         else:
             if line['type'] in u_type:
                 try:
                     if not line['attributes'].has_key('replace'):
                         error_lines.append(line)
-                except:
+                except KeyError:
                     print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
 
     #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
-    error_lines = list()
+
     for root in roots:
         children = root['children']
         for child in children:

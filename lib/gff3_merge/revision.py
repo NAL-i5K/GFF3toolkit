@@ -136,7 +136,7 @@ def main(gff_file, revision_file, output_gff, report_file=None,user_defined1=Non
             try:
                 if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
                     roots.append(line)
-            except:
+            except KeyError:
                 print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         else:
             if line['type'] in u_types:

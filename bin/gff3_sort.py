@@ -10,7 +10,7 @@
 Changelog:
     * v0.0.2
         - Sort the features grouped as 'others' by PositionSort
-        - Add comments 
+        - Add comments
 """
 
 import sys
@@ -62,7 +62,7 @@ def PositionSort(linelist):
             except:
                 print('ERROR [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(id2start[ID][1]+1),ID))
                 sys.exit(1)
-        
+
         id_sorted = sorted(d, key=lambda i: int(d[i])) # Sort the features by their 'start' coordinates
         for i in id_sorted:
             newlinelist.append(id2line[i]) # Collect the sorted features to the result parameter
@@ -190,7 +190,7 @@ def main(gff, output=None, logger=None):
             if root['seqid'] in sequence_regions:
                 report.write('##sequence-region %s %d %d\n' % (root['seqid'], sequence_regions[root['seqid']][0], sequence_regions[root['seqid']][1]))
             wrote_sequence_region.add(root['seqid'])
-        
+
         report.write(root['line_raw'])
         gff3_linenum_Set.discard(root['line_index']) 
         children = root['children'] # Collect the second-level features (eg. mRNA, ncRNA, and etc.)
@@ -247,7 +247,7 @@ def main(gff, output=None, logger=None):
                     for cds in cdss_sorted:
                         if cds['attributes'].has_key('Parent'):
                             if type(cds['attributes']['Parent']) == type([]) and len(cds['attributes']['Parent']) > 1:
-                                gff3_linenum_Set.discard(cds['line_index'])                 
+                                gff3_linenum_Set.discard(cds['line_index'])
                                 report.write(TwoParent(child['attributes']['ID'],cds))
                             else:
                                 gff3_linenum_Set.discard(cds['line_index'])
