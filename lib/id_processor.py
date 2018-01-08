@@ -8,13 +8,10 @@ Changelog:
 """
 from __future__ import print_function
 from collections import defaultdict
-from itertools import groupby
 try:
     from urllib import quote, unquote
 except ImportError:
     from urllib.parse import quote, unquote
-from textwrap import wrap
-import sys
 import re
 import string
 import copy
@@ -32,7 +29,7 @@ def idgenerator(prefix, lastnumber, digitlen):
     idnum = str(lastnumber)
     if len(idnum) < digitlen:
         adddigit = digitlen-len(idnum)
-        for i in range(adddigit):
+        for _ in range(adddigit):
             idnum = str(0) + idnum
     result={}
     result['ID'] = prefix + idnum
@@ -44,7 +41,7 @@ def simpleIDreplace(model, newid):
     newidnumber = tmp.groups()[1]
     if model['attributes'].has_key('ID'):
         tmp  = re.search('(.+?)(\d+)(.*)',model['attributes']['ID'])
-        prefix, num, suffix = tmp.groups()[0], tmp.groups()[1], tmp.groups()[2]
+        prefix, _, suffix = tmp.groups()[0], tmp.groups()[1], tmp.groups()[2]
         renamedID = prefix + newidnumber + suffix
         model['attributes']['ID'] = renamedID
     else:
@@ -353,7 +350,6 @@ def newNreplaceModel(oldmodel, newid, gff):
 
 def IDprocessing(gff):
     roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
-    uniqueID = {}
     tmp  = re.search('(.+?)(\d+)',roots[0]['attributes']['ID'])
     idprefix = tmp.groups()[0]
     maxIDnumber = 0
@@ -459,10 +455,10 @@ def ncbiNamingSystem(gff, tag):
                     if not product == 'NA':
                         gchild['attributes']['product'] = product
     print('## Types in this gff')
-    for k, v in roottype.items():
+    for k in roottype:
         print('root type: ', k)
-    for k, v in childtype.items():
-        print('child types: ',k)
-    for k, v in grandchildtype.items():
-        print('grandchild types: ',k)
+    for k in childtype:
+        print('child types: ', k)
+    for k in grandchildtype:
+        print('grandchild types: ', k)
 

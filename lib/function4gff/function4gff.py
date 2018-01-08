@@ -8,13 +8,11 @@ QC functions for processing multiple features between models (inter-model) in GF
 from __future__ import print_function
 
 #from collections import OrderedDict # not available in 2.6
-from collections import defaultdict
 from itertools import groupby
 try:
     from urllib import quote, unquote
 except ImportError:
     from urllib.parse import quote, unquote
-from textwrap import wrap
 import sys
 import re
 import logging
@@ -33,14 +31,13 @@ if dirname(__file__) == '':
 else:
     lib_path = dirname(__file__) + '/../../lib'
 sys.path.insert(1, lib_path)
-from gff3_modified import Gff3
 
 __version__ = '0.0.1'
 
 def randomID(size=32, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-def FIX_MISSING_ATTR(gff, logger=None): 
+def FIX_MISSING_ATTR(gff, logger=None):
     features = [line for line in gff.lines if line['line_type']=='feature']
     flag = 0
     for f in features:
@@ -59,17 +56,18 @@ def FIX_MISSING_ATTR(gff, logger=None):
                         tid = randomID()
                     f['attributes']['ID'] = tid
                     gff.features[tid].append(f)
-        except:
+        except KeyError:
             logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(f['line_index']+1), f['line_raw']))
     if flag != 0:
         sys.exit()
 
 def featureSort(linelist, reverse=False):
-    ''' Used by replace_OGS.py'''
-    ''' Used by gff3_to_fasta.py'''
+    """
+    Used by replace_OGS.py and gff3_to_fasta.py
+    """
     FEATURECODE = {
-        'gene': 0, 
-        'pseudogene': 0, 
+        'gene': 0,
+        'pseudogene': 0,
         'mRNA': 1,
         'rRNA': 1,
         'tRNA': 1,

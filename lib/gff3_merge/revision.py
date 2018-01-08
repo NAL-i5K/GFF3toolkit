@@ -19,7 +19,6 @@ from collections import OrderedDict
 from collections import defaultdict
 from itertools import groupby
 from urllib import quote, unquote
-from textwrap import wrap
 # try to import from project first
 import os
 from os.path import dirname
@@ -114,7 +113,7 @@ def main(gff_file, revision_file, output_gff, report_file=None,user_defined1=Non
         report_fh.write('* Found {0:d} matched IDs of the revision file\n'.format(match))
         report_fh.write('* Are there IDs that should be revised, but cannot be found in the gff?\n')
         count = 0
-        for k, v in revision_id.items():
+        for v in revision_id.itervalues():
             if not v[1] == 'hit':
                 tokens = v[1].split('\t')
                 key = '{0:s}:{1:s}-{2:s}:{3:s}:{4:s}'.format(tokens[6], tokens[7], tokens[8], tokens[9], tokens[10])
@@ -137,7 +136,7 @@ def main(gff_file, revision_file, output_gff, report_file=None,user_defined1=Non
             try:
                 if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
                     roots.append(line)
-            except:
+            except KeyError:
                 print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         else:
             if line['type'] in u_types:

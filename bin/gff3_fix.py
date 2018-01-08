@@ -83,7 +83,7 @@ if __name__ == '__main__':
                                 line_num_dict[line_num] = {lines[1]: lines[2]}
                             else:
                                 line_num_dict[line_num][lines[1]] = lines[2]
-                    except:
+                    except IndexError:
                         logger_stderr.warning('Failed to recognize - %s', line)
 
     except:

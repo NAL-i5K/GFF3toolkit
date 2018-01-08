@@ -7,8 +7,6 @@
 # (at your option) any later version.
 
 import sys
-import re
-import logging
 # try to import from project first
 from os.path import dirname
 if dirname(__file__) == '':

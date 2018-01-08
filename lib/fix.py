@@ -7,14 +7,10 @@
 Changelog:
 """
 from __future__ import print_function
-from collections import defaultdict
-from itertools import groupby
 try:
     from urllib import quote, unquote
 except ImportError:
     from urllib.parse import quote, unquote
-from textwrap import wrap
-import sys
 import re
 import copy
 import logging
@@ -184,10 +180,10 @@ class FixAction(object):
         for pair in pair_list:
             tokens = pair.split(' ')
             nodelist[tokens[0]].add_link(nodelist[tokens[1]])
-        nodes=set()
-        for k,v in nodelist.items():
+        nodes = set()
+        for v in nodelist.itervalues():
             nodes.add(v)
-        result=[]
+        result = []
         for components in cc(nodes):
             names = sorted(node.name for node in components)
             result.append(names)
@@ -275,7 +271,6 @@ class FixAction(object):
 
                 # find the children that need to be seperated.
                 children = p['children']
-                gflag = 1
                 hitpair=[]
                 childrenlist=[]
                 for i in range((len(children)-1)):
@@ -514,7 +509,6 @@ class Gff3error(object):
                     info = []
                     for i in colid2[2:]:
                         info.append(t[i])
-                    infoline = ' | '.join(info)
                     tid2info[t[colid[0]]] = line
             flag += 1
         self.tid2error = tid2error
