@@ -22,7 +22,7 @@ from gff3_modified import Gff3
 import gff3_fix
 
 __version__ = version.__version__
-   
+
 
 if __name__ == '__main__':
     logger_stderr = logging.getLogger(__name__+'stderr')

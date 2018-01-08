@@ -37,7 +37,7 @@ def idgenerator(prefix, lastnumber, digitlen):
     return(result)
 
 def simpleIDreplace(model, newid):
-    tmp  = re.search('(.+?)(\d+)',newid)    
+    tmp  = re.search('(.+?)(\d+)',newid) 
     newidnumber = tmp.groups()[1]
     if model['attributes'].has_key('ID'):
         tmp  = re.search('(.+?)(\d+)(.*)',model['attributes']['ID'])
@@ -58,7 +58,7 @@ def newParentModel(oldmodel, newid, gff):
     eofindex = len(gff.lines)
     newmodel['line_index'] = eofindex
     newmodel['children'] = []
-    return newmodel 
+    return newmodel
 
 def newChildModel(ochild, newid, gff):
     nchild = copy.deepcopy(ochild)
@@ -199,7 +199,7 @@ def general_newModel(oldmodel, gff):
     '''
     newid = oldmodel['attributes']['ID']
     if newid in gff.features.keys():
-        eofindex = len(gff.lines) 
+        eofindex = len(gff.lines)
         newid = eofindex
     newmodel = newParentModel(oldmodel, newid, gff)
     gff.features[newid].append(newmodel)
