@@ -114,7 +114,7 @@ def check_strand(gff, line):
         logger.error('Program dies at Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
     if len(result):
         return [result]
-   
+
 
 def main(gff, logger=None):
     function4gff.FIX_MISSING_ATTR(gff, logger=logger)

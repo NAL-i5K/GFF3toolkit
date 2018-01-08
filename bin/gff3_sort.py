@@ -192,7 +192,7 @@ def main(gff, output=None, logger=None):
             wrote_sequence_region.add(root['seqid'])
 
         report.write(root['line_raw'])
-        gff3_linenum_Set.discard(root['line_index']) 
+        gff3_linenum_Set.discard(root['line_index'])
         children = root['children'] # Collect the second-level features (eg. mRNA, ncRNA, and etc.)
         children_sorted = PositionSort(children)
         otherlines=[]
@@ -230,7 +230,7 @@ def main(gff, output=None, logger=None):
                     exons_sorted = StrandSort(exons)
                     for exon in exons_sorted:
                         if exon['attributes'].has_key('Parent'):
-                            if type(exon['attributes']['Parent']) == type([]) and len(exon['attributes']['Parent']) > 1:
+                            if isinstance(exon['attributes']['Parent'], list) and len(exon['attributes']['Parent']) > 1:
                                 gff3_linenum_Set.discard(exon['line_index'])
                                 report.write(TwoParent(child['attributes']['ID'],exon))
                             else:
@@ -246,7 +246,7 @@ def main(gff, output=None, logger=None):
                     cdss_sorted = StrandSort(cdss)
                     for cds in cdss_sorted:
                         if cds['attributes'].has_key('Parent'):
-                            if type(cds['attributes']['Parent']) == type([]) and len(cds['attributes']['Parent']) > 1:
+                            if isinstance(cds['attributes']['Parent'], list) and len(cds['attributes']['Parent']) > 1:
                                 gff3_linenum_Set.discard(cds['line_index'])
                                 report.write(TwoParent(child['attributes']['ID'],cds))
                             else:
