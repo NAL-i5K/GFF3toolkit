@@ -343,11 +343,11 @@ class Gff3(object):
                 # check n
                 if check_n and line_data['type'] in check_n_feature_types:
                     """
-                    >>> timeit("a.lower().count('n')", "import re; a = ('ASDKADSJHFIUDNNNNNNNnnnnSHFD'*50)")
+                    #>>> timeit("a.lower().count('n')", "import re; a = ('ASDKADSJHFIUDNNNNNNNnnnnSHFD'*50)")
                     5.540903252684302
-                    >>> timeit("a.count('n'); a.count('N')", "import re; a = ('ASDKADSJHFIUDNNNNNNNnnnnSHFD'*50)")
+                    #>>> timeit("a.count('n'); a.count('N')", "import re; a = ('ASDKADSJHFIUDNNNNNNNnnnnSHFD'*50)")
                     2.3504867946058425
-                    >>> timeit("re.findall('[Nn]+', a)", "import re; a = ('ASDKADSJHFIUDNNNNNNNnnnnSHFD'*50)")
+                    #>>> timeit("re.findall('[Nn]+', a)", "import re; a = ('ASDKADSJHFIUDNNNNNNNnnnnSHFD'*50)")
                     30.60731204915959
                     """
                     n_count = self.fasta_embedded[seqid]['seq'].count('N', line_data['start'] - 1, line_data['end']) + self.fasta_embedded[seqid]['seq'].count('n', line_data['start'] - 1, line_data['end'])
@@ -813,14 +813,14 @@ class Gff3(object):
                 visited_list.append(self.lines[node])
                 queue.extend([ld['line_index'] for ld in self.lines[node]['children'] if ld['line_index'] not in visited_set]) #commented on 08/13/2015 by Mei-Ju May Chen
                 ### To write out gff file follwing the order of gene, mRNA, exon, CDS (by Mei-Ju May Chen)
-                '''
+                """
                 for ld in self.lines[node]['children']:
                     if ld['line_index'] not in visited_set:
                         queue.extend([ld['line_index']])
                     for gld in ld['children']:
                         if gld['line_index'] not in visited_set:
                             queue.extend([gld['line_index']])
-                '''
+                """
                 ### To write out gff file follwing the order of gene, mRNA, exon, CDS (by Mei-Ju May Chen)
         return visited_list[1:]
 

@@ -93,7 +93,7 @@ def featureSort(linelist, reverse=False):
         tmp = re.search('(.+?)(\d+)',line['seqid'])
         try:
             seqnum = tmp.groups()[1]
-        except:
+        except AttributeError:
             continue
         if seq2id.has_key(seqnum):
             seq2id[seqnum].append(str(line['line_raw']))

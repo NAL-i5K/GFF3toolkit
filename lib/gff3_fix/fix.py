@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from itertools import groupby
-import sys
 import re
 import copy
 import logging
@@ -135,7 +133,7 @@ def split(gff3, error_list, logger):
                         old_feature = gff3.features[oldID]
                         if root['attributes'].has_key('modified_track') and root['attributes']['modified_track'] == 'removed':
                             continue
-                    except:
+                    except KeyError:
                         logger.warning('[Missing ID] - Line %s', str(line_num))
                     children = root['children']
                     hitpair = []
@@ -159,7 +157,7 @@ def split(gff3, error_list, logger):
                     childrenlist.append(children[len(children)-1]['attributes']['ID'])
                     childgroup = connected_compoents(childrenlist, hitpair)
                     flag = 1
-                    for i in range(len(childgroup)):
+                    for i, val in enumerate(childgroup):
                         newID = ''
                         if root['attributes'].has_key('modified_track'):
                             newID = '{0:s}.s{1:d}'.format(root['attributes']['modified_track'], flag)
@@ -172,7 +170,7 @@ def split(gff3, error_list, logger):
                         eofindex += 1
                         newparent['line_index'] = eofindex
                         newparent['children'] = []
-                        for j in childgroup[i]:
+                        for j in val:
                             children = gff3.features[j]
                             for child in children:
                                 newparent['children'].append(child)
@@ -180,7 +178,7 @@ def split(gff3, error_list, logger):
                         gff3.features[newID].append(newparent)
                         gff3.lines.append(newparent)
                         # update the child's parent list and parent attribute
-                        for j in childgroup[i]:
+                        for j in val:
                             children = gff3.features[j]
                             for child in children:
                                 child['parents'] = []
@@ -376,7 +374,7 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
     """
     CDS_list = []
     CDS_set = set()
-    valid_CDS_phase = set([0,1,2])
+    #valid_CDS_phase = set([0,1,2])
     for error in error_list:
         for line_num in error:
             if gff3.lines[line_num-1]['line_status'] != 'removed':
@@ -522,18 +520,14 @@ def fix_attributes(gff3, error_list, logger):
                             fixed_attributes[tag] = {}
                             try:
                                 fixed_attributes[tag]['target_id'] = target_tokens[0]
-                                all_good = True
                                 try:
                                     fixed_attributes[tag]['start'] = int(target_tokens[1])
                                 except ValueError:
-                                    all_good = False
                                     fixed_attributes[tag]['start'] = target_tokens[1]
                                 try:
                                     fixed_attributes[tag]['end'] = int(target_tokens[2])
                                 except ValueError:
-                                    all_good = False
                                     fixed_attributes[tag]['end'] = target_tokens[2]
-                                # if all_good then both start and end are int, so we can check if start is not less than or equal to end
                                 fixed_attributes[tag]['strand'] = target_tokens[3]
                             except IndexError:
                                 pass

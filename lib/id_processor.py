@@ -37,7 +37,7 @@ def idgenerator(prefix, lastnumber, digitlen):
     return(result)
 
 def simpleIDreplace(model, newid):
-    tmp  = re.search('(.+?)(\d+)',newid) 
+    tmp  = re.search('(.+?)(\d+)',newid)
     newidnumber = tmp.groups()[1]
     if model['attributes'].has_key('ID'):
         tmp  = re.search('(.+?)(\d+)(.*)',model['attributes']['ID'])
