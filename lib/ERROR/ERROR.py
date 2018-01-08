@@ -59,7 +59,7 @@ INFO = {
     'Esf0027': 'Phase is required for all CDS features',
     'Esf0028': 'Attributes must escape the percent (%) sign and any control characters',
     'Esf0029': 'Attributes must contain one and only one equal (=) sign',
-    'Esf0030': 'Empty attribute tag',  
+    'Esf0030': 'Empty attribute tag', 
     'Esf0031': 'Empty attribute value', 
     'Esf0032': 'Found multiple attribute tags',
     'Esf0033': 'Found ", " in a attribute, possible unescaped',

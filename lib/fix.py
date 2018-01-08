@@ -52,7 +52,7 @@ def main(gff_object, error_object, error2fix):
                                 line2 = {}
                                 for error in errors:
                                     if re.search('wrongly split gene parent', error):
-                                        IDs = re.search('wrongly split gene parent\? (\S+) and (.+?)]', error)
+ k8                                       IDs = re.search('wrongly split gene parent\? (\S+) and (.+?)]', error)
                                         for ID in IDs.groups():
                                             if not ID == tid:
                                                 sline = [tline for tline in gff_object.lines if tline['line_type']=='feature' and tline['attributes']['ID'] == ID]
@@ -332,7 +332,7 @@ class FixAction(object):
                 for old_ld in old_feature:
                     old_ld['children'] = []
                 p['attributes']['modified_track'] = 'removed'
-                
+
 
     def merge(self, gff, line, line2):
         """

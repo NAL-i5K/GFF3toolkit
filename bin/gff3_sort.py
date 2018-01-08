@@ -146,7 +146,7 @@ def main(gff, output=None, logger=None):
 
 
     logger.info('Sorting and printing out...')
-    
+ 
     # Visit the GFF3 object through root-level features (eg. gene, pseudogene, and etc.)
     roots =[]
     gff3_linenum_Set = set()
@@ -253,7 +253,7 @@ def main(gff, output=None, logger=None):
                                 gff3_linenum_Set.discard(cds['line_index'])
                                 report.write(cds['line_raw'])
                         else:
-                            gff3_linenum_Set.discard(cds['line_index'])            
+                            gff3_linenum_Set.discard(cds['line_index']) 
                             report.write(cds['line_raw'])
             # Sort other features by PositionSort
             if len(others):
