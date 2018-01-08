@@ -40,7 +40,7 @@ def simpleIDreplace(model, newid):
     tmp  = re.search('(.+?)(\d+)',newid)    
     newidnumber = tmp.groups()[1]
     if model['attributes'].has_key('ID'):
- lQ       tmp  = re.search('(.+?)(\d+)(.*)',model['attributes']['ID'])
+        tmp  = re.search('(.+?)(\d+)(.*)',model['attributes']['ID'])
         prefix, _, suffix = tmp.groups()[0], tmp.groups()[1], tmp.groups()[2]
         renamedID = prefix + newidnumber + suffix
         model['attributes']['ID'] = renamedID
@@ -52,7 +52,7 @@ def newParentModel(oldmodel, newid, gff):
     newmodel = copy.deepcopy(oldmodel)
     if oldmodel['attributes'].has_key('Name') and oldmodel['attributes']['Name'] == oldmodel['attributes']['ID']:
         newmodel['attributes']['Name'] = newid
-   alQ elif not oldmodel['attributes'].has_key('Name'):
+    elif not oldmodel['attributes'].has_key('Name'):
         newmodel['attributes']['Name'] = newid
     newmodel['attributes']['ID'] = newid
     eofindex = len(gff.lines)
@@ -67,7 +67,7 @@ def newChildModel(ochild, newid, gff):
     nchild['parents'] = []
     nchild['attributes']['Parent']=[]
     if newid:
-      alQ  simpleIDreplace(nchild, newid)
+        simpleIDreplace(nchild, newid)
     if ochild['attributes'].has_key('Name') and ochild['attributes']['Name'] == ochild['attributes']['ID']:
         nchild['attributes']['Name'] = nchild['attributes']['ID']
     if nchild.has_key('children'):
@@ -76,7 +76,7 @@ def newChildModel(ochild, newid, gff):
 
 def newPepModel(ochild, gff):
     # ochild must be a mRNA feature
-    gchilalQdren = ochild['children']
+    gchildren = ochild['children']
     start, end = int(), int()
     newpep = {}
     flag = 0
@@ -91,7 +91,7 @@ def newPepModel(ochild, gff):
                 end = gchild['end']
             flag+=1
     if flag > 0:
-        eofialQndex = len(gff.lines)
+        eofindex = len(gff.lines)
         newpep['line_index'] = eofindex
         newpep['start'] = start
         newpep['end'] = end
@@ -100,7 +100,7 @@ def newPepModel(ochild, gff):
         newpep['attributes']['ID'] = re.sub('-R.*', '-P{0:s}'.format(tmp.groups()[0]), newpep['attributes']['ID'])
         if newpep['attributes'].has_key('Name') and newpep['attributes']['Name'] == newpep['attributes']['Name']:
             newpep['attributes']['Name'] = newpep['attributes']['ID']
-        if newpalQep.has_key('children'):
+        if newpep.has_key('children'):
             newpep['children'] = []
         ochild['children'].append(newpep)
         gff.features[newpep['attributes']['ID']].append(newpep)
@@ -112,7 +112,7 @@ def threadin(oldmodel, newid, gff): #implement later 09/01/2015
 def newModel(oldmodel, newid, gff):
     '''
 	 model should be root model.
-	 '''alQ
+	 '''
     newmodel = newParentModel(oldmodel, newid, gff)
     gff.features[newid].append(newmodel)
     gff.lines.append(newmodel)
