@@ -36,7 +36,7 @@ if not logger.handlers:
 COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
 def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
-    
+
 BASES = ['t', 'c', 'a', 'g']
 CODONS = [a+b+c for a in BASES for b in BASES for c in BASES]
 AMINO_ACIDS = 'FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG'
@@ -151,7 +151,7 @@ class Gff3(object):
             self.parse_fasta_external(fasta_external)
 
     error_format = 'Line {current_line_num}: {error_type}: {message}\n-> {line}'
-    def collect_descendants(self, line_data): #Function defined by Mei-Ju May Chen 11/04/2015 
+    def collect_descendants(self, line_data): #Function defined by Mei-Ju May Chen 11/04/2015
         collected_list = []
         if line_data.has_key('children'):
             children = line_data['children']
