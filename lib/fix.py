@@ -191,7 +191,7 @@ class FixAction(object):
 
     def delete_model(self, gff, line):
         """
-        Delete models containing the following errors, 
+        Delete models containing the following errors,
             Negative start/end coordinate
             Zero start coordinate
         """
@@ -254,7 +254,7 @@ class FixAction(object):
 
     def split(self, gff, line):
         """
-        Split wrongly merged models. 
+        Split wrongly merged models.
             Visit all children of the gene, and decide which mRNAs should be seperated from the origial model (Reprogramming!!). Split before merge?
         """
         if line['line_status'] == 'split':
@@ -315,7 +315,7 @@ class FixAction(object):
                     newparent['attributes']['modified_track'] = newID
                     gff.features[newID].append(newparent)
                     gff.lines.append(newparent)
-                    # update the child's parent list and parent attribute 
+                    # update the child's parent list and parent attribute
                     for j in childgroup[i]:
                         children = gff.features[j]
                         for child in children:
@@ -332,7 +332,7 @@ class FixAction(object):
                 for old_ld in old_feature:
                     old_ld['children'] = []
                 p['attributes']['modified_track'] = 'removed'
-                
+
 
     def merge(self, gff, line, line2):
         """

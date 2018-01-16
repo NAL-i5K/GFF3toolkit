@@ -40,7 +40,7 @@ def PositionSort(linelist):
         tmp = re.search('(.+?)(\d+)',line['seqid']) # Truncate the sequence ID, and only keep the sequence ID number
         try:
             seqnum = tmp.groups()[1]
-        except:
+        except AttributeError:
             print('ERROR  [Missing SeqID] Missing SeqID.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1),line['line_raw']))
             sys.exit(1)
         # 'seq2id': a dictionary mapping sequence number to their features
@@ -146,11 +146,11 @@ def main(gff, output=None, logger=None):
 
 
     logger.info('Sorting and printing out...')
-    
+
     # Visit the GFF3 object through root-level features (eg. gene, pseudogene, and etc.)
     roots =[]
     gff3_linenum_Set = set()
-   
+
     for line in gff3.lines:
        if line['line_type'] == 'feature':
            gff3_linenum_Set.add(line['line_index'])
@@ -182,7 +182,7 @@ def main(gff, output=None, logger=None):
     directives_lines = [line_data for line_data in gff3.lines if line_data['line_type'] == 'directive' and line_data['directive'] not in ignore_directives]
     for directives_line in directives_lines:
         report.write(directives_line['line_raw'])
-    
+
     # Visit every root-level feature
     for root in roots_sorted:
         # write ##sequence-region
@@ -192,7 +192,7 @@ def main(gff, output=None, logger=None):
             wrote_sequence_region.add(root['seqid'])
 
         report.write(root['line_raw'])
-        gff3_linenum_Set.discard(root['line_index']) 
+        gff3_linenum_Set.discard(root['line_index'])
         children = root['children'] # Collect the second-level features (eg. mRNA, ncRNA, and etc.)
         children_sorted = PositionSort(children)
         otherlines=[]
@@ -230,7 +230,7 @@ def main(gff, output=None, logger=None):
                     exons_sorted = StrandSort(exons)
                     for exon in exons_sorted:
                         if exon['attributes'].has_key('Parent'):
-                            if type(exon['attributes']['Parent']) == type([]) and len(exon['attributes']['Parent']) > 1:
+                            if isinstance(exon['attributes']['Parent'], list) and len(exon['attributes']['Parent']) > 1:
                                 gff3_linenum_Set.discard(exon['line_index'])
                                 report.write(TwoParent(child['attributes']['ID'],exon))
                             else:
@@ -246,14 +246,14 @@ def main(gff, output=None, logger=None):
                     cdss_sorted = StrandSort(cdss)
                     for cds in cdss_sorted:
                         if cds['attributes'].has_key('Parent'):
-                            if type(cds['attributes']['Parent']) == type([]) and len(cds['attributes']['Parent']) > 1:
+                            if isinstance(cds['attributes']['Parent'], list) and len(cds['attributes']['Parent']) > 1:
                                 gff3_linenum_Set.discard(cds['line_index'])
                                 report.write(TwoParent(child['attributes']['ID'],cds))
                             else:
                                 gff3_linenum_Set.discard(cds['line_index'])
                                 report.write(cds['line_raw'])
                         else:
-                            gff3_linenum_Set.discard(cds['line_index'])            
+                            gff3_linenum_Set.discard(cds['line_index'])
                             report.write(cds['line_raw'])
             # Sort other features by PositionSort
             if len(others):
@@ -294,8 +294,8 @@ def main(gff, output=None, logger=None):
         for key in fasta:
             seq = fasta[key]['seq']
             report.write(u'{0:s}\n{1:s}\n'.format(fasta[key]['header'],seq))
-        
-     
+
+
 
 if __name__ == '__main__':
     # Set up logger information
@@ -329,7 +329,7 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--gff_file', type=str, help='GFF3 file that you would like to sort.')
     parser.add_argument('-og', '--output_gff', type=str, help='Sorted GFF3 file')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-    
+
     # Process the required arguments
     test_lv = 1 # debug
     if test_lv == 0:
