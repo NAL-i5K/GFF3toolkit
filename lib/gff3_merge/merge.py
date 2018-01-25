@@ -36,7 +36,7 @@ else:
     lib_path = dirname(__file__) + '/../../bin'
 sys.path.insert(1, lib_path)
 
-from gff3_modified import Gff3
+from gff3 import Gff3
 import replace_OGS
 import gff3_sort
 

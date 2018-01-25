@@ -28,7 +28,7 @@ else:
     lib_path = dirname(__file__) + '/../'
 sys.path.insert(1, lib_path)
 import copy
-from gff3_modified import Gff3
+from gff3 import Gff3
 import id_processor
 
 __version__ = '1.0.3'

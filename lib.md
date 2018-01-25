@@ -1,6 +1,6 @@
 ## Internal Dependencies of GFF3toolkit/lib
 ### Desciprtion of Functions
-* [lib/gff3_modified](lib/gff3_modified)/
+* [lib/gff3_](lib/gff3_)/
     - Basic data structure used for nesting the information of genome annotations in GFF3 format. 
     - Some of the error checking functions listed in [lib/ERROR](lib/ERROR)
 * [lib/gff3_to_fasta](lib/gff3_to_fasta)/
@@ -20,9 +20,9 @@
 
 ### Functions used by each program (GFF3toolkit/bin/*.py)
 * [bin/gff3_sort.py](bin/gff3_sort.py)/
-    - [lib/gff3_modified/gff3_modified.py](lib/gff3_modified/gff3_modified.py)
+    - [lib/gff3_/gff3_.py](lib/gff3/gff3.py)
 * [bin/gff3_QC.py](bin/gff3_QC.py)
-    - [lib/gff3_modified/gff3_modified.py](lib/gff3_modified/gff3_modified.py)
+    - [lib/gff3_/gff3_.py](lib/gff3/gff3.py)
         - Note: If a error type cannot be found in the following four directories, you shall find it here
     - [lib/function4gff](lib/function4gff)/
     - [lib/inter_model](lib/inter_model)/

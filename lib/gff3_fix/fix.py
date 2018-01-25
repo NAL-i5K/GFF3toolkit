@@ -5,7 +5,7 @@ from collections import defaultdict
 import re
 import copy
 import logging
-from gff3_modified import gff3
+from gff3 import Gff3
 logger = logging.getLogger(__name__)
 
 
@@ -43,7 +43,7 @@ def delete_model(gff3, error_list, logger):
                     child['line_status'] = 'removed'
 
 
-def fix_boundary(gff3=gff3, error_list=None, line=None, logger=logger):
+def fix_boundary(gff3, error_list=None, line=None, logger=logger):
     """
     Ema0001 : Parent feature start and end coordinates exceed those of child features
     Ema0003 : This feature is not contained within he parent feature coordinates

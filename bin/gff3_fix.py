@@ -18,7 +18,7 @@ else:
     lib_path = dirname(__file__) + '/../lib'
 sys.path.insert(1, lib_path)
 sys.path =  filter (lambda a: not a.endswith('/bin'), sys.path)
-from gff3_modified import Gff3
+from gff3 import Gff3
 import gff3_fix
 
 __version__ = version.__version__
@@ -93,12 +93,13 @@ if __name__ == '__main__':
         gff3 = Gff3(gff_file=args.gff, logger=logger_null)
     except:
         logger_stderr.error('Failed to read GFF3 file!')
+        sys.exit(1)
 
     gff3_fix.fix.main(gff3=gff3, output_gff=args.output_gff, error_dict=error_dict, line_num_dict=line_num_dict, logger=logger_null)
 
 
 
-                       
- 
 
- 
+
+
+
