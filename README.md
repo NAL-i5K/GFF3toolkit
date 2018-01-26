@@ -60,7 +60,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
     - Example files for testing
 
 ## Internal Dependencies ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
-* [lib/gff3_](lib/gff3_)/
+* [lib/gff3](lib/gff3)/
     - Basic data structure used for nesting the information of genome annotations in GFF3 format.
 * [lib/gff3_to_fasta](lib/gff3_to_fasta)/
     - Extract specific sequences from genome sequences according to the GFF3 file.
@@ -68,7 +68,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
     - Contains the full list of Error codes and the corresponding Error tag
 * [lib/function4gff](lib/function4gff)/
     - Functions for gff3 processing
-* lib/gff3.py
+* lib/gff3/gff3.py
     - This program was contributed by Han Lin (http://gff3-py.readthedocs.org/en/latest/readme.html). Code was modified for customized usage.
 * [lib/inter_model](lib/inter_model)/
     - QC functions for processing multiple features between models (inter-model) in a GFF3 file.
