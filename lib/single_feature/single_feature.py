@@ -29,7 +29,7 @@ if dirname(__file__) == '':
 else:
     lib_path = dirname(__file__) + '/../../lib'
 sys.path.insert(1, lib_path)
-from gff3_modified import Gff3
+from gff3 import Gff3
 import function4gff
 import ERROR
 
@@ -149,7 +149,7 @@ if __name__ == '__main__':
     from textwrap import dedent
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
     QC functions for processing every single feature in GFF3 file.
-    
+
     Testing enviroment:
     1. Python 2.7
 
@@ -163,7 +163,7 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--gff', type=str, help='Summary Report from Monica (default: STDIN)')
     parser.add_argument('-o', '--output', type=str, help='Output file name (default: STDIN)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-    
+
     args = parser.parse_args()
 
     if args.gff:
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     if args.output:
         logger_stderr.info('Specifying output file name: (%s)...\n', args.output)
         report_fh = open(args.output, 'wb')
-    
+
     gff3 = Gff3(gff_file=args.gff, logger=logger_null)
     main(gff3, logger=logger_stderr)
     if args.output:

@@ -31,7 +31,7 @@ if dirname(__file__) == '':
 else:
     lib_path = dirname(__file__) + '/../../lib'
 sys.path.insert(1, lib_path)
-from gff3_modified import Gff3
+from gff3 import Gff3
 import ERROR
 import function4gff
 
@@ -87,7 +87,7 @@ def check_duplicate(gff, linelist):
             result['eCode'] = eCode
             result['eLines'] = [pair['source'], pair['target']]
             result['eTag'] = 'Duplicate transcripts found between {0:s} and {1:s}'.format(pair['source']['attributes']['ID'], pair['target']['attributes']['ID'])
-            eSet.append(result)       
+            eSet.append(result)
             gff.add_line_error(pair['source'], {'message': 'Duplicate transcripts found between {0:s} and {1:s}'.format(pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode})
             gff.add_line_error(pair['target'], {'message': 'Duplicate transcripts found between {0:s} and {1:s}'.format(pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode})
 
@@ -129,7 +129,7 @@ def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
         result['eCode'] = eCode
         result['eLines'] = [pair['source'], pair['target']]
         result['eTag'] = ERROR_INFO[eCode]
-        eSet.append(result)       
+        eSet.append(result)
         gff.add_line_error(pair['source'], {'message': '{0:s} between {1:s} and {2:s}'.format(ERROR_INFO[eCode], pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode})
         gff.add_line_error(pair['target'], {'message': '{0:s} between {1:s} and {2:s}'.format(ERROR_INFO[eCode], pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode})
 
@@ -171,11 +171,11 @@ def main(gff, gff_file, fasta_file, logger=None, noncanonical_gene = False):
 
     '''
     for e in error_set:
-        tag = '[{0:s}]'.format(ERROR_INFO[e['eCode']]) 
+        tag = '[{0:s}]'.format(ERROR_INFO[e['eCode']])
         print(e['ID'], e['eCode'], tag)
     '''
 
-    if len(error_set): 
+    if len(error_set):
         return(error_set)
 
 
@@ -194,7 +194,7 @@ if __name__ == '__main__':
     from textwrap import dedent
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
     QC functions for processing multiple features between models (inter-model) in GFF3 file.
-    
+
     Testing enviroment:
     1. Python 2.7
 
@@ -205,11 +205,11 @@ if __name__ == '__main__':
     1. GFF3: fixed GFF file
 
     """))
-    parser.add_argument('-g', '--gff', type=str, help='Summary Report from Monica (default: STDIN)') 
+    parser.add_argument('-g', '--gff', type=str, help='Summary Report from Monica (default: STDIN)')
     parser.add_argument('-f', '--fasta', type=str, help='Genomic sequences in the fasta format')
     parser.add_argument('-o', '--output', type=str, help='Output file name (default: STDIN)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-    
+
     args = parser.parse_args()
 
     if args.gff:
@@ -233,6 +233,6 @@ if __name__ == '__main__':
     if args.output:
         logger_stderr.info('Specifying output file name: (%s)...\n', args.output)
         report_fh = open(args.output, 'wb')
-    
+
     gff3 = Gff3(gff_file=args.gff, fasta_external=args.fasta, logger=logger_null)
     main(gff3, args.gff, args.fasta, logger=logger_stderr)

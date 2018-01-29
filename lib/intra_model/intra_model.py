@@ -31,7 +31,7 @@ if dirname(__file__) == '':
 else:
     lib_path = dirname(__file__) + '/../../lib'
 sys.path.insert(1, lib_path)
-from gff3_modified import Gff3
+from gff3 import Gff3
 import function4gff
 import ERROR
 if dirname(__file__) == '':
@@ -43,7 +43,7 @@ import gff3_to_fasta
 
 __version__ = '0.0.1'
 
-ERROR_INFO = ERROR.INFO 
+ERROR_INFO = ERROR.INFO
 
 def check_redundant_length(gff, rootline):
     eCode = 'Ema0001'
@@ -91,7 +91,7 @@ def check_redundant_length(gff, rootline):
 def check_internal_stop(gff, rootline):
     eCode = 'Ema0002'
     result = list()
-   
+
     children = rootline['children']
     for child in children:
         r = dict()
@@ -135,7 +135,7 @@ def check_internal_stop(gff, rootline):
                 else:
                     start = line['start']
                     end = line['end']
-             
+
                 s['start'] = start
                 s['end'] = end
                 s['phase'] = 0
@@ -177,7 +177,7 @@ def check_internal_stop(gff, rootline):
 
     if len(result):
         return result
- 
+
 
 def check_incomplete(gff, rootline):
     eCode = 'Ema0004'
@@ -201,7 +201,7 @@ def check_incomplete(gff, rootline):
                         cds += 1
                 if exon==0 or cds ==0:
                     eflag += 1
-                    
+
         if mRNA == 0:
             eflag += 1
 
@@ -219,8 +219,8 @@ def check_incomplete(gff, rootline):
 
     if len(result):
         return [result]
-       
-                
+
+
 
 
 def check_pseudo_child_type(gff, rootline):
@@ -251,19 +251,19 @@ def check_pseudo_child_type(gff, rootline):
 def check_distinct_isoform(gff, rootline):
     '''
     Detect models with distant isoforms
-    * workflow: 
-      (a) For each gene/pseudogene model, compare the regions (start and end) of all isoforms (n); 
-          (i) For each isoforms, a flag (all) to record all possible comparison (one isoform has n comparison), and the other flag (hit) to accumulate overlapped isoforms. 
-              * record models 'without' the condition of hit == 1 (self overlapping) 
-              * record panelty by counting how may isoforms with the condition of hit == all (the isoform is overlapped with all other isoforms) 
+    * workflow:
+      (a) For each gene/pseudogene model, compare the regions (start and end) of all isoforms (n);
+          (i) For each isoforms, a flag (all) to record all possible comparison (one isoform has n comparison), and the other flag (hit) to accumulate overlapped isoforms.
+              * record models 'without' the condition of hit == 1 (self overlapping)
+              * record panelty by counting how may isoforms with the condition of hit == all (the isoform is overlapped with all other isoforms)
           (ii) Report the model that:
                * is NOT all isofroms are with the condition hit == all
                * does NOT contain isoforms with the condition of hit == 1
-    * Example: 
-      (Example a) a model with three isoforms (x, y, z) 
-          for isoform x, all=3 (x-x, x-y, x-z) and the possible conditions of hit are 3(1,1,1), 2(1,0,1), 2(1,1,0), 1(1,0,0). If hit=all (3 in this example) or hit=1, then the model would be ignored. Otherwise, the model would be recorded as models with distant isoforms. 
-      (Example b) a model with 2 isoforms (x, y) 
-          for isoform x, all=2 (x-x, x-y) and the possible conditions of hit are 2(1,1), 1(1,0). The conditions would always be hit=all (2 in this example) or hit=1, so cases like this example would never be reported in this category. 
+    * Example:
+      (Example a) a model with three isoforms (x, y, z)
+          for isoform x, all=3 (x-x, x-y, x-z) and the possible conditions of hit are 3(1,1,1), 2(1,0,1), 2(1,1,0), 1(1,0,0). If hit=all (3 in this example) or hit=1, then the model would be ignored. Otherwise, the model would be recorded as models with distant isoforms.
+      (Example b) a model with 2 isoforms (x, y)
+          for isoform x, all=2 (x-x, x-y) and the possible conditions of hit are 2(1,1), 1(1,0). The conditions would always be hit=all (2 in this example) or hit=1, so cases like this example would never be reported in this category.
 '''
 
     eCode = 'Ema0008'
@@ -328,7 +328,7 @@ def check_merged_gene_parent(gff, rootline):
             if hit == 0:
                 pair = sorted([child1['line_index'] + 1, child2['line_index'] + 1])
                 badchild[str(pair)] = 1
-                  
+
         if hit == 0:
             f += 1
             result['eLines']=list()
@@ -341,19 +341,19 @@ def check_merged_gene_parent(gff, rootline):
         gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
     if len(result):
         return [result]
-      
+
 
 def main(gff, logger=None, noncanonical_gene=False):
     function4gff.FIX_MISSING_ATTR(gff, logger=logger)
     roots = []
-    
+
     for line in gff.lines:
         try:
             if line['line_type']=='feature' and not line['attributes'].has_key('Parent'):
                 roots.append(line)
         except:
             logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-            
+
         #roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
     error_set=list()
     for root in roots:
@@ -385,11 +385,11 @@ def main(gff, logger=None, noncanonical_gene=False):
         if not r == None:
             error_set.extend(r)
         r = None
-  
+
 #    for e in error_set:
 #        print('{3:s}\t{0:s}\t{1:s}\t{2:s}\n'.format(e['ID'], e['eCode'], e['eTag'], e['line_num']))
 
-    if len(error_set): 
+    if len(error_set):
         return(error_set)
 
 
@@ -406,7 +406,7 @@ if __name__ == '__main__':
     from textwrap import dedent
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
     QC functions for processing multiple features within a model (intra-model) in GFF3 file.
-    
+
     Testing enviroment:
     1. Python 2.7
 
@@ -417,11 +417,11 @@ if __name__ == '__main__':
     1. GFF3: fixed GFF file
 
     """))
-    parser.add_argument('-g', '--gff', type=str, help='Summary Report from Monica (default: STDIN)') 
+    parser.add_argument('-g', '--gff', type=str, help='Summary Report from Monica (default: STDIN)')
     parser.add_argument('-f', '--fasta', type=str, help='Genome sequences in FASTA format')
     parser.add_argument('-o', '--output', type=str, help='Output file name (default: STDIN)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-    
+
     args = parser.parse_args()
 
     if args.gff:
@@ -448,6 +448,6 @@ if __name__ == '__main__':
         report_fh = open(args.output, 'wb')
     else:
         report_fh = open('intra_model_report.txt', 'wb')
-   
+
     gff3 = Gff3(gff_file=args.gff, fasta_external=args.fasta, logger=logger_null)
     main(gff3, logger=logger_stderr)

@@ -16,7 +16,7 @@ if dirname(__file__) == '':
 else:
     lib_path = dirname(__file__) + '/../lib'
 sys.path.insert(1, lib_path)
-from gff3_modified import Gff3
+from gff3 import Gff3
 import function4gff
 import single_feature
 import inter_model
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     import argparse
     from textwrap import dedent
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
-    
+
     Testing environment:
     1. Python 2.7
 
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     python2.7 bin/gff3_QC.py --gff example_file/example.gff3 --fasta example_file/reference.fa --output test
 
     """))
-    parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format') 
+    parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format')
     parser.add_argument('-f', '--fasta', type=str, help='Genome sequences, fasta format')
     parser.add_argument('-noncg', '--noncanonical_gene', action="store_true", help='gff3 file is not formatted in the canonical gene model format.')
     parser.add_argument('-i', '--initial_phase', action="store_true", help='Check whether initial CDS phase is 0 (default: no check)')
@@ -66,8 +66,8 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--check_n_feature_types', nargs='*', default=['CDS'], help='Count the number of Ns in each feature with the type specified, multiple types may be specified, ex: -t CDS exon (default: "CDS")')
     parser.add_argument('-o', '--output', type=str, help='output file name (default: report.txt)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
- 
- 
+
+
     args = parser.parse_args()
     if args.gff:
         logger_stderr.info('Checking gff file (%s)...', args.gff)
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     if args.allowed_num_of_n or args.check_n_feature_types:
         check_n = True
     else:
-        check_n = False  
+        check_n = False
 
     logger_stderr.info('Reading gff files: (%s)...\n', args.gff)
     gff3 = Gff3(gff_file=args.gff, fasta_external=args.fasta, logger=logger_null)

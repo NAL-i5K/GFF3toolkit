@@ -23,7 +23,7 @@ if dirname(__file__) == '':
 else:
     bin_path = dirname(__file__) + '/../lib'
 sys.path.insert(1, bin_path)
-from gff3_modified import Gff3
+from gff3 import Gff3
 import version
 
 __version__ = version.__version__

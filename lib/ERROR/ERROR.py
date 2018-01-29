@@ -23,7 +23,7 @@ INFO = {
     'Ema0003': 'This feature is not contained within the parent feature coordinates',
     'Ema0004': 'Incomplete gene feature that should contain at least one mRNA, exon, and CDS',
     'Ema0005': 'Pseudogene has invalid child feature type',
-    'Ema0006': 'Wrong phase', 
+    'Ema0006': 'Wrong phase',
     'Ema0007': 'CDS and parent feature on different strands',
     'Ema0008': 'Warning for distinct isoforms that do not share any regions',
     'Ema0009': 'Incorrectly merged gene parent? Isoforms that do not share coding sequences are found',
@@ -38,10 +38,10 @@ INFO = {
     'Esf0006': 'End is greater than the ##sequence-region end',
     'Esf0007': 'Seqid not found in the embedded ##FASTA',
     'Esf0008': 'End is greater than the embedded ##FASTA sequence length',
-    #'Esf0009': 'Found Ns in a feature using the embedded ##FASTA', # This error would be detected by the program as well, but the error message has to be modified in gff3_modified.py
+    #'Esf0009': 'Found Ns in a feature using the embedded ##FASTA', # This error would be detected by the program as well, but the error message has to be modified in gff3.py
     'Esf0010': 'Seqid not found in the external FASTA file',
     'Esf0011': 'End is greater than the external FASTA sequence length',
-    #'Esf0012': 'Found Ns in a feature using the external FASTA', # This error would be detected by the program as well, but the error message has to be modified in gff3_modified.py
+    #'Esf0012': 'Found Ns in a feature using the external FASTA', # This error would be detected by the program as well, but the error message has to be modified in gff3.py
     'Esf0013': 'White chars not allowed at the start of a line',
     'Esf0014': '##gff-version" missing from the first line',
     'Esf0015': 'Expecting certain fields in the feature',
@@ -60,7 +60,7 @@ INFO = {
     'Esf0028': 'Attributes must escape the percent (%) sign and any control characters',
     'Esf0029': 'Attributes must contain one and only one equal (=) sign',
     'Esf0030': 'Empty attribute tag',
-    'Esf0031': 'Empty attribute value', 
+    'Esf0031': 'Empty attribute value',
     'Esf0032': 'Found multiple attribute tags',
     'Esf0033': 'Found ", " in a attribute, possible unescaped',
     'Esf0034': 'Attribute has identical values (count, value)',
