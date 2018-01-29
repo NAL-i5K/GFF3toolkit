@@ -1,6 +1,6 @@
 ## Internal Dependencies of GFF3toolkit/lib
 ### Desciprtion of Functions
-* [lib/gff3_](lib/gff3_)/
+* [lib/gff3](lib/gff3)/
     - Basic data structure used for nesting the information of genome annotations in GFF3 format. 
     - Some of the error checking functions listed in [lib/ERROR](lib/ERROR)
 * [lib/gff3_to_fasta](lib/gff3_to_fasta)/
