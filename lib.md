@@ -9,7 +9,7 @@
     - Contains the full list of Error codes and the corresponding Error tag
 * [lib/function4gff](lib/function4gff)/
     - Functions for gff3 processing
-* lib/gff3.py
+* lib/gff3/gff3.py
     - This program was contributed by Han Lin (http://gff3-py.readthedocs.org/en/latest/readme.html). Code was modified for customized usage.
 * [lib/inter_model](lib/inter_model)/
     - QC functions for processing multiple features between models (inter-model) in a GFF3 file.
