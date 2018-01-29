@@ -5,7 +5,6 @@ from collections import defaultdict
 import re
 import copy
 import logging
-from gff3 import Gff3
 logger = logging.getLogger(__name__)
 
 
