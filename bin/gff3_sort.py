@@ -260,7 +260,7 @@ def main(gff, output=None, logger=None):
                 if PositionSort(others):
                     for other in others:
                         if other['attributes'].has_key('Parent'):
-                            if isinstance(other['attributes']['Parent']), list) and len(other['attributes']['Parent']) > 1:
+                            if isinstance(other['attributes']['Parent'], list) and len(other['attributes']['Parent']) > 1:
                                 gff3_linenum_Set.discard(other['line_index'])
                                 report.write(TwoParent(child['attributes']['ID'],other))
                             else:

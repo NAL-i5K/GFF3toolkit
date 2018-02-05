@@ -29,7 +29,7 @@ import gff3_to_fasta
 __version__ = '0.0.3'
 
 
-def main(gff1, gff2, fasta, outdir, scode, user_defined1=None, user_defined2=None, logger):
+def main(gff1, gff2, fasta, outdir, scode, logger, user_defined1=None, user_defined2=None):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)

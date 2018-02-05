@@ -198,10 +198,15 @@ def splicer(gff, ftype, dline, stype):
                 if child['attributes'].has_key('Name'):
                     cname = child['attributes']['Name']
                 defline='>{0:s}'.format(cid)
-                if ftype[0] == 'CDS':
+                if stype == "pep":
+                    cid = re.sub(r'(.+-)(R)([a-zA-Z]+)', r'\1P\3', cid)
+                    defline = '>{0:s}'.format(cid)
+                elif ftype[0] == 'CDS':
                     defline='>{0:s}-CDS'.format(cid)
                 if dline == 'complete':
                     try:
+                        if stype == 'pep':
+                            cname = re.sub(r'(.+-)(R)([a-zA-Z]+)', r'\1P\3', cname)
                         defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}({8:s})|Parent={5:s}|ID={6:s}|Name={7:s}'.format(child['seqid'], child['start'], child['end'], child['strand'], child['type'], rid, cid, cname, ftype[0])
                     except:
                         pass
@@ -246,13 +251,13 @@ def splicer(gff, ftype, dline, stype):
                         start, end = int, int
                         line = s
                         if line['type'] == 'CDS':
-                            if not type(line['phase']) == int:
+                            if not isinstance(line['phase'], int):
                                 print('WARNING   No phase information!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                                 #sys.exit('[Error] No phase information!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                             try:
                                 start = line['start']+line['phase']
                             except:
-                                if type(line['start']) != int:
+                                if not isinstance(line['start'], int):
                                      print('WARNING  [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                             end = line['end']
                             if line['strand'] == '-':
@@ -260,7 +265,7 @@ def splicer(gff, ftype, dline, stype):
                                 try:
                                     end = line['end']-line['phase']
                                 except:
-                                    if type(line['end']) != int:
+                                    if not isinstance(line['end'], int):
                                         print('WARNING  [End] End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                         else:
                             start = line['start']
@@ -544,9 +549,9 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
         tmp_stype = 'pep'
         feature_type = ['CDS']
         logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
-        tmpseq = splicer(gff, feature_type, dline, stype)
+        tmpseq = splicer(gff, feature_type, dline, tmp_stype)
         for k,v in tmpseq.items():
-            k = k.replace("|mRNA(CDS)|", "|peptide|").replace("-R","-P")
+            k = k.replace("|mRNA(CDS)|", "|peptide|")
             v = translator(v)
             seq[k] = v
         if len(seq):
@@ -578,7 +583,7 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
             feature_type = ['CDS']
             tmpseq = splicer(gff, feature_type,  dline, stype)
             for k,v in tmpseq.items():
-                k = k.replace("|mRNA(CDS)|", "|peptide|").replace("-R","-P")
+                k = k.replace("|mRNA(CDS)|", "|peptide|")
                 #k = re.sub(r'(.*-)(R)(.)',r'\1P\3',k)
                 v = translator(v)
                 seq[k] = v
