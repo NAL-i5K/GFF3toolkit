@@ -546,7 +546,7 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
         logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
         tmpseq = splicer(gff, feature_type, dline, stype)
         for k,v in tmpseq.items():
-            k = k.replace("|mRNA(CDS)|", "|peptide|").replace("-RA", "-PA")
+            k = k.replace("|mRNA(CDS)|", "|peptide|").replace("-R","-P")
             v = translator(v)
             seq[k] = v
         if len(seq):
@@ -578,7 +578,8 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
             feature_type = ['CDS']
             tmpseq = splicer(gff, feature_type,  dline, stype)
             for k,v in tmpseq.items():
-                k = k.replace("|mRNA(CDS)|", "|peptide|").replace("-RA", "-PA")
+                k = k.replace("|mRNA(CDS)|", "|peptide|").replace("-R","-P")
+                #k = re.sub(r'(.*-)(R)(.)',r'\1P\3',k)
                 v = translator(v)
                 seq[k] = v
         if len(seq):
