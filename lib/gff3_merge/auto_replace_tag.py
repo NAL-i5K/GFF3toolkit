@@ -29,7 +29,7 @@ import gff3_to_fasta
 __version__ = '0.0.3'
 
 
-def main(gff1, gff2, fasta, outdir, scode, user_defined1, user_defined2, logger):
+def main(gff1, gff2, fasta, outdir, scode, user_defined1=None, user_defined2=None, logger):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -47,7 +47,7 @@ def main(gff1, gff2, fasta, outdir, scode, user_defined1, user_defined2, logger)
     gff3_2 = Gff3(gff_file=gff2, fasta_external=fasta, logger=logger)
 
 
-    if not user_defined1:
+    if user_defined1 == None:
         roots =[]
         for line in gff3_1.lines:
             try:
@@ -76,7 +76,7 @@ def main(gff1, gff2, fasta, outdir, scode, user_defined1, user_defined2, logger)
             transcripts_type.add(lines[0])
         for line in gff3_1.lines:
             if line['type'] in transcripts_type:
-                id = 'NA'
+                id = str()
                 if line['attributes'].has_key('ID'):
                     id = line['attributes']['ID']
                     transcripts.add(id)
@@ -93,7 +93,7 @@ def main(gff1, gff2, fasta, outdir, scode, user_defined1, user_defined2, logger)
 
     logger.info('Extract sequences from {0:s}...'.format(gff1))
     out1 = '{0:s}/{1:s}'.format(tmpdir, 'gff1')
-    if not user_defined1:
+    if user_defined1 == None:
         logger.info('\tExtract CDS sequences...')
         gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
         logger.info('\tExtract premature transcript sequences...')
@@ -124,7 +124,7 @@ def main(gff1, gff2, fasta, outdir, scode, user_defined1, user_defined2, logger)
 
     logger.info('Extract sequences from {0:s}...'.format(gff2))
     out2 = '{0:s}/{1:s}'.format(tmpdir, 'gff2')
-    if not user_defined2:
+    if user_defined2 == None:
         logger.info('\tExtract CDS sequences...')
         gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out2, logger=logger_null)
         logger.info('\tExtract premature transcript sequences...')

@@ -138,12 +138,12 @@ def splicer(gff, ftype, dline, stype):
                     start, end = int, int
                     line = s
                     if line['type'] == 'CDS':
-                        if not type(line['phase']) == int:
+                        if not isinstance(line['phase'], int):
                             print('WARNING   No phase information!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                         try:
                             start = line['start']+line['phase']
                         except:
-                            if type(line['start']) != int:
+                            if not isinstance(line['start'], int):
                                 print('WARNING  [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                         end = line['end']
                         if line['strand'] == '-':
@@ -151,7 +151,7 @@ def splicer(gff, ftype, dline, stype):
                             try:
                                 end = line['end']-line['phase']
                             except:
-                                if type(line['end']) != int:
+                                if not isinstance(line['end'], int):
                                     print('WARNING  [End] End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                     else:
                         start = line['start']
