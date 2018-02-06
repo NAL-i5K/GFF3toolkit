@@ -260,7 +260,7 @@ def general_newModel(oldmodel, gff):
         for v, k in uniquek.items():
             parent_lines = k['parents']
             newk = newChildModel(k, None, gff)
-            
+
             uniqueparent = {}
             for parents in parent_lines:
                 for parent in parents:

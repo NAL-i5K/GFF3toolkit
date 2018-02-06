@@ -117,7 +117,7 @@ def check_internal_stop(gff, rootline):
                 start, end = int, int
                 line = s
                 if line['type'] == 'CDS':
-                    if not type(line['phase']) == int:
+                    if not isinstance(line['phase'], int):
                         #gff.add_line_error(line, {'message': '{0:s} {1:s}, should be 0,1, or 2'.format(ERROR_INFO['Ema0006'], line['phase']), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
                         continue
                         #sys.exit('[Error] No phase informatin!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))

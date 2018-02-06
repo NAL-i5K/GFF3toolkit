@@ -469,8 +469,7 @@ class FixAction(object):
                             print(p1['attributes']['ID'], vector1)
                             print(p2['attributes']['ID'], vector2)
 
-                
-                
+
 class Gff3error(object):
     def __init__(self, error_report=None, logger=logger):
         self.logger = logger
