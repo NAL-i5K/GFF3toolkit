@@ -395,7 +395,7 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
             if gff3.lines[line_num-1]['line_status'] != 'removed':
                 for root in gff3.collect_roots(gff3.lines[line_num-1]):
                     if root['type'] != 'CDS':
-                        root['type'] = '.'
+                        root['phase'] = '.'
                     for child in gff3.collect_descendants(root):
                         if child['type'] == 'CDS':
                             if child['line_raw'] not in CDS_set:
