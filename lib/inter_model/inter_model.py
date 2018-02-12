@@ -134,7 +134,7 @@ def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
         gff.add_line_error(pair['target'], {'message': '{0:s} between {1:s} and {2:s}'.format(ERROR_INFO[eCode], pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode})
 
     logger.info('Removing unnecessary files...')
-    subprocess.Popen(['rm', 'tmp_cds.fa.nhr', 'tmp_cds.fa.nin', 'tmp_cds.fa.nsq', 'blastn.out', 'GeneModelwithMultipleIsoforms.txt','ck_wrong_split.report']) #debug 07082015
+    subprocess.Popen(['rm', 'tmp_cds.fa', 'tmp_cds.fa.nhr', 'tmp_cds.fa.nin', 'tmp_cds.fa.nsq', 'blastn.out', 'GeneModelwithMultipleIsoforms.txt','ck_wrong_split.report']) #debug 07082015
 
     if len(eSet):
         return eSet
