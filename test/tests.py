@@ -23,7 +23,7 @@ class GFF3_QC_TestCase(unittest.TestCase):
             self.assertTrue(output)
             with open(output_file_path) as f:
                 num_lines = 0
-                for line in f:
+                for _ in f:
                     num_lines += 1
             self.assertEqual(num_lines, 22)
         finally:
