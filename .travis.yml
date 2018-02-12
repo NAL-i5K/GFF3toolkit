@@ -1,0 +1,8 @@
+sudo: required
+
+os: linux
+language: python
+python: 2.7
+
+script:
+    - python test/tests.py
