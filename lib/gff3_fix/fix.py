@@ -189,7 +189,8 @@ def split(gff3, error_list, logger):
                             children = gff3.features[j]
                             for child in children:
                                 newparent['children'].append(child)
-                        del newparent['attributes']['modified_track']
+                        if newparent['attributes'].has_key('modified_track'):
+                            del newparent['attributes']['modified_track']
                         gff3.features[newID].append(newparent)
                         gff3.lines.append(newparent)
                         # update the child's parent list and parent attribute
