@@ -388,13 +388,13 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
     Esf0026 : Phase is not 0, 1, or 2, or not a valid integer
     Esf0027 : Phase is required for all CDS features
     """
-    CDS_list = []
-    CDS_set = set()
     #valid_CDS_phase = set([0,1,2])
     for error in error_list:
         for line_num in error:
             if gff3.lines[line_num-1]['line_status'] != 'removed':
                 for root in gff3.collect_roots(gff3.lines[line_num-1]):
+                    CDS_list = []
+                    CDS_set = set()
                     if root['type'] != 'CDS':
                         root['phase'] = '.'
                     for child in gff3.collect_descendants(root):
@@ -409,15 +409,15 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
                             sorted_CDS_list = sorted(CDS_list, key=lambda x: x['end'], reverse=True)
                         elif CDS_list[0]['strand'] == '+':
                             sorted_CDS_list = sorted(CDS_list, key=lambda x: x['start'])
-                    if CDS_list[0]['line_index']+1 in error:
-                        if 'Ema0006' in line_num_dict[CDS_list[0]['line_index']+1]:
-                            phase = map(int,re.findall(r'\d',line_num_dict[CDS_list[0]['line_index']+1]['Ema0006']))[1]
+                    if sorted_CDS_list[0]['line_index']+1 in error:
+                        if 'Ema0006' in line_num_dict[sorted_CDS_list[0]['line_index']+1]:
+                            phase = map(int,re.findall(r'\d',line_num_dict[sorted_CDS_list[0]['line_index']+1]['Ema0006']))[1]
                         else:
-                            phase = CDS_list[0]['line_index']['phase']
-                        gff3.lines[CDS_list[0]['line_index']]['phase'] = phase
+                            phase = sorted_CDS_list[0]['line_index']['phase']
+                        gff3.lines[sorted_CDS_list[0]['line_index']]['phase'] = phase
 
                     else:
-                        phase = CDS_list[0]['phase']
+                        phase = sorted_CDS_list[0]['phase']
                     for CDS in sorted_CDS_list:
                         if CDS['phase'] != phase:
                             gff3.lines[CDS['line_index']]['phase'] = phase
