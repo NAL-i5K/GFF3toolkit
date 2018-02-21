@@ -35,7 +35,14 @@ def remove_duplicate_trans(gff3, error_list, logger):
             gff3.lines[remove_line-1]['line_status'] = 'removed'
             for child in gff3.collect_descendants(gff3.lines[remove_line-1]):
                 child['line_status'] = 'removed'
-
+            # check if there is any child feature remained in the  gene model. If not, reomve this gene model
+            for root in gff3.collect_roots(gff3.lines[remove_line-1]):
+                flag = True
+                for child in gff3.collect_descendants(root):
+                    if child['line_status'] != 'removed':
+                        flag = False
+                if flag == True:
+                    root['line_status'] = 'removed'
 
 
 def delete_model(gff3, error_list, logger):
