@@ -34,9 +34,9 @@ def script_main():
 
     Outputs:
     1. Error report for the input GFF3 file
-	* Line_num: Line numbers of the found problematic models in the input GFF3 file.
-	* Error_code: Error codes for the found problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
-        * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
+    * Line_num: Line numbers of the found problematic models in the input GFF3 file.
+    * Error_code: Error codes for the found problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
+    * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
 
     Quick start:
     gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o test
@@ -53,23 +53,22 @@ def script_main():
     parser.add_argument('-o', '--output', type=str, help='output file name (default: report.txt)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
 
-
     args = parser.parse_args()
     if args.gff:
         logger_stderr.info('Checking gff file (%s)...', args.gff)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
+    elif not sys.stdin.isatty():  # if STDIN connected to pipe or file
         args.gff = sys.stdin
         logger_stderr.info('Reading from STDIN...')
-    else: # no input
+    else:  # no input
         parser.print_help()
         sys.exit(1)
 
     if args.fasta:
         logger_stderr.info('Checking genome fasta (%s)...', args.fasta)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
+    elif not sys.stdin.isatty():  # if STDIN connected to pipe or file
         args.fasta = sys.stdin
         logger_stderr.info('Reading from STDIN...')
-    else: # no input
+    else:  # no input
         parser.print_help()
         sys.exit(1)
     if args.allowed_num_of_n or args.check_n_feature_types:
@@ -84,7 +83,7 @@ def script_main():
         sys.exit()
 
     gff3.check_unresolved_parents()
-    if args.noncanonical_gene == False:
+    if not args.noncanonical_gene:
         gff3.check_phase(args.initial_phase)
     gff3.check_reference(check_n=check_n, allowed_num_of_n=args.allowed_num_of_n, feature_types=args.check_n_feature_types)
     logger_stderr.info('\t- Checking missing attributes: (%s)...\n', 'function4gff.FIX_MISSING_ATTR()')
@@ -117,7 +116,6 @@ def script_main():
     else:
         logger_stderr.info('Print QC report at {0:s}'.format('report.txt'))
         report_fh = open('report.txt', 'wb')
-
 
     ERROR_INFO = ERROR.INFO
 

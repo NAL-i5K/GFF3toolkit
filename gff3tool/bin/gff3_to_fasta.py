@@ -1,4 +1,5 @@
 #! /usr/local/bin/python2.7
+from __future__ import print_function
 import sys
 import re
 import logging
@@ -7,7 +8,6 @@ from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.function4gff as function4gff
 import gff3tool.lib.intra_model as intra_model
 import gff3tool.lib.single_feature as single_feature
-import gff3tool.lib.ERROR as ERROR
 from gff3tool.bin import version
 
 
@@ -15,8 +15,11 @@ __version__ = version.__version__
 
 
 COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
+
+
 def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
+
 
 def get_subseq(gff, line):
     # it would give positive strand out as default, unless the strand information is given as '-'
@@ -28,16 +31,17 @@ def get_subseq(gff, line):
     try:
         string = gff.fasta_external[line['seqid']]['seq'][start:end]
     except:
-         if line['type'] != "CDS":
-             print('WARNING  [SeqID/Start/End] Missing SeqID, or Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-         else:
-             print('WARNING  [SeqID/Start/End/Phase] Missing SeqID, or Start/End/Phase is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-         string = ""
-    #print(line['strand'], (line['start']-1), line['end'])
-    #print('-->', line['strand'], start, end)
+        if line['type'] != "CDS":
+            print('WARNING  [SeqID/Start/End] Missing SeqID, or Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+        else:
+            print('WARNING  [SeqID/Start/End/Phase] Missing SeqID, or Start/End/Phase is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+        string = ""
+    # print(line['strand'], (line['start']-1), line['end'])
+    # print('-->', line['strand'], start, end)
     if line['strand'] == '-':
         string = complement(string[::-1])
     return string
+
 
 # Features of the translation funtion of this program,
 # 1. translation from 64 combitions of codons
@@ -48,6 +52,8 @@ CODONS = [a+b+c for a in BASES for b in BASES for c in BASES]
 CODONS.extend(['GCN', 'TGY', 'GAY', 'GAR', 'TTY', 'GGN', 'CAY', 'ATH', 'AAR', 'TTR', 'CTN', 'YTR', 'AAY', 'CCN', 'CAR', 'CGN', 'AGR', 'MGR', 'TCN', 'AGY', 'ACN', 'GTN', 'NNN', 'TAY', 'TAR', 'TRA']) # IUB Depiction
 AMINO_ACIDS = 'FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGGACDEFGHIKLLLNPQRRRSSTVXY**'
 CODON_TABLE = dict(zip(CODONS, AMINO_ACIDS))
+
+
 def translator(seq):
     seq = seq.upper().replace('\n', '').replace(' ', '').replace('U', 'T')
     peptide = ''
@@ -58,8 +64,9 @@ def translator(seq):
             peptide += amino_acid
     return peptide
 
+
 def splicer(gff, ftype, dline, stype):
-    seq=dict()
+    seq = dict()
     segments_Set = set()
     sort_seg = []
     roots = []
@@ -69,28 +76,28 @@ def splicer(gff, ftype, dline, stype):
             if line['type'] == ftype[0]:
                 u_parents.append(line)
         try:
-            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+            if line['line_type'] == 'feature' and 'Parent' not in line['attributes']:
                 if len(line['attributes']) != 0:
                     roots.append(line)
                 else:
                     print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         except:
             print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-    #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    # roots = [line for line in gff.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
     if stype == "user_defined":
         if len(u_parents) == 0:
             print('WARNING   There is no {0:s} feature in the input gff. The sequence won\'t be generated.'.format(ftype[0]))
         for u_parent in u_parents:
             rid = 'NA'
-            if u_parent['attributes'].has_key('Parent'):
+            if 'Parent' in u_parent['attributes']:
                 rid = ",".join(u_parent['attributes']['Parent'])
             cid = 'NA'
-            if u_parent['attributes'].has_key('ID'):
+            if 'ID' in u_parent['attributes']:
                 cid = u_parent['attributes']['ID']
             cname = cid
-            if u_parent['attributes'].has_key('Name'):
+            if 'Name' in u_parent['attributes']:
                 cname = u_parent['attributes']['Name']
-            defline='>{0:s}'.format(cid)
+            defline = '>{0:s}'.format(cid)
             if dline == 'complete':
                 try:
                     if rid != 'NA':
@@ -166,26 +173,26 @@ def splicer(gff, ftype, dline, stype):
 
     else:
         for root in roots:
-            #if ftype[0] == 'CDS' and root['type'] == 'pseudogene': # pseudogene should not contain cds
-                #continue
+            # if ftype[0] == 'CDS' and root['type'] == 'pseudogene': # pseudogene should not contain cds
+                # continue
             rid = 'NA'
-            if root['attributes'].has_key('ID'):
-               rid = root['attributes']['ID']
+            if 'ID' in root['attributes']:
+                rid = root['attributes']['ID']
 
             children = root['children']
             for child in children:
                 cid = 'NA'
-                if child['attributes'].has_key('ID'):
+                if 'ID' in child['attributes']:
                     cid = child['attributes']['ID']
                 cname = cid
-                if child['attributes'].has_key('Name'):
+                if 'Name' in child['attributes']:
                     cname = child['attributes']['Name']
-                defline='>{0:s}'.format(cid)
+                defline = '>{0:s}'.format(cid)
                 if stype == "pep":
                     cid = re.sub(r'(.+-)(R)([a-zA-Z]+)', r'\1P\3', cid)
                     defline = '>{0:s}'.format(cid)
                 elif ftype[0] == 'CDS':
-                    defline='>{0:s}-CDS'.format(cid)
+                    defline = '>{0:s}-CDS'.format(cid)
                 if dline == 'complete':
                     try:
                         if stype == 'pep':
@@ -204,17 +211,17 @@ def splicer(gff, ftype, dline, stype):
                         print('WARNING  [Missing feature type] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(gchild['line_index']+1), gchild['line_raw']))
 
                 flag = 0
-                if len(segments)==0:
+                if len(segments) == 0:
                     flag += 1
                     for gchild in gchildren:
                         if gchild['type'] == 'CDS':
                             segments.append(gchild)
 
-                if len(segments)==0 and ftype[0] == 'CDS':
+                if len(segments) == 0 and ftype[0] == 'CDS':
                     flag += 1
                     print("WARNING  There are no CDSs for {0:s} in the canonical gene model style. The sequence of {0:s} is not generated. If your gene models are non-canonical, use the argument -st user_defined, and specify the parent and child features with the -u argument.".format(cid))
                     continue
-                elif len(segments)==0:
+                elif len(segments) == 0:
                     flag += 1
                     print("WARNING  There are no exons, nor CDSs for {0:s} in the canonical gene model style. The sequence of {0:s} is not generated. If your gene models are non-canonical, use the argument -st user_defined, and specify the parent and child features with the -u argument.".format(cid))
                     continue
@@ -241,7 +248,7 @@ def splicer(gff, ftype, dline, stype):
                                 start = line['start']+line['phase']
                             except:
                                 if not isinstance(line['start'], int):
-                                     print('WARNING  [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                                    print('WARNING  [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                             end = line['end']
                             if line['strand'] == '-':
                                 start = line['start']
@@ -285,34 +292,35 @@ def splicer(gff, ftype, dline, stype):
 
     return seq
 
+
 def extract_start_end(gff, stype, dline):
     '''Extract sequences for a feature only use the Start and End information. The relationship between parent and children would be ignored.'''
-    seq=dict()
+    seq = dict()
     roots = []
     for line in gff.lines:
         try:
-            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+            if line['line_type'] == 'feature' and 'Parent' not in line['attributes']:
                 if len(line['attributes']) != 0:
                     roots.append(line)
                 else:
                     print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         except:
             print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-    #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    # roots = [line for line in gff.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
     if stype == 'pre_trans':
         for root in roots:
             rid = 'NA'
-            if root['attributes'].has_key('ID'):
+            if 'ID' in root['attributes']:
                 rid = root['attributes']['ID']
             children = root['children']
             for child in children:
                 cid = 'NA'
-                if child['attributes'].has_key('ID'):
+                if 'ID' in child['attributes']:
                     cid = child['attributes']['ID']
                 cname = cid
-                if child['attributes'].has_key('Name'):
+                if 'Name' in child['attributes']:
                     cname = child['attributes']['Name']
-                defline='>{0:s}'.format(cid)
+                defline = '>{0:s}'.format(cid)
                 if dline == 'complete':
                     try:
                         defline = '>{0:s}:{1:d}..{2:d}:{3:s}|genomic_sequence({4:s})|Parent={5:s}|ID={6:s}|Name={7:s}'.format(child['seqid'], child['start'], child['end'], child['strand'], child['type'], rid, cid, cname)
@@ -323,12 +331,12 @@ def extract_start_end(gff, stype, dline):
         for root in roots:
             if root['type'] == 'gene' or root['type'] == 'pseudogene':
                 rid = 'NA'
-                if root['attributes'].has_key('ID'):
+                if 'ID' in root['attributes']:
                     rid = root['attributes']['ID']
                 rname = rid
-                if root['attributes'].has_key('Name'):
+                if 'Name' in root['attributes']:
                     rname = root['attributes']['ID']
-                defline='>{0:s}'.format(rid)
+                defline = '>{0:s}'.format(rid)
                 if dline == 'complete':
                     defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{6:s}|ID={4:s}|Name={5:s}'.format(root['seqid'], root['start'], root['end'], root['strand'], rid, rname, root['type'])
                 seq[defline] = get_subseq(gff, root)
@@ -339,10 +347,10 @@ def extract_start_end(gff, stype, dline):
         for exon in exons:
             try:
                 eid = 'NA'
-                if exon['attributes'].has_key('ID'):
+                if 'ID' in exon['attributes']:
                     eid = exon['attributes']['ID']
                 ename = eid
-                if exon['attributes'].has_key('Name'):
+                if 'Name' in exon['attributes']:
                     ename = exon['attributes']['Name']
                 parents = exon['parents']
                 plist = dict()
@@ -353,7 +361,7 @@ def extract_start_end(gff, stype, dline):
                 keys = plist.keys()
                 pid = ','.join(keys)
 
-                defline='>{0:s}'.format(eid)
+                defline = '>{0:s}'.format(eid)
                 if dline == 'complete':
                     defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|Parent={5:s}|ID={6:s}|Name={7:s}'.format(exon['seqid'], exon['start'], exon['end'], exon['strand'], exon['type'], pid, eid, ename)
 
@@ -361,15 +369,15 @@ def extract_start_end(gff, stype, dline):
             except:
                 print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(exon['line_index']+1), exon['line_raw']))
     else:
-        #user-defined pre_trans sequence
+        # user-defined pre_trans sequence
         user_defineds = [line for line in gff.lines if line['type'] == stype]
         for user_defined in user_defineds:
             try:
                 uid = 'NA'
-                if user_defined['attributes'].has_key('ID'):
+                if 'ID' in user_defined['attributes']:
                     uid = user_defined['attributes']['ID']
                 uname = uid
-                if user_defined['attributes'].has_key('Name'):
+                if 'Name' in user_defined['attributes']:
                     uname = user_defined['attributes']['Name']
                 parents = user_defined['parents']
                 plist = dict()
@@ -378,7 +386,7 @@ def extract_start_end(gff, stype, dline):
                         plist[p['attributes']['ID']] = 1
                 keys = plist.keys()
                 pid = ','.join(keys)
-                defline='>{0:s}'.format(uid)
+                defline = '>{0:s}'.format(uid)
                 if dline == 'complete':
                     if pid != "":
                         defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|Parent={5:s}|ID={6:s}|Name={7:s}'.format(user_defined['seqid'], user_defined['start'], user_defined['end'], user_defined['strand'], user_defined['type'], pid, uid, uname)
@@ -387,8 +395,8 @@ def extract_start_end(gff, stype, dline):
                     seq[defline] = get_subseq(gff, user_defined)
             except:
                 print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(user_defined['line_index']+1), user_defined['line_raw']))
-
     return seq
+
 
 def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=None, qc=True, output_prefix=None, logger=None):
     stderr_handler = logging.StreamHandler()
@@ -400,8 +408,8 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
     if not gff_file or not fasta_file or not stype:
         print('Gff file, fasta file, and type of extracted sequences need to be specified')
         sys.exit(1)
-    type_set=['gene','exon','pre_trans', 'trans', 'cds', 'pep', 'all', 'user_defined']
-    if not stype in type_set:
+    type_set = ['gene', 'exon', 'pre_trans', 'trans', 'cds', 'pep', 'all', 'user_defined']
+    if stype not in type_set:
         logger.error('Your sequence type is "{0:s}". Sequence type must be one of {1:s}!'.format(stype, str(type_set)))
         sys.exit(1)
 
@@ -414,18 +422,18 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
     else:
         print('[Error] Please specify the prefix of output file name...')
         sys.exit(1)
-    if stype == 'user_defined' and user_defined != None:
+    if stype == 'user_defined' and user_defined is not None:
         if len(user_defined) != 2:
             logger.error('Please specify parent and child feature via the -u argument. Format: [parent feature type],[child feature type]')
             sys.exit(1)
-    elif stype != 'user_defined' and user_defined != None:
+    elif stype != 'user_defined' and user_defined is not None:
         logger.warning('Your sequence type is "{0:s}", -u argument will be ignored.'.format(stype))
-    elif stype == 'user_defined' and user_defined == None:
+    elif stype == 'user_defined' and user_defined is None:
         logger.error('-u is needed in combination with -st user_defined.')
         sys.exit(1)
 
     logger.info('Reading files: {0:s}, {1:s}...'.format(gff_file, fasta_file))
-    gff=None
+    gff = None
 
     if qc:
         initial_phase = False
@@ -453,12 +461,12 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
                 print('ID\tError_Code\tError_Tag')
                 for e in eSet:
                     tag = '[{0:s}]'.format(e['eTag'])
-                    print e['ID'], e['eCode'], tag
+                    print(e['ID'], e['eCode'], tag)
     else:
         gff = Gff3(gff_file=gff_file, fasta_external=fasta_file, logger=logger_null)
 
     logger.info('Extract sequences for {0:s}...'.format(stype))
-    seq=dict()
+    seq = dict()
     if stype == 'all':
         if output_prefix:
             logger.info('Specifying prefix of output file name: (%s)...', output_prefix)
