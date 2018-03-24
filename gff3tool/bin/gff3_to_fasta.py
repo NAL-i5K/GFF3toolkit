@@ -1,32 +1,15 @@
 #! /usr/local/bin/python2.7
-# Contributed by Mei-Ju Chen <arbula [at] gmail [dot] com> (2015)
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-
 import sys
 import re
 import logging
 import string
-# try to import from project first
-from os.path import dirname
-if dirname(__file__) == '':
-    lib_path = '../lib'
-else:
-    lib_path = dirname(__file__) + '/../lib'
-sys.path.insert(1, lib_path)
-if dirname(__file__) == '':
-    lib_path = '../../lib'
-else:
-    lib_path = dirname(__file__) + '/../../lib'
-sys.path.insert(1, lib_path)
-from gff3 import Gff3
-import function4gff
-import intra_model
-import single_feature
-import version
+from gff3tool.lib.gff3 import Gff3
+import gff3tool.lib.function4gff as function4gff
+import gff3tool.lib.intra_model as intra_model
+import gff3tool.lib.single_feature as single_feature
+import gff3tool.lib.ERROR as ERROR
+from gff3tool.bin import version
+
 
 __version__ = version.__version__
 
@@ -593,7 +576,7 @@ def main(gff_file=None, fasta_file=None, stype=None, user_defined=None, dline=No
                 if len(k)!=0 and len(v)!=0:
                     report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
 
-if __name__ == '__main__':
+def script_main():
     logger_stderr = logging.getLogger(__name__+'stderr')
     logger_stderr.setLevel(logging.INFO)
     stderr_handler = logging.StreamHandler()

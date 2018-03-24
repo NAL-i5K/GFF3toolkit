@@ -7,7 +7,6 @@ QC functions for processing multiple features within a model (intra-model) in GF
 """
 from __future__ import print_function
 
-#from collections import OrderedDict # not available in 2.6
 from collections import defaultdict
 from itertools import groupby
 try:
@@ -18,6 +17,12 @@ from textwrap import wrap
 import sys
 import re
 import logging
+from os.path import dirname
+from gff3tool.lib.gff3 import Gff3
+import gff3tool.lib.function4gff as function4gff
+import gff3tool.lib.ERROR as ERROR
+
+
 logger = logging.getLogger(__name__)
 #log.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
 logger.setLevel(logging.INFO)
@@ -25,22 +30,6 @@ if not logger.handlers:
     lh = logging.StreamHandler()
     lh.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger.addHandler(lh)
-from os.path import dirname
-if dirname(__file__) == '':
-    lib_path = '../../lib'
-else:
-    lib_path = dirname(__file__) + '/../../lib'
-sys.path.insert(1, lib_path)
-from gff3 import Gff3
-import function4gff
-import ERROR
-if dirname(__file__) == '':
-    bin_path = '../../bin'
-else:
-    bin_path = dirname(__file__) + '/../../bin'
-sys.path.insert(1, bin_path)
-import gff3_to_fasta
-
 __version__ = '0.0.1'
 
 ERROR_INFO = ERROR.INFO
@@ -89,6 +78,7 @@ def check_redundant_length(gff, rootline):
         return [result]
 
 def check_internal_stop(gff, rootline):
+    import gff3tool.bin.gff3_to_fasta as gff3_to_fasta # TODO: mutual import, should be avoided
     eCode = 'Ema0002'
     result = list()
 

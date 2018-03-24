@@ -1,30 +1,15 @@
 #! /usr/local/bin/python2.7
-# Copyright (C) 2015  Mei-Ju Chen <arbula [at] gmail [dot] com>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-
 """
 Changelog:
     * v0.0.2
         - Sort the features grouped as 'others' by PositionSort
         - Add comments
 """
-
 import sys
 import re
 import logging
-# try to import from project first
-from os.path import dirname
-if dirname(__file__) == '':
-    bin_path = '../lib'
-else:
-    bin_path = dirname(__file__) + '/../lib'
-sys.path.insert(1, bin_path)
-from gff3 import Gff3
-import version
+from gff3tool.lib.gff3 import Gff3
+from gff3tool.bin import version
 
 __version__ = version.__version__
 
@@ -297,7 +282,7 @@ def main(gff, output=None, logger=None):
 
 
 
-if __name__ == '__main__':
+def script_main():
     # Set up logger information
     logger_stderr = logging.getLogger(__name__+'stderr')
     logger_stderr.setLevel(logging.INFO)

@@ -14,7 +14,6 @@ Check and correct the phase for CDS features.
 """
 from __future__ import print_function
 
-#from collections import OrderedDict # not available in 2.6
 from collections import defaultdict
 from itertools import groupby
 try:
@@ -26,15 +25,17 @@ import sys
 import re
 import string
 import logging
+import gff3tool.lib.ERROR as ERROR
+
 logger = logging.getLogger(__name__)
-#log.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
+# log.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
 logger.setLevel(logging.INFO)
 if not logger.handlers:
     lh = logging.StreamHandler()
     lh.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger.addHandler(lh)
 
-import ERROR
+
 
 ERROR_INFO = ERROR.INFO
 
