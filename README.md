@@ -1,19 +1,31 @@
 # GFF3toolkit - Python programs for processing GFF3 files
 
-* Current functions
-  * [Detect GFF3 format errors](#detect-gff3-format-errors-back)
-  * [Correct GFF3 format errors](#correct-gff3-format-errors-back)
-  * [Merge two GFF3 files](#merge-two-gff3-files-back)
-  * [Sort a GFF3 file](#sort-a-gff3-file-back)
-  * [Generate biological sequences from a GFF3 file](#generate-biological-sequences-from-a-gff3-file-back)
-
 ## Background
 
 The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md) (Generic Feature Format Version 3) is one of the standard formats to describe and represent genomic features. It is an incredibly flexible, 9-column format, which is easily manipulated by biologists. This flexibility, however, makes it very easy to break the format. We have developed the GFF3toolkit to help identify common problems with GFF3 files; fix 30 of these common problems; sort GFF3 files (which can aid in using down-stream processing programs and custom parsing); merge two GFF3 files into a single, non-redundant GFF3 file; and generate FASTA files from a GFF3 file for many use cases (e.g. feature types beyond mRNA).
 
 [Frequently Asked Questions/FAQ](https://github.com/NAL-i5K/GFF3toolkit/wiki/FAQ)
 
-## Detect GFF3 format errors ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
+## Prerequisite
+
+* Python 2.7
+* Perl
+
+## Installation
+
+* `pip install gff3tool`
+
+## Current Functions
+
+* [Detect GFF3 format errors](#detect-gff3-format-errors-back)
+* [Correct GFF3 format errors](#correct-gff3-format-errors-back)
+* [Merge two GFF3 files](#merge-two-gff3-files-back)
+* [Sort a GFF3 file](#sort-a-gff3-file-back)
+* [Generate biological sequences from a GFF3 file](#generate-biological-sequences-from-a-gff3-file-back)
+
+## Usage
+
+### Detect GFF3 format errors ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * `gff3_QC` - Detection of GFF format errors (~50 types of errors).
   * [gff3_QC readme](docs/gff3_QC.md)
@@ -22,7 +34,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
     `gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt`
   * Please refer to [gff3tool/lib/ERROR/ERROR.py](gff3tool/lib/ERROR/ERROR.py) to see the full list of Error codes and the corresponding Error tags.
 
-## Correct GFF3 format errors ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
+### Correct GFF3 format errors ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * `gff3_fix` - Correct GFF3 errors detected by gff3_QC.py (30 types of errors).
   * [gff3_fix readme](docs/gff3_fix.md)
@@ -30,7 +42,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
   * Quick start:
     `gff3_fix -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3`
 
-## Merge two GFF3 files ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
+### Merge two GFF3 files ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * `gff3_merge` - Merge two GFF3 files
   * [gff3_merge readme](docs/gff3_merge.md)
@@ -41,14 +53,14 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
     * If your gff files have assigned proper replace tags at column 9 (Format: replace=[Transcript ID]), you could merge the two gff files without auto-assignment of tags.
       `gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto`
 
-## Sort a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
+### Sort a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * `gff3_sort` - Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and parent-child feature relationships
   * [gff3_sort readme](docs/gff3_sort.md)
   * Quick start:
     `gff3_sort -g example_file/example.gff3 -og example-sorted.gff3`
 
-## Generate biological sequences from a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
+### Generate biological sequences from a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
 * bin/gff3_to_fasta.py - extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file
   * [gff3_to_fasta readme](docs/gff3_to_fasta.md)
@@ -78,3 +90,10 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
   * QC functions for processing multiple features within a model (intra-model) in a GFF3 file.
 * [gff3tool/lib/single_feature](lib/single_feature)/
   * QC functions for processing single features in a GFF3 file.
+
+## Authors
+
+* Monica Poelchau
+* Mei-Ju May Chen
+* Li-Mei Chiang
+* Yi Hsiao

@@ -40,7 +40,7 @@ setup(
     # For a discussion on single-sourcing the version across setup.py and the
     # project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.1',  # Required
+    version='1.1.0',  # Required
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
@@ -65,11 +65,11 @@ setup(
 
     # This should be your name or the name of the organization which owns the
     # project.
-    author='NAL-i5k, Yi Hsiao',  # Optional
+    author='NAL i5k workspace',  # Optional
 
     # This should be a valid email address corresponding to the author listed
     # above.
-    author_email='hsiaoyi0504@gmail.com',  # Optional
+    author_email='i5k@ars.usda.gov',  # Optional
 
     # Classifiers help users find your project by categorizing it.
     #
@@ -80,15 +80,13 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
-
+        'Development Status :: 5 - Production/Stable',
+        'Operating System :: POSIX :: Linux',
         # Indicate who your project is intended for
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
-
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
         # Pick your license as you wish
-        'License :: OSI Approved :: NAL License',
-
+        'License :: Public Domain',
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 2.7',
