@@ -51,7 +51,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
     * Merge the two file with auto-assignment of replace tags (default)
       `gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt`
     * If your gff files have assigned proper replace tags at column 9 (Format: replace=[Transcript ID]), you could merge the two gff files without auto-assignment of tags.
-      `gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto`
+      `gff3_merge -g1 example_file/new_models_w_replace.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto`
 
 ### Sort a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
