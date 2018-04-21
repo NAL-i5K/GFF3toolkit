@@ -33,7 +33,7 @@ import id_processor
 
 __version__ = '1.0.3'
 
-def main(gff_file, revision_file, output_gff, report_file=None,user_defined1=None, auto=True,logger=None):
+def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=None, auto=True, logger=None):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -331,4 +331,4 @@ if __name__ == '__main__':
     if not args.output_gff:
         args.output_gff = 'Revised_{0:s}'.format(args.gff_file)
 
-    main(args.gff_file, args.revision_file, args.output_gff, args.report_file, logger=logger_stderr)
+    main(gff_file=args.gff_file, revision_file=args.revision_file, output_gff=args.output_gff, report_file=args.report_file, logger=logger_stderr)
