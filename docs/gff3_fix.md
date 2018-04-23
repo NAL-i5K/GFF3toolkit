@@ -28,7 +28,7 @@ Python 2.7
 3.  -g GFF, --gff GFF
     - Genome annotation file, gff3 format
 4.  -og OUTPUT_GFF, --output_gff OUTPUT_GFF
-    - output gff3 file name
+    - output gff3 file name (default: corrected.gff3)
 5.  -v, --version         
     - show program's version number and exit
 
