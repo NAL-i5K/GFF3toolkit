@@ -45,7 +45,7 @@ def check_replace(gff, user_defined1=None):
         return False
 
 
-def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, user_defined1=None, user_defined2=None, logger=None):
+def main(gff_file1, gff_file2, fasta, report, output_gff, all_assign=False, auto=True, user_defined1=None, user_defined2=None, logger=None):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -66,8 +66,8 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, auto=True, user_define
         autoReviseReport = '{0:s}/replace_tag_report.txt'.format(autoDIR)
 
         logger.info('========== Auto-assignment of replace tags for each transcript model ==========')
-        gff3_merge.auto_replace_tag.main(gff1=gff_file1, gff2=gff_file2, fasta=fasta, outdir=autoDIR, scode='TEMP', user_defined1=user_defined1, user_defined2=user_defined2, logger=logger)
-        gff3_merge.revision.main(gff_file1, autoFILE, autoReviseGff, autoReviseReport, user_defined1, auto, logger)
+        gff3_merge.auto_replace_tag.main(gff1=gff_file1, gff2=gff_file2, fasta=fasta, outdir=autoDIR, scode='TEMP', all_assign=all_assign, user_defined1=user_defined1, user_defined2=user_defined2, logger=logger)
+        gff3_merge.revision.main(gff_file=gff_file1, revision_file=autoFILE, output_gff=autoReviseGff, report_file=autoReviseReport, user_defined1=user_defined1, auto=auto, logger=logger)
 
         logger.info('========== Check whether there are missing replace tags ==========')
         gff3 = Gff3(gff_file=autoReviseGff, logger=logger_null)
@@ -141,6 +141,7 @@ def script_main():
     parser.add_argument('-u2', '--user_defined_file2', type=str, help='File for specifing parent and child features for fasta extraction from reference GFF3 file.')
     parser.add_argument('-og', '--output_gff', type=str, help='The merged GFF3 file')
     parser.add_argument('-r', '--report_file', type=str, help='Log file for the integration')
+    parser.add_argument('-a', '--all', action='store_true', help='auto-assignment replace tags for all transcript features. (default: Only automatically assign replace tags for the transcript without replace tags)')
     parser.add_argument('-noAuto', '--auto_assignment', action='store_false', help='Turn off the auto-assignment of replace tags, if you already have replace tags in your updated gff (default: Automatically assign replace tags and then merge the gff files)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
 
@@ -214,7 +215,9 @@ def script_main():
             parser.print_help()
             sys.exit(1)
 
-
+    if args.all and not args.auto_assignment:
+        logger_stderr.error('-a and -noAuto specify opposite behaviors, only one of the two arguments can be accepted.')
+        sys.exit(0)
     if args.report_file:
         logger_stderr.info('Writing validation report (%s)...\n', args.report_file)
         report_fh = open(args.report_file, 'wb')
@@ -224,4 +227,4 @@ def script_main():
     if not args.output_gff:
         args.output_gff='merged.gff'
 
-    main(args.gff_file1, args.gff_file2, args.fasta, report_fh, args.output_gff, args.auto_assignment, args.user_defined_file1, args.user_defined_file2, logger=logger_stderr)
+    main(args.gff_file1, args.gff_file2, args.fasta, report_fh, args.output_gff, args.all, args.auto_assignment, args.user_defined_file1, args.user_defined_file2, logger=logger_stderr)

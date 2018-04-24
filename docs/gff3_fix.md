@@ -17,15 +17,19 @@ Python 2.7
 1. Corrected GFF3
 
 ## Quick start
-`python2.7 bin/gff3_fix.py -qc_r error.txt -g example.gff3 -og corrected.gff3`
+`python2.7 bin/gff3_fix.py -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3`
 
 ## Optional arguments
 
 1.  -h, --help            
     - show this help message and exit
-2.  -og OUTPUT_GFF, --output_gff OUTPUT_GFF
-    - output gff3 file name
-3.  -v, --version         
+2.  -qc_r QC_REPORT, --qc_report QC_REPORT
+    - Error report from gff3_QC.py
+3.  -g GFF, --gff GFF
+    - Genome annotation file, gff3 format
+4.  -og OUTPUT_GFF, --output_gff OUTPUT_GFF
+    - output gff3 file name (default: corrected.gff3)
+5.  -v, --version         
     - show program's version number and exit
 
 ## More information

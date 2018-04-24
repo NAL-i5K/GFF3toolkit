@@ -29,7 +29,7 @@ import gff3_to_fasta
 __version__ = '0.0.3'
 
 
-def main(gff1, gff2, fasta, outdir, scode, logger, user_defined1=None, user_defined2=None):
+def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_defined1=None, user_defined2=None):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -51,8 +51,12 @@ def main(gff1, gff2, fasta, outdir, scode, logger, user_defined1=None, user_defi
         roots =[]
         for line in gff3_1.lines:
             try:
-                if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent') and len(line['attributes']) != 0:
-                    roots.append(line)
+                if line['line_type'] == 'feature':
+                    # remove all the replace attributes
+                    if all_assign and 'replace' in line['attributes']:
+                        del line['attributes']['replace']
+                    if 'Parent' not in line['attributes'] and len(line['attributes']) != 0:
+                        roots.append(line)
             except:
                 pass
         for root in roots:
@@ -75,11 +79,19 @@ def main(gff1, gff2, fasta, outdir, scode, logger, user_defined1=None, user_defi
         for lines in user_defined1:
             transcripts_type.add(lines[0])
         for line in gff3_1.lines:
+            if line['line_type'] == 'feature':
+                if all_assign and 'replace' in line['attributes']:
+                    del line['attributes']['replace']
             if line['type'] in transcripts_type:
                 id = str()
                 if line['attributes'].has_key('ID'):
                     id = line['attributes']['ID']
                     transcripts.add(id)
+    if all_assign:
+        # modified gff1 without any relace attributes
+        gff3_1_mod = '{0:s}/{1:s}'.format(tmpdir, 'gff1_mod.gff3')
+        gff3_1.write(gff3_1_mod)
+        gff1 = gff3_1_mod
 
     out1_type = '{0:s}/{1:s}'.format(tmpdir, 'gff1_transcript_type.txt')
     with open(out1_type, "w") as trans_type:

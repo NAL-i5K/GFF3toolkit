@@ -34,15 +34,28 @@ def script_main():
 
 
     Quick start:
-    python2.7 bin/gff3_fix.py -qc_r error.txt -g example.gff3 -og corrected.gff3
+    python2.7 bin/gff3_fix.py -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
     """))
 
     parser.add_argument('-qc_r', '--qc_report', type=str, help='Error report from gff3_QC.py')
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format')
     #parser.add_argument('-r', '--report', type=str, help='output report file name')
-    parser.add_argument('-og', '--output_gff', type=str, help='output gff3 file name')
+    parser.add_argument('-og', '--output_gff', type=str, help='output gff3 file name', default='corrected.gff3')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
+
     args = parser.parse_args()
+    if args.qc_report:
+        logger_stderr.info('Checking QC report file (%s)...', args.qc_report)
+    else: # no input
+        parser.print_help()
+        sys.exit()
+
+    if args.gff:
+        logger_stderr.info('Checking GFF3 file (%s)...', args.gff)
+    else: # no input
+        parser.print_help()
+        sys.exit()
+
     logger_stderr.info('Reading QC report file: (%s)...\n', args.qc_report)
     #error_dict example: {'Emr0001': [[15,16],[13]],'Esf0005': [[17]]}
     error_dict = {}
