@@ -13,7 +13,17 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 ## Installation
 
-* `pip install gff3tool`
+### Stable release on PyPI
+
+`pip install gff3tool`
+
+### Latest version
+
+``` shell
+git clone https://github.com/NAL-i5K/GFF3toolkit/
+cd GFF3toolkit
+pip install .
+```
 
 ## Current Functions
 
