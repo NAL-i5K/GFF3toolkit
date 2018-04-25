@@ -602,7 +602,7 @@ def script_main():
     1. Fasta formatted sequence file based on the gff3 file.
 
     Example command:
-    python2.7 bin/gff3_to_fasta.py -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
+    gff3_to_fasta -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
 
     """))
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file in GFF3 format')

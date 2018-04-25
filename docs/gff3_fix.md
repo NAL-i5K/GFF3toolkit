@@ -17,7 +17,7 @@ Python 2.7
 1. Corrected GFF3
 
 ## Quick start
-`python2.7 bin/gff3_fix.py -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3`
+`gff3_fix -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3`
 
 ## Optional arguments
 

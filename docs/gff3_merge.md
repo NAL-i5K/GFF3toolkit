@@ -20,10 +20,10 @@ gff3_merge.py [-h] [-g1 GFF_FILE1] [-g2 GFF_FILE2] [-f FASTA] [-u1 USER_DEFINED_
 
 ## Quick start
 * Merge the two files with auto-assignment of replace tags (default)
-    `python2.7 bin/gff3_merge.py -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt`
+    `gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt`
 
 * If your GFF3 files have proper replace tags at column 9 (Format: replace=[Transcript ID]), you can merge the two GFF3 files without auto-assignment of replace tags.
-    `python2.7 bin/gff3_merge.py -g1 example_file/new_models_w_replace.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto`
+    `gff3_merge -g1 example_file/new_models_w_replace.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto`
 
 ## Optional arguments
 

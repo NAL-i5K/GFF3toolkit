@@ -306,9 +306,9 @@ def script_main():
 
     Examples:
     1. Specify the input, output file names and options using short arguments:
-       python2.7 %(prog)s -g example_file/example.gff3 -og example_file/example_sorted.gff
+       gff3_sort -g example_file/example.gff3 -og example_file/example_sorted.gff
     2. Specify the input, output file names and options using long arguments:
-       python2.7 %(prog)s --gff_file example_file/example.gff3 --output_gff example_file/example_sorted.gff
+       gff3_sort --gff_file example_file/example.gff3 --output_gff example_file/example_sorted.gff
 
     """))
     parser.add_argument('-g', '--gff_file', type=str, help='GFF3 file that you would like to sort.')

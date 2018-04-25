@@ -34,7 +34,7 @@ def script_main():
 
 
     Quick start:
-    python2.7 bin/gff3_fix.py -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
+    gff3_fix -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
     """))
 
     parser.add_argument('-qc_r', '--qc_report', type=str, help='Error report from gff3_QC.py')
