@@ -39,9 +39,9 @@ def script_main():
         * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
 
     Quick start:
-    python2.7 bin/gff3_QC.py -g example_file/example.gff3 -f example_file/reference.fa -o test
+    gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o test
     or
-    python2.7 bin/gff3_QC.py --gff example_file/example.gff3 --fasta example_file/reference.fa --output test
+    gff3_QC --gff example_file/example.gff3 --fasta example_file/reference.fa --output test
 
     """))
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format')

@@ -128,9 +128,9 @@ def script_main():
 
     Examples:
     1. Specify the input, output file names and options using short arguments:
-       python2.7 bin/%(prog)s -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt
+       gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt
     2. Specify the input, output file names and options using long arguments:
-       python2.7 bin/%(prog)s --gff_file1 example_file/new_models.gff3 --gff_file2 example_file/reference.gff3 --fasta example_file/reference.fa --output_gff merged.gff --report_file merged_report.txt
+       gff3_merge --gff_file1 example_file/new_models.gff3 --gff_file2 example_file/reference.gff3 --fasta example_file/reference.fa --output_gff merged.gff --report_file merged_report.txt
 
 
     """))
