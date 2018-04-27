@@ -26,10 +26,14 @@ Sort features in a gff3 file by according to their order on a scaffold, their co
     - GFF3 file that you would like to sort.
 3. -og OUTPUT_GFF, --output_gff OUTPUT_GFF
     - Sorted GFF3 file
-4. -v, --version
+4. -t, SORT_TEMPLATE, --sort_template SORT_TEMPLATE
+    -  A file that indicates the sorting order of features within a gene model
+5. -i, --isoform_sort
+    - Sort multi-isoform gene models by feature type (default: False)
+6. -v, --version
     - show program's version number and exit
 
 ## Assumptions:
 
 1. Any features without a Parent attribute are 'root' features - the program will insert  directives (lines beginning with ##) above these features.
-2. All child features occur after their respective Parent feature, but before new Parent features. 
+2. All child features occur after their respective Parent feature, but before new Parent features.
