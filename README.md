@@ -1,5 +1,7 @@
 # GFF3toolkit - Python programs for processing GFF3 files
 
+[![Build Status](https://travis-ci.org/NAL-i5K/GFF3toolkit.svg?branch=master)](https://travis-ci.org/NAL-i5K/GFF3toolkit)
+
 ## Background
 
 The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md) (Generic Feature Format Version 3) is one of the standard formats to describe and represent genomic features. It is an incredibly flexible, 9-column format, which is easily manipulated by biologists. This flexibility, however, makes it very easy to break the format. We have developed the GFF3toolkit to help identify common problems with GFF3 files; fix 30 of these common problems; sort GFF3 files (which can aid in using down-stream processing programs and custom parsing); merge two GFF3 files into a single, non-redundant GFF3 file; and generate FASTA files from a GFF3 file for many use cases (e.g. feature types beyond mRNA).
