@@ -5,11 +5,14 @@ import logging
 from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.gff3_merge as gff3_merge
 from gff3tool.bin import version
+import argparse
+from textwrap import dedent
 
 __version__ = version.__version__
 
+
 def check_replace(gff, user_defined1=None):
-    if user_defined1 != None:
+    if user_defined1 is not None:
         u_type = set()
         for line in user_defined1:
             u_type.add(line[0])
@@ -19,24 +22,22 @@ def check_replace(gff, user_defined1=None):
     for line in gff.lines:
         if not user_defined1:
             try:
-                if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
-                   roots.append(line)
+                if line['line_type'] == 'feature' and 'Parent' not in line['attributes']:
+                    roots.append(line)
             except KeyError:
                 print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         else:
             if line['type'] in u_type:
                 try:
-                    if not line['attributes'].has_key('replace'):
+                    if 'replace' not in line['attributes']:
                         error_lines.append(line)
                 except KeyError:
                     print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
 
-    #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
-
     for root in roots:
         children = root['children']
         for child in children:
-            if not child['attributes'].has_key('replace'):
+            if 'replace' not in child['attributes']:
                 error_lines.append(child)
 
     if len(error_lines):
@@ -57,7 +58,6 @@ def main(gff_file1, gff_file2, fasta, report, output_gff, all_assign=False, auto
         _, gff_file1_name = re.search(r'(\S+)/(\S+)$',gff_file1).groups()
     else:
         gff_file1_name = gff_file1
-#    print(path, gff_file1_name)
 
     if auto:
         autoDIR = 'auto_replace_tag'
@@ -106,11 +106,9 @@ def script_main():
     stderr_handler = logging.StreamHandler()
     stderr_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger_stderr.addHandler(stderr_handler)
-    logger_null = logging.getLogger(__name__+'null')
+    logger_null = logging.getLogger(__name__ + 'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
-    import argparse
-    from textwrap import dedent
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
     Merge two gff files of the same genome into one.
 
@@ -149,28 +147,28 @@ def script_main():
 
     if args.gff_file1:
         logger_stderr.info('Checking Update GFF3 file (%s)...', args.gff_file1)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
+    elif not sys.stdin.isatty():  # if STDIN connected to pipe or file
         args.gff_file1 = sys.stdin
         logger_stderr.info('Reading from STDIN...')
-    else: # no input
+    else:  # no input
         parser.print_help()
         sys.exit(1)
 
     if args.gff_file2:
         logger_stderr.info('Checking Reference GFF3 file (%s)...', args.gff_file2)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
+    elif not sys.stdin.isatty():  # if STDIN connected to pipe or file
         args.gff_file2 = sys.stdin
         logger_stderr.info('Reading from STDIN...')
-    else: # no input
+    else:  # no input
         parser.print_help()
         sys.exit(2)
 
     if args.fasta:
         logger_stderr.info('Checking genome fasta (%s)...', args.fasta)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
+    elif not sys.stdin.isatty():  # if STDIN connected to pipe or file
         args.fasta = sys.stdin
         logger_stderr.info('Reading from STDIN...')
-    else: # no input
+    else:  # no input
         parser.print_help()
         sys.exit(1)
 
@@ -225,6 +223,6 @@ def script_main():
         report_fh = open('merge_report.txt', 'wb')
 
     if not args.output_gff:
-        args.output_gff='merged.gff'
+        args.output_gff = 'merged.gff'
 
     main(args.gff_file1, args.gff_file2, args.fasta, report_fh, args.output_gff, args.all, args.auto_assignment, args.user_defined_file1, args.user_defined_file2, logger=logger_stderr)
