@@ -117,7 +117,41 @@ def TwoParent(Child_id,third):
 
     return line_update
 
-def main(gff, output=None, logger=None):
+def write_out_by_level(report, line_data, sorting_order, gff3_linenum_Set,level=0):
+    report.write(line_data['line_raw'])
+    gff3_linenum_Set.discard(line_data['line_index'])
+    children = line_data['children']
+    reverse = False
+    strand_set = list(set([line['strand'] for line in children]))
+    if len(strand_set) ==  1:
+        if strand_set[0] == '-':
+            reverse = True
+    children_sorted = TypeSort(children, sorting_order, reverse)
+    for child in children_sorted:
+        write_out_by_level(report, child, sorting_order, gff3_linenum_Set,level=level+1)
+
+    return gff3_linenum_Set
+
+def TypeSort(line_list, sorting_order, reverse=False):
+    id2line ={}
+    id2index = {}
+    line_list_sort = []
+    for line in line_list:
+        lineindex = line['start'] if reverse==False else line['end']
+        id2line[str(line['line_raw'])] = line
+        try:
+            if sorting_order.has_key(line['type']):
+                id2index[str(line['line_raw'])] = [lineindex, sorting_order[line['type']] if reverse==False else (-sorting_order[line['type']])]
+            else:
+                id2index[str(line['line_raw'])] = [lineindex, 99 if reverse==False else -99]
+        except:
+            logger.error('[Start/End] Start/End is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1),line['line_raw']))
+    id_sorted = sorted(id2index, key=lambda i: (int(id2index[i][1]), int(id2index[i][0])), reverse=reverse)
+    for i in id_sorted:
+        line_list_sort.append(id2line[i])
+    return line_list_sort
+
+def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -175,97 +209,114 @@ def main(gff, output=None, logger=None):
             if root['seqid'] in sequence_regions:
                 report.write('##sequence-region %s %d %d\n' % (root['seqid'], sequence_regions[root['seqid']][0], sequence_regions[root['seqid']][1]))
             wrote_sequence_region.add(root['seqid'])
+        if sorting_order == None:
+            report.write(root['line_raw'])
+            gff3_linenum_Set.discard(root['line_index'])
+            children = root['children'] # Collect the second-level features (eg. mRNA, ncRNA, and etc.)
+            children_sorted = PositionSort(children)
+            otherlines=[]
+            for child in children_sorted:
+                ## ID information is stored in child['attributes']['ID']
+                #print('----------------')
+                gff3_linenum_Set.discard(child['line_index'])
+                report.write(child['line_raw'])
+                grandchildren = child['children'] # Collect third-level features (eg. exon, CDS, and etc.)
+                gchildgroup = {}
+                # Visit every third-level feature, and collect a dictionary of 'type' to 'features'
+                for grandchild in grandchildren: # Visit each third-level feature
+                    if gchildgroup.has_key(str(grandchild['type'])):
+                        gchildgroup[str(grandchild['type'])].append(grandchild)
+                    else:
+                        gchildgroup[str(grandchild['type'])] = []
+                        gchildgroup[str(grandchild['type'])].append(grandchild)
+                    otherlines.extend(gff3.collect_descendants(grandchild))
+                # Seperate the third-level features into three groups: exon, cds, and others
+                exons = []
+                cdss = []
+                others = []
+                for k, v in gchildgroup.items():
+                    if k == 'exon' or k == 'pseudogenic_exon':
+                        exons.extend(v)
+                    elif k == 'CDS':
+                        cdss.extend(v)
+                    else:
+                        others.extend(v)
 
-        report.write(root['line_raw'])
-        gff3_linenum_Set.discard(root['line_index'])
-        children = root['children'] # Collect the second-level features (eg. mRNA, ncRNA, and etc.)
-        children_sorted = PositionSort(children)
-        otherlines=[]
-        for child in children_sorted:
-            ## ID information is stored in child['attributes']['ID']
-            #print('----------------')
-            gff3_linenum_Set.discard(child['line_index'])
-            report.write(child['line_raw'])
-            grandchildren = child['children'] # Collect third-level features (eg. exon, CDS, and etc.)
-            gchildgroup = {}
-            # Visit every third-level feature, and collect a dictionary of 'type' to 'features'
-            for grandchild in grandchildren: # Visit each third-level feature
-                if gchildgroup.has_key(str(grandchild['type'])):
-                    gchildgroup[str(grandchild['type'])].append(grandchild)
-                else:
-                    gchildgroup[str(grandchild['type'])] = []
-                    gchildgroup[str(grandchild['type'])].append(grandchild)
-                otherlines.extend(gff3.collect_descendants(grandchild))
-            # Seperate the third-level features into three groups: exon, cds, and others
-            exons = []
-            cdss = []
-            others = []
-            for k, v in gchildgroup.items():
-                if k == 'exon' or k == 'pseudogenic_exon':
-                    exons.extend(v)
-                elif k == 'CDS':
-                    cdss.extend(v)
-                else:
-                    others.extend(v)
-
-            # Sort exons by considering strand information (StrandSort)
-            if len(exons):
-                exons_sorted = []
-                if StrandSort(exons):
-                    exons_sorted = StrandSort(exons)
-                    for exon in exons_sorted:
-                        if exon['attributes'].has_key('Parent'):
-                            if isinstance(exon['attributes']['Parent'], list) and len(exon['attributes']['Parent']) > 1:
-                                gff3_linenum_Set.discard(exon['line_index'])
-                                report.write(TwoParent(child['attributes']['ID'],exon))
+                # Sort exons by considering strand information (StrandSort)
+                if len(exons):
+                    exons_sorted = []
+                    if StrandSort(exons):
+                        exons_sorted = StrandSort(exons)
+                        for exon in exons_sorted:
+                            if exon['attributes'].has_key('Parent'):
+                                if isinstance(exon['attributes']['Parent'], list) and len(exon['attributes']['Parent']) > 1:
+                                    gff3_linenum_Set.discard(exon['line_index'])
+                                    report.write(TwoParent(child['attributes']['ID'],exon))
+                                else:
+                                    gff3_linenum_Set.discard(exon['line_index'])
+                                    report.write(exon['line_raw'])
                             else:
                                 gff3_linenum_Set.discard(exon['line_index'])
                                 report.write(exon['line_raw'])
-                        else:
-                            gff3_linenum_Set.discard(exon['line_index'])
-                            report.write(exon['line_raw'])
-            # Sort cds features by considering strand information (StrandSort)
-            if len(cdss):
-                cdss_sorted = []
-                if StrandSort(cdss):
-                    cdss_sorted = StrandSort(cdss)
-                    for cds in cdss_sorted:
-                        if cds['attributes'].has_key('Parent'):
-                            if isinstance(cds['attributes']['Parent'], list) and len(cds['attributes']['Parent']) > 1:
-                                gff3_linenum_Set.discard(cds['line_index'])
-                                report.write(TwoParent(child['attributes']['ID'],cds))
+                # Sort cds features by considering strand information (StrandSort)
+                if len(cdss):
+                    cdss_sorted = []
+                    if StrandSort(cdss):
+                        cdss_sorted = StrandSort(cdss)
+                        for cds in cdss_sorted:
+                            if cds['attributes'].has_key('Parent'):
+                                if isinstance(cds['attributes']['Parent'], list) and len(cds['attributes']['Parent']) > 1:
+                                    gff3_linenum_Set.discard(cds['line_index'])
+                                    report.write(TwoParent(child['attributes']['ID'],cds))
+                                else:
+                                    gff3_linenum_Set.discard(cds['line_index'])
+                                    report.write(cds['line_raw'])
                             else:
                                 gff3_linenum_Set.discard(cds['line_index'])
                                 report.write(cds['line_raw'])
-                        else:
-                            gff3_linenum_Set.discard(cds['line_index'])
-                            report.write(cds['line_raw'])
-            # Sort other features by PositionSort
-            if len(others):
-                if PositionSort(others):
-                    for other in others:
-                        if other['attributes'].has_key('Parent'):
-                            if isinstance(other['attributes']['Parent'], list) and len(other['attributes']['Parent']) > 1:
-                                gff3_linenum_Set.discard(other['line_index'])
-                                report.write(TwoParent(child['attributes']['ID'],other))
+                # Sort other features by PositionSort
+                if len(others):
+                    if PositionSort(others):
+                        for other in others:
+                            if other['attributes'].has_key('Parent'):
+                                if isinstance(other['attributes']['Parent'], list) and len(other['attributes']['Parent']) > 1:
+                                    gff3_linenum_Set.discard(other['line_index'])
+                                    report.write(TwoParent(child['attributes']['ID'],other))
+                                else:
+                                    gff3_linenum_Set.discard(other['line_index'])
+                                    report.write(other['line_raw'])
                             else:
                                 gff3_linenum_Set.discard(other['line_index'])
                                 report.write(other['line_raw'])
-                        else:
-                            gff3_linenum_Set.discard(other['line_index'])
-                            report.write(other['line_raw'])
 
-        # Sort the features beyond the third-level by PositionSort
-        unique = {}
-        otherlines_sorted = []
-        if PositionSort(otherlines):
-            otherlines_sorted = PositionSort(otherlines)
-        for k in otherlines_sorted:
-            gff3_linenum_Set.discard(k['line_index'])
-            unique[k['line_raw']] = 1
-        for k,v in unique.items():
-            report.write(k)
+            # Sort the features beyond the third-level by PositionSort
+            unique = {}
+            otherlines_sorted = []
+            if PositionSort(otherlines):
+                otherlines_sorted = PositionSort(otherlines)
+            for k in otherlines_sorted:
+                gff3_linenum_Set.discard(k['line_index'])
+                unique[k['line_raw']] = 1
+            for k,v in unique.items():
+                report.write(k)
+        else:
+            if not isoform_sort:
+                gff3_linenum_Set=write_out_by_level(level=0, report=report, line_data=root, sorting_order=sorting_order, gff3_linenum_Set=gff3_linenum_Set)
+            else:
+                model = gff3.collect_descendants(root)
+                model.insert(0, root)
+                strand_set = list(set([line['strand'] for line in model]))
+                reverse=False
+                for line in model:
+                    if len(strand_set) == 1:
+                        if strand_set == '-':
+                            reverse = True
+                line_list = TypeSort(model, sorting_order, reverse=reverse)
+                for line in line_list:
+                    gff3_linenum_Set.discard(line['line_index'])
+                    report.write(line['line_raw'])
         report.write('###\n')
+
     #Missing 'root' feature
     if len(gff3_linenum_Set) !=0:
         logger.warning('The following lines are omitted from the output file, because there is a problem with the input file. Please review the input file or run gff-QC.py to identify the error.\n')
@@ -274,7 +325,7 @@ def main(gff, output=None, logger=None):
 
     # write fasta
     fasta = gff3.fasta_embedded
-    if fasta != False:
+    if fasta:
         report.write('##FASTA\n')
         for key in fasta:
             seq = fasta[key]['seq']
@@ -313,6 +364,8 @@ def script_main():
     """))
     parser.add_argument('-g', '--gff_file', type=str, help='GFF3 file that you would like to sort.')
     parser.add_argument('-og', '--output_gff', type=str, help='Sorted GFF3 file')
+    parser.add_argument('-t', '--sort_template', type=str, help='A file that indicates the sorting order of features within a gene model')
+    parser.add_argument('-i', '--isoform_sort', action="store_true", help='Sort multi-isoform gene models by feature type (default: False)', default=False)
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
 
     # Process the required arguments
@@ -328,7 +381,29 @@ def script_main():
         parser.print_help()
         sys.exit(1)
 
+    if args.isoform_sort:
+        if not args.sort_template:
+            logger_stderr.warning('Sort template is not given. --isoform_sort argument will be ignored.')
+            args.isoform_sort = False
+
+    if args.sort_template:
+        logger_stderr.info('Checking sort template file (%s)...', args.sort_template)
+        sorting_order = dict()
+        current_line_num = 0
+        try:
+            with open(args.sort_template, 'r') as ud_f:
+                for line in ud_f:
+                    line = line.strip()
+                    lines = line.split(" ")
+                    current_line_num += 1
+                    for feature in lines:
+                        sorting_order[feature] = current_line_num
+        except:
+            logger_stderr.error('Failed to read the sort template file (%s).', args.sort_template)
+            sys.exit(1)
+    else:
+        sorting_order = None
     # Creat GFF3 object
     logger_stderr.info('Reading gff3 file...')
-    main(args.gff_file, output=args.output_gff, logger=logger_stderr)
+    main(args.gff_file, output=args.output_gff, isoform_sort=args.isoform_sort, sorting_order=sorting_order, logger=logger_stderr)
 
