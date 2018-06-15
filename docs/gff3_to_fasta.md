@@ -32,7 +32,9 @@ gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] 
     - Genome annotation file in GFF3 format
 3. -f FASTA, --fasta FASTA
     - Genome sequences in FASTA format
-4. -st SEQUENCE_TYPE, --sequence_type SEQUENCE_TYPE
+4. -embf, --embedded_fasta
+    - Specify this option if you want to extract sequence from embedded fasta.
+5. -st SEQUENCE_TYPE, --sequence_type SEQUENCE_TYPE
     - Type of sequences you would like to extract: 
         * "all" - FASTA files for all types of sequences listed below, except user_defined;
         * "gene" - gene sequence for each record;
@@ -42,19 +44,19 @@ gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] 
         * "cds" - coding sequences;
         * "pep" - peptide sequences;
         * "user_defined" - specify parent and child features via the -u argument.
-5. -u USER_DEFINED, --user_defined USER_DEFINED
+6. -u USER_DEFINED, --user_defined USER_DEFINED
     - Specify parent and child features for fasta extraction, format [parent feature type] [child feature type]. Required if -st user_defined is given.
         * Example: -st user_defined -u miRNA exon
 	* Lines with the child feature type given in -u must contain a Parent attribute referencing the given Parent feature type. Hence, the parent lines must also contain an ID attribute.
 	* If CDS is the child feature type, the program will take phase into account. 
-5. -d DEFLINE, --defline DEFLINE
+7. -d DEFLINE, --defline DEFLINE
     - Defline format in the output FASTA file:
         * "simple" - only ID is shown in the defline;
         * "complete" - complete information of the feature is shown in the defline.
-6. -o OUTPUT_PREFIX, --output_prefix OUTPUT_PREFIX
+8. -o OUTPUT_PREFIX, --output_prefix OUTPUT_PREFIX
     - Prefix of output file name
-7. -noQC, --quality_control
+9. -noQC, --quality_control
     - Specify this option if you do not want to excute quality control for gff file. (default: QC is executed)
-8. -v, --version
+10. -v, --version
     - Show program version number and exit
 
