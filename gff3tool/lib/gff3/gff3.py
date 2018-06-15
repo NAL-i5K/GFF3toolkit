@@ -379,12 +379,13 @@ class Gff3(object):
                     self.add_line_error(line_data, {'message': 'Seqid not found in any ##sequence-region: {0:s}'.format(
                         seqid), 'error_type': 'BOUNDS', 'location': 'sequence_region', 'eCode': 'Esf0004'})
                     continue
-                if line_data['start'] < valid_sequence_regions[seqid]['start']:
-                    error_lines.add(line_data['line_index'])
-                    self.add_line_error(line_data, {'message': 'Start is less than the ##sequence-region start: %d' % valid_sequence_regions[seqid]['start'], 'error_type': 'BOUNDS', 'location': 'sequence_region', 'eCode': 'Esf0005'})
-                if line_data['end'] > valid_sequence_regions[seqid]['end']:
-                    error_lines.add(line_data['line_index'])
-                    self.add_line_error(line_data, {'message': 'End is greater than the ##sequence-region end: %d' % valid_sequence_regions[seqid]['end'], 'error_type': 'BOUNDS', 'location': 'sequence_region', 'eCode': 'Esf0006'})
+                if seqid not in unresolved_seqid:
+                    if line_data['start'] < valid_sequence_regions[seqid]['start']:
+                        error_lines.add(line_data['line_index'])
+                        self.add_line_error(line_data, {'message': 'Start is less than the ##sequence-region start: %d' % valid_sequence_regions[seqid]['start'], 'error_type': 'BOUNDS', 'location': 'sequence_region', 'eCode': 'Esf0005'})
+                    if line_data['end'] > valid_sequence_regions[seqid]['end']:
+                        error_lines.add(line_data['line_index'])
+                        self.add_line_error(line_data, {'message': 'End is greater than the ##sequence-region end: %d' % valid_sequence_regions[seqid]['end'], 'error_type': 'BOUNDS', 'location': 'sequence_region', 'eCode': 'Esf0006'})
         elif sequence_region:
             self.logger.debug('##sequence-region not found in GFF3')
         # check fasta_embedded
@@ -398,9 +399,10 @@ class Gff3(object):
                     self.add_line_error(line_data, {'message': 'Seqid not found in the embedded ##FASTA: %s' % seqid, 'error_type': 'BOUNDS', 'location': 'fasta_embedded', 'eCode': 'Esf0007'})
                     continue
                 # check bounds
-                if line_data['end'] > len(self.fasta_embedded[seqid]['seq']):
-                    error_lines.add(line_data['line_index'])
-                    self.add_line_error(line_data, {'message': 'End is greater than the embedded ##FASTA sequence length: %d' % len(self.fasta_embedded[seqid]['seq']), 'error_type': 'BOUNDS', 'location': 'fasta_embedded', 'eCode': 'Esf0008'})
+                if seqid not in unresolved_seqid:
+                    if line_data['end'] > len(self.fasta_embedded[seqid]['seq']):
+                        error_lines.add(line_data['line_index'])
+                        self.add_line_error(line_data, {'message': 'End is greater than the embedded ##FASTA sequence length: %d' % len(self.fasta_embedded[seqid]['seq']), 'error_type': 'BOUNDS', 'location': 'fasta_embedded', 'eCode': 'Esf0008'})
                 # check n
                 if check_n and line_data['type'] in check_n_feature_types:
                     """
@@ -432,12 +434,10 @@ class Gff3(object):
                     self.add_line_error(line_data, {'message': 'Seqid not found in the external FASTA file: %s' % seqid, 'error_type': 'BOUNDS', 'location': 'fasta_external', 'eCode': 'Esf0010'})
                     continue
                 # check bounds
-                try:
+                if seqid not in unresolved_seqid:
                     if line_data['end'] > len(self.fasta_external[seqid]['seq']):
                         error_lines.add(line_data['line_index'])
                         self.add_line_error(line_data, {'message': 'End is greater than the external FASTA sequence length: %d' % len(self.fasta_external[seqid]['seq']), 'error_type': 'BOUNDS', 'location': 'fasta_external', 'eCode': 'Esf0011'})
-                except:
-                    logger.warning('[Missing SeqID] Missing SeqID. \n\t\t- Line {0:s}: {1:s}'.format(str(line_data['line_index']+1), line_data['line_raw']))
                 # check n
                 if check_n and line_data['type'] in check_n_feature_types:
                     try:
