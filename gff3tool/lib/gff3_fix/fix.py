@@ -422,7 +422,7 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
                             phase = map(int,re.findall(r'\d',line_num_dict[sorted_CDS_list[0]['line_index']+1]['Ema0006']))[1]
                         else:
                             try:
-                                phase = sorted_CDS_list[0]['line_index']['phase']
+                                phase = sorted_CDS_list[0]['phase']
                                 if phase not in valid_phase:
                                     phase = 0
                             except ValueError:
