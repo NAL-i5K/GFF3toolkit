@@ -291,7 +291,7 @@ class Gff3(object):
                     if cds_list[0]['phase'] != 0:
                         self.add_line_error(cds_list[0], {'message': '{0:s} {1:d}, should be {2:d}'.format(ERROR_INFO['Ema0006'], cds_list[0]['phase'], 0), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
                     if type(cds_list[0]['phase']) != int:
-                        logger.warning('[Phase] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(cds_list[0]['line_index']+1), cds_list[0]['line_raw']))
+                        logger.warning('[Phase] check_phase failed. \n\t\t- Line {0:s}: {1:s}'.format(str(cds_list[0]['line_index']+1), cds_list[0]['line_raw']))
                     continue
             strand = strand_set[0]
             if strand not in plus_minus:
@@ -309,13 +309,13 @@ class Gff3(object):
             else:
                 phase = sorted_cds_list[0]['phase']
                 if type(phase) != int:
-                    logger.warning('[Phase] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(sorted_cds_list[0]['line_index']+1), sorted_cds_list[0]['line_raw']))
+                    logger.warning('[Phase] check_phase failed. \n\t\t- Line {0:s}: {1:s}'.format(str(sorted_cds_list[0]['line_index']+1), sorted_cds_list[0]['line_raw']))
             for line in sorted_cds_list:
                 if line['phase'] != phase:
                     try:
                         self.add_line_error(line, {'message': 'Wrong phase {0:d}, should be {1:d}'.format(line['phase'], phase), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
                     except:
-                        logger.warning('[Phase] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                        logger.warning('[Phase] check_phase failed. \n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                 try:
                     phase = (3 - ((line['end'] - line['start'] + 1 - phase) % 3)) % 3
                 except:
