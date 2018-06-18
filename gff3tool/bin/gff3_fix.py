@@ -1,30 +1,15 @@
 #! /usr/local/bin/python2.7
-# Contributed by Li-Mei Chiang <dytk2134 [at] gmail [dot] com> (2017)
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-
 import sys
 import re
 import logging
-# try to import from project first
-from os.path import dirname
-import version
-if dirname(__file__) == '':
-    lib_path = '../lib'
-else:
-    lib_path = dirname(__file__) + '/../lib'
-sys.path.insert(1, lib_path)
-sys.path =  filter (lambda a: not a.endswith('/bin'), sys.path)
-from gff3 import Gff3
-import gff3_fix
+from gff3tool.lib.gff3 import Gff3
+import gff3tool.lib.gff3_fix as gff3_fix
+from gff3tool.bin import version
 
 __version__ = version.__version__
 
 
-if __name__ == '__main__':
+def script_main():
     logger_stderr = logging.getLogger(__name__+'stderr')
     logger_stderr.setLevel(logging.INFO)
     stderr_handler = logging.StreamHandler()
@@ -49,16 +34,28 @@ if __name__ == '__main__':
 
 
     Quick start:
-    python2.7 bin/gff3_fix.py -qc_r error.txt -g example.gff3 -og corrected.gff3
+    gff3_fix -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
     """))
 
     parser.add_argument('-qc_r', '--qc_report', type=str, help='Error report from gff3_QC.py')
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format')
     #parser.add_argument('-r', '--report', type=str, help='output report file name')
-    parser.add_argument('-og', '--output_gff', type=str, help='output gff3 file name')
+    parser.add_argument('-og', '--output_gff', type=str, help='output gff3 file name', default='corrected.gff3')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
 
     args = parser.parse_args()
+    if args.qc_report:
+        logger_stderr.info('Checking QC report file (%s)...', args.qc_report)
+    else: # no input
+        parser.print_help()
+        sys.exit()
+
+    if args.gff:
+        logger_stderr.info('Checking GFF3 file (%s)...', args.gff)
+    else: # no input
+        parser.print_help()
+        sys.exit()
+
     logger_stderr.info('Reading QC report file: (%s)...\n', args.qc_report)
     #error_dict example: {'Emr0001': [[15,16],[13]],'Esf0005': [[17]]}
     error_dict = {}
@@ -96,10 +93,3 @@ if __name__ == '__main__':
         sys.exit(1)
 
     gff3_fix.fix.main(gff3=gff3, output_gff=args.output_gff, error_dict=error_dict, line_num_dict=line_num_dict, logger=logger_null)
-
-
-
-
-
-
-

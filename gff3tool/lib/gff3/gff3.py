@@ -14,7 +14,6 @@ Check and correct the phase for CDS features.
 """
 from __future__ import print_function
 
-#from collections import OrderedDict # not available in 2.6
 from collections import defaultdict
 from itertools import groupby
 try:
@@ -26,15 +25,17 @@ import sys
 import re
 import string
 import logging
+import gff3tool.lib.ERROR as ERROR
+
 logger = logging.getLogger(__name__)
-#log.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
+# log.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
 logger.setLevel(logging.INFO)
 if not logger.handlers:
     lh = logging.StreamHandler()
     lh.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger.addHandler(lh)
 
-import ERROR
+
 
 ERROR_INFO = ERROR.INFO
 
@@ -290,7 +291,7 @@ class Gff3(object):
                     if cds_list[0]['phase'] != 0:
                         self.add_line_error(cds_list[0], {'message': '{0:s} {1:d}, should be {2:d}'.format(ERROR_INFO['Ema0006'], cds_list[0]['phase'], 0), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
                     if type(cds_list[0]['phase']) != int:
-                        logger.warning('[Phase] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(cds_list[0]['line_index']+1), cds_list[0]['line_raw']))
+                        logger.warning('[Phase] check_phase failed. \n\t\t- Line {0:s}: {1:s}'.format(str(cds_list[0]['line_index']+1), cds_list[0]['line_raw']))
                     continue
             strand = strand_set[0]
             if strand not in plus_minus:
@@ -308,13 +309,13 @@ class Gff3(object):
             else:
                 phase = sorted_cds_list[0]['phase']
                 if type(phase) != int:
-                    logger.warning('[Phase] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(sorted_cds_list[0]['line_index']+1), sorted_cds_list[0]['line_raw']))
+                    logger.warning('[Phase] check_phase failed. \n\t\t- Line {0:s}: {1:s}'.format(str(sorted_cds_list[0]['line_index']+1), sorted_cds_list[0]['line_raw']))
             for line in sorted_cds_list:
                 if line['phase'] != phase:
                     try:
                         self.add_line_error(line, {'message': 'Wrong phase {0:d}, should be {1:d}'.format(line['phase'], phase), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
                     except:
-                        logger.warning('[Phase] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                        logger.warning('[Phase] check_phase failed. \n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                 try:
                     phase = (3 - ((line['end'] - line['start'] + 1 - phase) % 3)) % 3
                 except:
@@ -378,12 +379,13 @@ class Gff3(object):
                     self.add_line_error(line_data, {'message': 'Seqid not found in any ##sequence-region: {0:s}'.format(
                         seqid), 'error_type': 'BOUNDS', 'location': 'sequence_region', 'eCode': 'Esf0004'})
                     continue
-                if line_data['start'] < valid_sequence_regions[seqid]['start']:
-                    error_lines.add(line_data['line_index'])
-                    self.add_line_error(line_data, {'message': 'Start is less than the ##sequence-region start: %d' % valid_sequence_regions[seqid]['start'], 'error_type': 'BOUNDS', 'location': 'sequence_region', 'eCode': 'Esf0005'})
-                if line_data['end'] > valid_sequence_regions[seqid]['end']:
-                    error_lines.add(line_data['line_index'])
-                    self.add_line_error(line_data, {'message': 'End is greater than the ##sequence-region end: %d' % valid_sequence_regions[seqid]['end'], 'error_type': 'BOUNDS', 'location': 'sequence_region', 'eCode': 'Esf0006'})
+                if seqid not in unresolved_seqid:
+                    if line_data['start'] < valid_sequence_regions[seqid]['start']:
+                        error_lines.add(line_data['line_index'])
+                        self.add_line_error(line_data, {'message': 'Start is less than the ##sequence-region start: %d' % valid_sequence_regions[seqid]['start'], 'error_type': 'BOUNDS', 'location': 'sequence_region', 'eCode': 'Esf0005'})
+                    if line_data['end'] > valid_sequence_regions[seqid]['end']:
+                        error_lines.add(line_data['line_index'])
+                        self.add_line_error(line_data, {'message': 'End is greater than the ##sequence-region end: %d' % valid_sequence_regions[seqid]['end'], 'error_type': 'BOUNDS', 'location': 'sequence_region', 'eCode': 'Esf0006'})
         elif sequence_region:
             self.logger.debug('##sequence-region not found in GFF3')
         # check fasta_embedded
@@ -397,9 +399,10 @@ class Gff3(object):
                     self.add_line_error(line_data, {'message': 'Seqid not found in the embedded ##FASTA: %s' % seqid, 'error_type': 'BOUNDS', 'location': 'fasta_embedded', 'eCode': 'Esf0007'})
                     continue
                 # check bounds
-                if line_data['end'] > len(self.fasta_embedded[seqid]['seq']):
-                    error_lines.add(line_data['line_index'])
-                    self.add_line_error(line_data, {'message': 'End is greater than the embedded ##FASTA sequence length: %d' % len(self.fasta_embedded[seqid]['seq']), 'error_type': 'BOUNDS', 'location': 'fasta_embedded', 'eCode': 'Esf0008'})
+                if seqid not in unresolved_seqid:
+                    if line_data['end'] > len(self.fasta_embedded[seqid]['seq']):
+                        error_lines.add(line_data['line_index'])
+                        self.add_line_error(line_data, {'message': 'End is greater than the embedded ##FASTA sequence length: %d' % len(self.fasta_embedded[seqid]['seq']), 'error_type': 'BOUNDS', 'location': 'fasta_embedded', 'eCode': 'Esf0008'})
                 # check n
                 if check_n and line_data['type'] in check_n_feature_types:
                     """
@@ -431,12 +434,10 @@ class Gff3(object):
                     self.add_line_error(line_data, {'message': 'Seqid not found in the external FASTA file: %s' % seqid, 'error_type': 'BOUNDS', 'location': 'fasta_external', 'eCode': 'Esf0010'})
                     continue
                 # check bounds
-                try:
+                if seqid not in unresolved_seqid:
                     if line_data['end'] > len(self.fasta_external[seqid]['seq']):
                         error_lines.add(line_data['line_index'])
                         self.add_line_error(line_data, {'message': 'End is greater than the external FASTA sequence length: %d' % len(self.fasta_external[seqid]['seq']), 'error_type': 'BOUNDS', 'location': 'fasta_external', 'eCode': 'Esf0011'})
-                except:
-                    logger.warning('[Missing SeqID] Missing SeqID. \n\t\t- Line {0:s}: {1:s}'.format(str(line_data['line_index']+1), line_data['line_raw']))
                 # check n
                 if check_n and line_data['type'] in check_n_feature_types:
                     try:

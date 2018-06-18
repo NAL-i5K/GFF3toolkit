@@ -2,7 +2,7 @@
 
 ## Usage 
 
-gff3_merge.py [-h] [-g1 GFF_FILE1] [-g2 GFF_FILE2] [-f FASTA] [-og OUTPUT_GFF] [-r REPORT_FILE] [-noAuto] [-v]
+gff3_merge.py [-h] [-g1 GFF_FILE1] [-g2 GFF_FILE2] [-f FASTA] [-u1 USER_DEFINED_FILE1] [-u2 USER_DEFINED_FILE2] [-og OUTPUT_GFF] [-r REPORT_FILE] [-a] [-noAuto] [-v]
 
 ## Testing environment
 
@@ -20,22 +20,34 @@ gff3_merge.py [-h] [-g1 GFF_FILE1] [-g2 GFF_FILE2] [-f FASTA] [-og OUTPUT_GFF] [
 
 ## Quick start
 * Merge the two files with auto-assignment of replace tags (default)
-    `python2.7 GFF3toolkit/bin/gff3_merge.py -g1 GFF3toolkit/example_file/new_models.gff3 -g2 GFF3toolkit/example_file/reference.gff3 -f GFF3toolkit/example_file/reference.fa -og merged.gff -r merged_report.txt`
+    `gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt`
 
 * If your GFF3 files have proper replace tags at column 9 (Format: replace=[Transcript ID]), you can merge the two GFF3 files without auto-assignment of replace tags.
-    `python2.7 GFF3toolkit/bin/gff3_merge.py -g1 GFF3toolkit/example_file/new_models.gff3 -g2 GFF3toolkit/example_file/reference.gff3 -f GFF3toolkit/example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto`
+    `gff3_merge -g1 example_file/new_models_w_replace.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto`
 
 ## Optional arguments
 
 1.  -h, --help            
     - show this help message and exit
-2.  -og OUTPUT_GFF, --output_gff OUTPUT_GFF
+2.  -g1 GFF_FILE1, --gff_file1 GFF_FILE1
+    - Updated GFF3 file, such as Apollo gff
+3.  -g2 GFF_FILE2, --gff_file2 GFF_FILE2
+    - Reference GFF3 file, such as Maker gff or OGS gff
+4.  -f FASTA, --fasta FASTA
+    - Genomic sequences in the fasta format
+5.  -u1 USER_DEFINED_FILE1, --user_defined_file1 USER_DEFINED_FILE1
+    - File for specifing parent and child features for fasta extraction from updated GFF3 file.
+6.  -u2 USER_DEFINED_FILE2, --user_defined_file2 USER_DEFINED_FILE2
+    - File for specifing parent and child features for fasta extraction from reference GFF3 file.
+7.  -og OUTPUT_GFF, --output_gff OUTPUT_GFF
     - The merged GFF3 file (default: merged.gff)
-3.  -r REPORT_FILE, --report_file REPORT_FILE
+8.  -r REPORT_FILE, --report_file REPORT_FILE
     - Log file for the integration (default: merge_report.txt)
-4.  -noAuto, --auto_assignment
+9.  -a, --all
+    - auto-assignment replace tags for all transcript features. (default: Only automatically assign replace tags for the transcript without replace tags)
+10. -noAuto, --auto_assignment
     - Turn off the auto-assignment of replace tags, if you have had the replace tags in your update gff (default: Automatically assign replace tags and then merge the gff files)
-5.  -v, --version         
+11. -v, --version
     - show program's version number and exit
 
 ## More information 

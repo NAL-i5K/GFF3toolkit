@@ -1,31 +1,18 @@
 #! /usr/local/bin/python2.7
-# Contributed by Mei-Ju May Chen <arbula [at] gmail [dot] com> (2015)
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-
 import sys
 import logging
-# try to import from project first
-from os.path import dirname
-if dirname(__file__) == '':
-    lib_path = '../lib'
-else:
-    lib_path = dirname(__file__) + '/../lib'
-sys.path.insert(1, lib_path)
-from gff3 import Gff3
-import function4gff
-import single_feature
-import inter_model
-import intra_model
-import ERROR # Details of the errors that can be detected.
-import version
+from gff3tool.lib.gff3 import Gff3
+import gff3tool.lib.function4gff as function4gff
+import gff3tool.lib.single_feature as single_feature
+import gff3tool.lib.inter_model as inter_model
+import gff3tool.lib.intra_model as intra_model
+import gff3tool.lib.ERROR as ERROR
+from gff3tool.bin import version
 
 __version__ = version.__version__
 
-if __name__ == '__main__':
+
+def script_main():
     logger_stderr = logging.getLogger(__name__+'stderr')
     logger_stderr.setLevel(logging.INFO)
     stderr_handler = logging.StreamHandler()
@@ -52,9 +39,9 @@ if __name__ == '__main__':
         * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
 
     Quick start:
-    python2.7 bin/gff3_QC.py -g example_file/example.gff3 -f example_file/reference.fa -o test
+    gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o test
     or
-    python2.7 bin/gff3_QC.py --gff example_file/example.gff3 --fasta example_file/reference.fa --output test
+    gff3_QC --gff example_file/example.gff3 --fasta example_file/reference.fa --output test
 
     """))
     parser.add_argument('-g', '--gff', type=str, help='Genome annotation file, gff3 format')

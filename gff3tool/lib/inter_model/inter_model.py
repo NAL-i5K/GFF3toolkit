@@ -6,18 +6,18 @@
 QC functions for processing multiple features between models (inter-model) in GFF3 file.
 """
 from __future__ import print_function
-
-#from collections import OrderedDict # not available in 2.6
-from collections import defaultdict
-from itertools import groupby
 try:
     from urllib import quote, unquote
 except ImportError:
     from urllib.parse import quote, unquote
-from textwrap import wrap
+from os.path import dirname, abspath
 import sys
-import re
 import logging
+from gff3tool.lib.gff3 import Gff3
+import gff3tool.lib.ERROR as ERROR
+import gff3tool.lib.function4gff as function4gff
+import subprocess
+
 logger = logging.getLogger(__name__)
 #log.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
 logger.setLevel(logging.INFO)
@@ -25,15 +25,6 @@ if not logger.handlers:
     lh = logging.StreamHandler()
     lh.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger.addHandler(lh)
-from os.path import dirname
-if dirname(__file__) == '':
-    lib_path = '../../lib'
-else:
-    lib_path = dirname(__file__) + '/../../lib'
-sys.path.insert(1, lib_path)
-from gff3 import Gff3
-import ERROR
-import function4gff
 
 __version__ = '0.0.1'
 
@@ -96,10 +87,9 @@ def check_duplicate(gff, linelist):
 
 def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
     import gff3_to_fasta
-    import subprocess
+    lib_path = dirname((dirname(abspath(__file__))))
     eCode = 'Emr0002'
     eSet = list()
-
     gff3_to_fasta.main(gff_file=gff_file, fasta_file=fasta_file, stype='cds', dline='complete', qc=False, output_prefix='tmp', logger=logger)
     cmd = lib_path + '/ncbi-blast+/bin/makeblastdb'
     logger.info('Making blast database... ({0:s})'.format(cmd))
@@ -134,7 +124,7 @@ def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
         gff.add_line_error(pair['target'], {'message': '{0:s} between {1:s} and {2:s}'.format(ERROR_INFO[eCode], pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode})
 
     logger.info('Removing unnecessary files...')
-    subprocess.Popen(['rm', 'tmp_cds.fa.nhr', 'tmp_cds.fa.nin', 'tmp_cds.fa.nsq', 'blastn.out', 'GeneModelwithMultipleIsoforms.txt','ck_wrong_split.report']) #debug 07082015
+    subprocess.Popen(['rm', 'tmp_cds.fa', 'tmp_cds.fa.nhr', 'tmp_cds.fa.nin', 'tmp_cds.fa.nsq', 'blastn.out', 'GeneModelwithMultipleIsoforms.txt','ck_wrong_split.report']) #debug 07082015
 
     if len(eSet):
         return eSet
