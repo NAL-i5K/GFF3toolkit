@@ -396,6 +396,7 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
     Esf0027 : Phase is required for all CDS features
     """
     #valid_CDS_phase = set([0,1,2])
+    valid_phase = set((0, 1, 2))
     for error in error_list:
         for line_num in error:
             if gff3.lines[line_num-1]['line_status'] != 'removed':
@@ -420,7 +421,12 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
                         if 'Ema0006' in line_num_dict[sorted_CDS_list[0]['line_index']+1]:
                             phase = map(int,re.findall(r'\d',line_num_dict[sorted_CDS_list[0]['line_index']+1]['Ema0006']))[1]
                         else:
-                            phase = sorted_CDS_list[0]['line_index']['phase']
+                            try:
+                                phase = sorted_CDS_list[0]['phase']
+                                if phase not in valid_phase:
+                                    phase = 0
+                            except ValueError:
+                                phase = 0
                         gff3.lines[sorted_CDS_list[0]['line_index']]['phase'] = phase
 
                     else:
