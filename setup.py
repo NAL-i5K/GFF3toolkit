@@ -9,10 +9,38 @@ https://github.com/pypa/sampleproject
 from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
-from os import path
+from os import path, remove
+import shutil
+import tarfile
+import urllib
+import platform
+platform_system = platform.system() #Linux: Linux; Mac:Darwin; Windows: Windows
 
 here = path.abspath(path.dirname(__file__))
+blast_path_bin = path.abspath(path.join(path.dirname(path.abspath(__file__)), 'gff3tool/lib/ncbi-blast+/bin/'))
+blast_path = path.abspath(path.join(path.dirname(path.abspath(__file__)), 'gff3tool/lib/ncbi-blast+/'))
+blast_file = path.abspath(path.join(blast_path, 'blast.tgz'))
 
+if path.exists(blast_path_bin):
+    shutil.rmtree(blast_path_bin)
+
+if platform_system == 'Linux':
+    urllib.urlretrieve('ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz', blast_file)
+elif platform_system == 'Windows':
+    urllib.urlretrieve('ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-win64.tar.gz', blast_file)
+else:
+    urllib.urlretrieve('ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-universal-macosx.tar.gz', blast_file)
+
+tar = tarfile.open(blast_file, "r:gz")
+tar.extractall(blast_path)
+tar.close()
+
+extract_path = path.join(blast_path, 'ncbi-blast-2.2.31+')
+shutil.move(path.join(extract_path, 'bin'), blast_path)
+if path.exists(blast_file):
+    remove(blast_file)
+if path.exists(extract_path):
+    shutil.rmtree(extract_path)
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()

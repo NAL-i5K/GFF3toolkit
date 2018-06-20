@@ -276,7 +276,7 @@ def general_newModel(oldmodel, gff):
                     gff.features[newk['attributes']['ID']].append(newk)
             else:
 					 print('Warning!! features have multiple errors:\t' + k['attributes']['ID'])
-            
+
             gff.lines.append(newk)
             parent_lines = newk['parents']
             for parents in parent_lines:

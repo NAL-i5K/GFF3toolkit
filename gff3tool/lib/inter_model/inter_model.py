@@ -10,14 +10,15 @@ try:
     from urllib import quote, unquote
 except ImportError:
     from urllib.parse import quote, unquote
-from os.path import dirname, abspath
+import os
 import sys
 import logging
 from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.ERROR as ERROR
 import gff3tool.lib.function4gff as function4gff
 import subprocess
-
+import platform
+platform_system = platform.system() #Linux: Linux; Mac:Darwin; Windows: Windows
 logger = logging.getLogger(__name__)
 #log.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
 logger.setLevel(logging.INFO)
@@ -26,7 +27,8 @@ if not logger.handlers:
     lh.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger.addHandler(lh)
 
-__version__ = '0.0.1'
+from gff3tool.bin import version
+__version__ = version.__version__
 
 ERROR_INFO = ERROR.INFO
 
@@ -86,25 +88,31 @@ def check_duplicate(gff, linelist):
         return eSet
 
 def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
-    import gff3_to_fasta
-    lib_path = dirname((dirname(abspath(__file__))))
+    import gff3tool.bin.gff3_to_fasta as gff3_to_fasta
+    lib_path = os.path.dirname((os.path.dirname(os.path.abspath(__file__))))
     eCode = 'Emr0002'
     eSet = list()
     gff3_to_fasta.main(gff_file=gff_file, fasta_file=fasta_file, stype='cds', dline='complete', qc=False, output_prefix='tmp', logger=logger)
-    cmd = lib_path + '/ncbi-blast+/bin/makeblastdb'
+    if platform_system != 'Windows':
+        cmd = lib_path + '/ncbi-blast+/bin/makeblastdb'
+    else:
+        cmd = lib_path + '/ncbi-blast+/bin/makeblastdb.exe'
     logger.info('Making blast database... ({0:s})'.format(cmd))
     subprocess.Popen([cmd, '-in', 'tmp_cds.fa', '-dbtype', 'nucl']).wait()
-    cmd = lib_path + '/ncbi-blast+/bin/blastn'
+    if platform_system != 'Windows':
+        cmd = lib_path + '/ncbi-blast+/bin/blastn'
+    else:
+        cmd = lib_path + '/ncbi-blast+/bin/blastn.exe'
     logger.info('Aligning sequences... ({0:s})'.format(cmd))
     subprocess.Popen([cmd, '-db', 'tmp_cds.fa', '-query', 'tmp_cds.fa', '-out', 'blastn.out', '-outfmt', '6', '-penalty', '-15', '-ungapped']).wait()
     cmd = lib_path + '/check_gene_parent/find_wrongly_split_gene_parent.pl'
     logger.info('Finding mRNAs with wrongly split gene parents... ({0:s})'.format(cmd))
     subprocess.Popen(['perl', cmd, gff_file, 'blastn.out', 'lepdec', 'ck_wrong_split.report']).wait()
-
-    p = subprocess.Popen(['cat', 'ck_wrong_split.report'], stdout=subprocess.PIPE)
-    wrongly_split_gene_parent = p.communicate()[0].split('\n')
+    with open('ck_wrong_split.report', 'r') as ck_wrong_split:
+        wrongly_split_gene_parent = ck_wrong_split.readlines()
     pairs = list()
-    for i in wrongly_split_gene_parent[1:(len(wrongly_split_gene_parent)-1)]:
+    for i in wrongly_split_gene_parent[1:len(wrongly_split_gene_parent)]:
+        i = i.strip()
         tokens = i.split('\t')
         source = gff.features[tokens[2]][0]
         target = gff.features[tokens[3]][0]
@@ -124,7 +132,10 @@ def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
         gff.add_line_error(pair['target'], {'message': '{0:s} between {1:s} and {2:s}'.format(ERROR_INFO[eCode], pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode})
 
     logger.info('Removing unnecessary files...')
-    subprocess.Popen(['rm', 'tmp_cds.fa', 'tmp_cds.fa.nhr', 'tmp_cds.fa.nin', 'tmp_cds.fa.nsq', 'blastn.out', 'GeneModelwithMultipleIsoforms.txt','ck_wrong_split.report']) #debug 07082015
+    rm_list = ['tmp_cds.fa', 'tmp_cds.fa.nhr', 'tmp_cds.fa.nin', 'tmp_cds.fa.nsq', 'blastn.out', 'GeneModelwithMultipleIsoforms.txt','ck_wrong_split.report']
+    for rmfile in rm_list:
+        if os.path.exists(rmfile):
+            os.remove(rmfile)
 
     if len(eSet):
         return eSet

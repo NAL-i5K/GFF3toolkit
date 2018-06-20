@@ -23,17 +23,12 @@ if not logger.handlers:
     lh = logging.StreamHandler()
     lh.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger.addHandler(lh)
-from os.path import dirname
-if dirname(__file__) == '':
-    lib_path = '../../lib'
-else:
-    lib_path = dirname(__file__) + '/../../lib'
-sys.path.insert(1, lib_path)
-from gff3 import Gff3
-import function4gff
-import ERROR
+from gff3tool.lib.gff3 import Gff3
+import gff3tool.lib.function4gff as function4gff
+import gff3tool.lib.ERROR as ERROR
 
-__version__ = '0.0.1'
+from gff3tool.bin import version
+__version__ = version.__version__
 
 ERROR_INFO = ERROR.INFO
 

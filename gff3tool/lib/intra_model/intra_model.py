@@ -30,7 +30,8 @@ if not logger.handlers:
     lh = logging.StreamHandler()
     lh.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger.addHandler(lh)
-__version__ = '0.0.1'
+from gff3tool.bin import version
+__version__ = version.__version__
 
 ERROR_INFO = ERROR.INFO
 

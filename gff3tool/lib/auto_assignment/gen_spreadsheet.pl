@@ -15,6 +15,7 @@ open FI, "$cdshit";
 my $head = <FI>;
 while (<FI>){
 	chomp $_;
+	$_ =~ s/\R//g;
 	my @t = split("\t", $_);
 	if (defined $hit{$t[2]}){
 		$hit{$t[2]} .= ",$t[5]";
@@ -29,6 +30,7 @@ open FI, "$preTranhit";
 $head = <FI>;
 while (<FI>){
 	chomp $_;
+	$_ =~ s/\R//g;
 	my @t = split("\t", $_);
 	if (defined $hit2{$t[2]}){
 		$hit2{$t[2]} .= ",$t[5]";
@@ -57,6 +59,8 @@ for my $i (0 .. $#col){
 	}
 }
 while (<FI>){
+	chomp $_;
+	$_ =~ s/\R//g;
 	my @t = split("\t", $_);
 	chomp @t;
 	my @info = ();

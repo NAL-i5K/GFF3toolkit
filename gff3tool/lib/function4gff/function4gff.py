@@ -25,14 +25,9 @@ if not logger.handlers:
     lh = logging.StreamHandler()
     lh.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger.addHandler(lh)
-from os.path import dirname
-if dirname(__file__) == '':
-    lib_path = '../../lib'
-else:
-    lib_path = dirname(__file__) + '/../../lib'
-sys.path.insert(1, lib_path)
+from gff3tool.bin import version
 
-__version__ = '0.0.1'
+__version__ = version.__version__
 
 def randomID(size=32, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
