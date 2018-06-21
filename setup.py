@@ -25,11 +25,11 @@ if path.exists(blast_path_bin):
     shutil.rmtree(blast_path_bin)
 
 if platform_system == 'Linux':
-    urllib.urlretrieve('ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz', blast_file)
+    urllib.urlretrieve('https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz', blast_file)
 elif platform_system == 'Windows':
-    urllib.urlretrieve('ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-win64.tar.gz', blast_file)
+    urllib.urlretrieve('https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-win64.tar.gz', blast_file)
 else:
-    urllib.urlretrieve('ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-universal-macosx.tar.gz', blast_file)
+    urllib.urlretrieve('https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-universal-macosx.tar.gz', blast_file)
 
 tar = tarfile.open(blast_file, "r:gz")
 tar.extractall(blast_path)
