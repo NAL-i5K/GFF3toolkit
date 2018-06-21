@@ -25,15 +25,17 @@ print "Reading the transcript type file: $transcript_type...\n";
 open FI, "$transcript_type" or die "[Error] Cannot open $transcript_type.";
 while (<FI>){
         chomp $_;
+		$_ =~ s/\R//g;
         $trans_type{$_} = $_;
-} 
-close FI;     
-   
+}
+close FI;
+
 print "Reading the gff file: $gff...\n";
 open FI, "$gff" or die "[Error] Cannot open $gff.";
 while (<FI>){
 	$line++;
 	chomp $_;
+	$_ =~ s/\R//g;
 	if ($_ =~ /^#/){next;}
 	my @t = split("\t", $_);
         if ($#t != 8){next;}
@@ -134,6 +136,7 @@ print "Reading the blast file: $blast...\n";
 open FI, "$blast" or die "[Error] Cannot open $blast.";
 while (<FI>){
 	chomp $_;
+	$_ =~ s/\R//g;
 	if ($_ =~ /^$/){ print "blast result is empty..."; exit; } # Check whether the blast result is epmpty...
 	my @t = split("\t", $_);
 	$#t!=11 and next;
@@ -144,7 +147,7 @@ while (<FI>){
     }elsif ($t[0] =~ /\|Parent=(.+?)\|ID=(.+?)\|/ or $t[0] =~ /\|Parent=(.+?)\|ID=(.+?)$/){
 		($qpar, $qid) = ($1, $2);
 	}
-	
+
 
     if ($t[1] !~ /Parent/){
         $t[1] =~ /ID=(.+?)\|/;
@@ -209,15 +212,15 @@ print FO "Gene_ID1\tGene_ID2\tmRNA_ID1\tmRNA_ID2\tName1\tName2\tOwner1\tOwner2\t
 foreach my $e (sort keys %diffparent){
 	my @pid = split("\t", $diffparent{$e}->{PAR});
 	my @t = split("\t", $diffparent{$e}->{BEST});
-	$t[0] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;	
-	my ($scaf1, $s1, $e1, $d1) = ($1, $2, $3, $4);	
-	$t[1] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;	
+	$t[0] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;
+	my ($scaf1, $s1, $e1, $d1) = ($1, $2, $3, $4);
+	$t[1] =~ /(.+?):(\d+)\.\.(\d+):(.)\|/;
 	my ($scaf2, $s2, $e2, $d2) = ($1, $2, $3, $4);
 
 	if ( !defined $gene2url{$pid[0]} ){
 	    $gene2url{$pid[0]} = 'Unassigned';
     }
-    
+
 
 	if ($scaf1 eq $scaf2 && $d1 eq $d2){
 		if (($s1 >= $s2 && $s1 <= $e2) || ($s2 >= $s1 && $s2 <= $e1)){

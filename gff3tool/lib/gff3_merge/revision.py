@@ -15,23 +15,11 @@ Changelog:
 import sys
 import re
 import logging
-from collections import OrderedDict
-from collections import defaultdict
-from itertools import groupby
-from urllib import quote, unquote
-# try to import from project first
-import os
-from os.path import dirname
-if dirname(__file__) == '':
-    lib_path = '../'
-else:
-    lib_path = dirname(__file__) + '/../'
-sys.path.insert(1, lib_path)
 import copy
-from gff3 import Gff3
-import id_processor
+from gff3tool.lib.gff3 import Gff3
+from gff3tool.bin import version
 
-__version__ = '1.0.3'
+__version__ = version.__version__
 
 def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=None, auto=True, logger=None):
     logger_null = logging.getLogger(__name__+'null')

@@ -47,13 +47,15 @@ my %trans_type = ();
 
 open FI, "$transcript_type" or die "[Error] Cannot open $transcript_type.";
 while (<FI>){
-        chomp $_;        
+        chomp $_;
+		$_ =~ s/\R//g;
         $trans_type{$_} = $_;
-} 
-close FI;    
+}
+close FI;
 
 while ( my $line = <$GFF> ){
     chomp $line;
+	$line =~ s/\R//g;
 #ignore commented lines
     if ( $line =~ /^#/ ){
 	next;
@@ -71,7 +73,7 @@ while ( my $line = <$GFF> ){
 	my $stop = $array[4];
 	my $id = "NA";
 	my $owner = "NA";
-	my $name= "NA"; 
+	my $name= "NA";
 	my $symbol="NA";
 	my $mod_date="NA";
 	my $comments="NA";
@@ -109,7 +111,7 @@ while ( my $line = <$GFF> ){
 	}
 #populate gene/pseudogene  hash
 	if ( $array[2] =~ /gene|pseudogene/ ){
-#in gene hash, key: id; value: name, SO type, date modified, notes.	    
+#in gene hash, key: id; value: name, SO type, date modified, notes.
 	    $gene_ids{$id} = "$name\t$id\t$array[2]\t$mod_date\t$comments\t$replace\t$status";
 	}
 #populate transcript hash
@@ -121,13 +123,13 @@ while ( my $line = <$GFF> ){
 	    elsif ($parent eq "NA" ){
 	        $gene_ids{$parent} = "NA\tNA\tNA\tNA\tNA\tNA\tNA";
             my $link = "https://apollo.nal.usda.gov/".$species_code."/jbrowse/?loc=".$scaffold."%3A".$start."..".$stop."&tracks=DNA%2CAnnotations%2C".$species_code."_current_models&highlight=";
-                $transcript_ids{$id} = "$gene_ids{$parent}\t$owner\t$scaffold\t$start\t$stop\t$strand\t$array[2]\t$name\t$id\t$comments\t$replace\t$status\t$link";        
+                $transcript_ids{$id} = "$gene_ids{$parent}\t$owner\t$scaffold\t$start\t$stop\t$strand\t$array[2]\t$name\t$id\t$comments\t$replace\t$status\t$link";
         }
 	    else {
 		warn "parents and children out of synch here:\n$parent\t$id\n";
 	    }
 	}
-#populate transcript_ids hash w sequence mods (top-level, no parents, no children)	
+#populate transcript_ids hash w sequence mods (top-level, no parents, no children)
 	elsif ( $array[2] =~ /deletion|insertion|substitution|transposable_element/ ){
 	    my $link = "https://apollo.nal.usda.gov/".$species_code."/jbrowse/?loc=".$scaffold."%3A".$start."..".$stop."&tracks=DNA%2CAnnotations%2C".$species_code."_current_models&highlight=";
 	    $transcript_ids{$id} = "NA\t$name\t$array[2]\t$mod_date\tNA\tNA\tNA\t$owner\t$scaffold\t$start\t$stop\t$strand\t$array[2]\tNA\t$id\tNA\tNA\tNA\t$link";
@@ -170,7 +172,7 @@ while ( my $line = <$GFF> ){
 		    $CDS_phase{$parent}{$stop} = $array[7];
 		}
 	    }
-#already pre-populate true stop coordinate hash for proper aa length calculaton (accounting for stop codons; complete value in next section. id -> scaf  -> dir -> stop                                                                         
+#already pre-populate true stop coordinate hash for proper aa length calculaton (accounting for stop codons; complete value in next section. id -> scaf  -> dir -> stop
 	    $cds_true_stop_coordinate{$parent}{$scaffold}{$array[6]} = 1;
 	}
 	elsif ( $array[2] =~ /exon/ ){
@@ -187,8 +189,8 @@ while ( my $line = <$GFF> ){
     }
 }
 
-#will have to slice out string from last 3 bases of CDS (note that this is specific to Web Apollo coding - not all gff3s code their stop codons as CDS) and see whether it matches stop codons (or their reverse complement, depending on strand)         
-#TAG, TAA, TGA                                                                                                              
+#will have to slice out string from last 3 bases of CDS (note that this is specific to Web Apollo coding - not all gff3s code their stop codons as CDS) and see whether it matches stop codons (or their reverse complement, depending on strand)
+#TAG, TAA, TGA
 close $GFF;
 
 
@@ -197,6 +199,7 @@ my %fasta = ();
 my $defline;
 while ( my $fline = <$FASTA> ){
     chomp $fline;
+	$fline =~ s/\R//g;
     if ( $fline =~ /^>(\S+)/ ){
 	$defline = $1;
     }
@@ -205,14 +208,14 @@ while ( my $fline = <$FASTA> ){
     }
 }
 
-#id -> scaf -> dir -> 1 (should be populated with true stop coordinate  
+#id -> scaf -> dir -> 1 (should be populated with true stop coordinate
 #code to determine whether stop codon is present in CDS and calculate true aa sequence length
 #WIP: STILL NO CODE TO INCORPORATE PHASE
 foreach my $cds ( keys %cds_true_stop_coordinate ){
     foreach my $scafkey ( keys %{$cds_true_stop_coordinate{$cds}} ){
 	if ( defined $fasta{$scafkey} ){
 	    foreach my $dirkey ( keys %{$cds_true_stop_coordinate{$cds}{$scafkey}} ){
-		if ( $dirkey eq "+" ){		    
+		if ( $dirkey eq "+" ){
 		    #for forward strand, stop coordinate in CDS_stop is true stop coordinate, and coordinate in CDS_start is true start coordinate
 		    my $forward_stop = $CDS_stop{$cds};
 		    my $stop_slice = substr( $fasta{$scafkey}, ($forward_stop -3), 3);
@@ -278,7 +281,7 @@ foreach my $key (keys %transcript_ids ){
     if ( defined $num_exon_introns{$key} ){
 #if it has CDS
 	if ( defined $aas{$key} and defined $CDS_start{$key} and defined $CDS_stop{$key} ){
-#if it has a readthrough stop codon	    
+#if it has a readthrough stop codon
 	    if ( defined $stop_codon_readthrough{$key} ){
 		print $OUT "$transcript_ids{$key}\t$aas{$key}\t$CDS_start{$key}\t$CDS_stop{$key}\t$num_cds_introns{$key}\t$num_exon_introns{$key}\thas_readthrough_stop_codon\n";
 	    }
@@ -291,7 +294,7 @@ foreach my $key (keys %transcript_ids ){
 	    print $OUT "$transcript_ids{$key}\tNA\tNA\tNA\tNA\tNA\tNA\t$num_exon_introns{$key}\tNA\n";
 	}
     }
-#if it doesn't have exons    
+#if it doesn't have exons
     else {
 	print $OUT "$transcript_ids{$key}\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n";
     }
