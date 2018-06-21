@@ -6,13 +6,6 @@
 QC functions for processing multiple features between models (inter-model) in GFF3 file.
 """
 from __future__ import print_function
-
-#from collections import OrderedDict # not available in 2.6
-from itertools import groupby
-try:
-    from urllib import quote, unquote
-except ImportError:
-    from urllib.parse import quote, unquote
 import sys
 import re
 import logging

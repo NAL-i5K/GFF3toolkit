@@ -15,13 +15,6 @@ Changelog:
 import sys
 import re
 import logging
-import subprocess
-from collections import OrderedDict
-from collections import defaultdict
-from itertools import groupby
-from urllib import quote, unquote
-from textwrap import wrap
-# try to import from project first
 import os
 from gff3tool.lib.gff3 import Gff3
 from gff3tool.lib import replace_OGS

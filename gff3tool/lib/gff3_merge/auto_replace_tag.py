@@ -20,8 +20,6 @@ lib_path = os.path.dirname((os.path.dirname(os.path.abspath(__file__))))
 from gff3tool.lib.gff3 import Gff3
 import gff3tool.bin.gff3_to_fasta as gff3_to_fasta
 import shutil
-import platform
-platform_system = platform.system() #Linux: Linux; Mac:Darwin; Windows: Windows
 
 from gff3tool.bin import version
 
@@ -44,12 +42,9 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     transcripts_type = set()
     gff3_1 = Gff3(gff_file=gff1, fasta_external=fasta, logger=logger)
     gff3_2 = Gff3(gff_file=gff2, fasta_external=fasta, logger=logger)
-    if platform_system != 'Windows':
-        makeblastdb_path = lib_path + '/ncbi-blast+/bin/makeblastdb'
-        blastn_path = lib_path + '/ncbi-blast+/bin/blastn'
-    else:
-        makeblastdb_path = lib_path + '/ncbi-blast+/bin/makeblastdb.exe'
-        blastn_path = lib_path + '/ncbi-blast+/bin/blastn.exe'
+
+    makeblastdb_path = os.path.join(lib_path, 'ncbi-blast+/bin/makeblastdb')
+    blastn_path = os.path.join(lib_path, 'ncbi-blast+/bin/blastn')
 
     if user_defined1 == None:
         roots =[]
@@ -93,22 +88,22 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
                     transcripts.add(id)
     if all_assign:
         # modified gff1 without any relace attributes
-        gff3_1_mod = '{0:s}/{1:s}'.format(tmpdir, 'gff1_mod.gff3')
+        gff3_1_mod = os.path.join(tmpdir, 'gff1_mod.gff3')
         gff3_1.write(gff3_1_mod)
         gff1 = gff3_1_mod
 
-    out1_type = '{0:s}/{1:s}'.format(tmpdir, 'gff1_transcript_type.txt')
+    out1_type = os.path.join(tmpdir, 'gff1_transcript_type.txt')
     with open(out1_type, "w") as trans_type:
         for line in transcripts_type:
             trans_type.write(line+"\n")
 
-    cmd = lib_path + '/auto_assignment/create_annotation_summaries_nov21-7.pl'
+    cmd = os.path.join(lib_path, 'auto_assignment/create_annotation_summaries_nov21-7.pl')
     logger.info('Generate info table for {0:s} by using {1:s}'.format(gff1, cmd))
-    summary = '{0:s}/{1:s}'.format(tmpdir, 'summary_report.txt')
+    summary = os.path.join(tmpdir, 'summary_report.txt')
     subprocess.Popen(['perl', cmd, gff1, fasta, summary, scode, out1_type], stdout=DEVNULL).wait()
 
     logger.info('Extract sequences from {0:s}...'.format(gff1))
-    out1 = '{0:s}/{1:s}'.format(tmpdir, 'gff1')
+    out1 = os.path.join(tmpdir, 'gff1')
     if user_defined1 == None:
         logger.info('\tExtract CDS sequences...')
         gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
@@ -140,7 +135,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
 
 
     logger.info('Extract sequences from {0:s}...'.format(gff2))
-    out2 = '{0:s}/{1:s}'.format(tmpdir, 'gff2')
+    out2 = os.path.join(tmpdir, 'gff2')
     if user_defined2 == None:
         logger.info('\tExtract CDS sequences...')
         gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out2, logger=logger_null)
@@ -170,7 +165,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
                         outfile.write('{0:s}\n{1:s}\n'.format(k,v))
 
     logger.info('Catenate {0:s} and {1:s}...'.format(gff1, gff2))
-    cgff = '{0:s}/{1:s}'.format(tmpdir, 'cat.gff')
+    cgff = os.path.join(tmpdir, 'cat.gff')
     with open(cgff, "w") as outfile:
         for catfile in [gff1, gff2]:
             with open(catfile, 'rb') as fd:
@@ -181,11 +176,11 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     print('\n')
     logger.info('Sequence alignment for cds fasta files between {0:s} and {1:s}...'.format(gff1, gff2))
     binput = '{0:s}_{1:s}'.format(out1, 'cds.fa')
-    bout = '{0:s}/{1:s}'.format(tmpdir, 'blastn.out')
+    bout = os.path.join(tmpdir, 'blastn.out')
     subprocess.Popen([blastn_path, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
     logger.info('Find CDS matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))
-    cmd = lib_path + '/auto_assignment/find_match.pl'
-    report1 = '{0:s}/{1:s}'.format(tmpdir, 'report1.txt')
+    cmd = os.path.join(lib_path, 'auto_assignment/find_match.pl')
+    report1 = os.path.join(tmpdir, 'report1.txt')
     subprocess.Popen(['perl', cmd, cgff, bout, scode, report1, out1_type]).wait()
 
     with open(bout, "r") as bcds:
@@ -207,8 +202,8 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
         subprocess.Popen([blastn_path, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
 
         logger.info('Find transcript matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))
-        cmd = lib_path + '/auto_assignment/find_match.pl'
-        report1_trans = '{0:s}/{1:s}'.format(tmpdir, 'report1_trans.txt')
+        cmd = os.path.join(lib_path, 'auto_assignment/find_match.pl')
+        report1_trans = os.path.join(tmpdir, 'report1_trans.txt')
         subprocess.Popen(['perl', cmd, cgff, bout, scode, report1_trans, out1_type]).wait()
 
         with open(report1,"a") as rep1:
@@ -226,17 +221,17 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     print('\n')
     logger.info('Sequence alignment for premature transcript fasta files between {0:s} and {1:s}...'.format(gff1, gff2))
     binput = '{0:s}_{1:s}'.format(out1, 'pre_trans.fa')
-    bout = '{0:s}/{1:s}'.format(tmpdir, 'blastn.out')
+    bout = os.path.join(tmpdir, 'blastn.out')
     subprocess.Popen([blastn_path, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
 
-    cmd = lib_path + '/auto_assignment/find_match.pl'
+    cmd = os.path.join(lib_path, 'auto_assignment/find_match.pl')
     logger.info('Find premature transcript matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))
-    report2 = '{0:s}/{1:s}'.format(tmpdir, 'report2.txt')
+    report2 = os.path.join(tmpdir, 'report2.txt')
     subprocess.Popen(['perl', cmd, cgff, bout, scode, report2, out1_type]).wait()
 
     print('\n')
-    cmd = lib_path + '/auto_assignment/gen_spreadsheet.pl'
-    check1 = '{0:s}/{1:s}'.format(outdir, 'check1.txt')
+    cmd = os.path.join(lib_path, 'auto_assignment/gen_spreadsheet.pl')
+    check1 = os.path.join(outdir, 'check1.txt')
     logger.info('Generate {0:s} for Check Point 1 internal reviewing...'.format(check1))
     subprocess.Popen(['perl', cmd, summary, report1, report2, check1]).wait()
 

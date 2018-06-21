@@ -6,10 +6,6 @@
 QC functions for processing multiple features between models (inter-model) in GFF3 file.
 """
 from __future__ import print_function
-try:
-    from urllib import quote, unquote
-except ImportError:
-    from urllib.parse import quote, unquote
 import os
 import sys
 import logging
@@ -17,8 +13,6 @@ from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.ERROR as ERROR
 import gff3tool.lib.function4gff as function4gff
 import subprocess
-import platform
-platform_system = platform.system() #Linux: Linux; Mac:Darwin; Windows: Windows
 logger = logging.getLogger(__name__)
 #log.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
 logger.setLevel(logging.INFO)
@@ -93,19 +87,13 @@ def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
     eCode = 'Emr0002'
     eSet = list()
     gff3_to_fasta.main(gff_file=gff_file, fasta_file=fasta_file, stype='cds', dline='complete', qc=False, output_prefix='tmp', logger=logger)
-    if platform_system != 'Windows':
-        cmd = lib_path + '/ncbi-blast+/bin/makeblastdb'
-    else:
-        cmd = lib_path + '/ncbi-blast+/bin/makeblastdb.exe'
+    cmd = os.path.join(lib_path, 'ncbi-blast+/bin/makeblastdb')
     logger.info('Making blast database... ({0:s})'.format(cmd))
     subprocess.Popen([cmd, '-in', 'tmp_cds.fa', '-dbtype', 'nucl']).wait()
-    if platform_system != 'Windows':
-        cmd = lib_path + '/ncbi-blast+/bin/blastn'
-    else:
-        cmd = lib_path + '/ncbi-blast+/bin/blastn.exe'
+    cmd = os.path.join(lib_path, 'ncbi-blast+/bin/blastn')
     logger.info('Aligning sequences... ({0:s})'.format(cmd))
     subprocess.Popen([cmd, '-db', 'tmp_cds.fa', '-query', 'tmp_cds.fa', '-out', 'blastn.out', '-outfmt', '6', '-penalty', '-15', '-ungapped']).wait()
-    cmd = lib_path + '/check_gene_parent/find_wrongly_split_gene_parent.pl'
+    cmd = os.path.join(lib_path, 'check_gene_parent/find_wrongly_split_gene_parent.pl')
     logger.info('Finding mRNAs with wrongly split gene parents... ({0:s})'.format(cmd))
     subprocess.Popen(['perl', cmd, gff_file, 'blastn.out', 'lepdec', 'ck_wrong_split.report']).wait()
     with open('ck_wrong_split.report', 'r') as ck_wrong_split:

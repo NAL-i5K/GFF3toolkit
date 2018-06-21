@@ -15,13 +15,6 @@ Changelog:
 import sys
 import re
 import logging
-from collections import OrderedDict
-from collections import defaultdict
-from itertools import groupby
-from urllib import quote, unquote
-# try to import from project first
-import os
-from os.path import dirname
 import copy
 from gff3tool.lib.gff3 import Gff3
 from gff3tool.bin import version

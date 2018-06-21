@@ -6,7 +6,7 @@
 # the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 
-import sys
+
 # try to import from project first
 from gff3tool.bin import version
 
