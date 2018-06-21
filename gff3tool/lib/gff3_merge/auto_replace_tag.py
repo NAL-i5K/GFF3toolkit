@@ -43,8 +43,8 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     gff3_1 = Gff3(gff_file=gff1, fasta_external=fasta, logger=logger)
     gff3_2 = Gff3(gff_file=gff2, fasta_external=fasta, logger=logger)
 
-    makeblastdb_path = os.path.join(lib_path, 'ncbi-blast+/bin/makeblastdb')
-    blastn_path = os.path.join(lib_path, 'ncbi-blast+/bin/blastn')
+    makeblastdb_path = os.path.join(lib_path, 'ncbi-blast+', 'bin', 'makeblastdb')
+    blastn_path = os.path.join(lib_path, 'ncbi-blast+', 'bin', 'blastn')
 
     if user_defined1 == None:
         roots =[]
@@ -97,7 +97,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
         for line in transcripts_type:
             trans_type.write(line+"\n")
 
-    cmd = os.path.join(lib_path, 'auto_assignment/create_annotation_summaries_nov21-7.pl')
+    cmd = os.path.join(lib_path, 'auto_assignment', 'create_annotation_summaries_nov21-7.pl')
     logger.info('Generate info table for {0:s} by using {1:s}'.format(gff1, cmd))
     summary = os.path.join(tmpdir, 'summary_report.txt')
     subprocess.Popen(['perl', cmd, gff1, fasta, summary, scode, out1_type], stdout=DEVNULL).wait()
@@ -179,7 +179,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     bout = os.path.join(tmpdir, 'blastn.out')
     subprocess.Popen([blastn_path, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
     logger.info('Find CDS matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))
-    cmd = os.path.join(lib_path, 'auto_assignment/find_match.pl')
+    cmd = os.path.join(lib_path, 'auto_assignment', 'find_match.pl')
     report1 = os.path.join(tmpdir, 'report1.txt')
     subprocess.Popen(['perl', cmd, cgff, bout, scode, report1, out1_type]).wait()
 
@@ -202,7 +202,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
         subprocess.Popen([blastn_path, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
 
         logger.info('Find transcript matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))
-        cmd = os.path.join(lib_path, 'auto_assignment/find_match.pl')
+        cmd = os.path.join(lib_path, 'auto_assignment', 'find_match.pl')
         report1_trans = os.path.join(tmpdir, 'report1_trans.txt')
         subprocess.Popen(['perl', cmd, cgff, bout, scode, report1_trans, out1_type]).wait()
 
@@ -224,13 +224,13 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     bout = os.path.join(tmpdir, 'blastn.out')
     subprocess.Popen([blastn_path, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
 
-    cmd = os.path.join(lib_path, 'auto_assignment/find_match.pl')
+    cmd = os.path.join(lib_path, 'auto_assignment', 'find_match.pl')
     logger.info('Find premature transcript matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))
     report2 = os.path.join(tmpdir, 'report2.txt')
     subprocess.Popen(['perl', cmd, cgff, bout, scode, report2, out1_type]).wait()
 
     print('\n')
-    cmd = os.path.join(lib_path, 'auto_assignment/gen_spreadsheet.pl')
+    cmd = os.path.join(lib_path, 'auto_assignment', 'gen_spreadsheet.pl')
     check1 = os.path.join(outdir, 'check1.txt')
     logger.info('Generate {0:s} for Check Point 1 internal reviewing...'.format(check1))
     subprocess.Popen(['perl', cmd, summary, report1, report2, check1]).wait()

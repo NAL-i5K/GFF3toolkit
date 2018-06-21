@@ -87,13 +87,13 @@ def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
     eCode = 'Emr0002'
     eSet = list()
     gff3_to_fasta.main(gff_file=gff_file, fasta_file=fasta_file, stype='cds', dline='complete', qc=False, output_prefix='tmp', logger=logger)
-    cmd = os.path.join(lib_path, 'ncbi-blast+/bin/makeblastdb')
+    cmd = os.path.join(lib_path, 'ncbi-blast+', 'bin', 'makeblastdb')
     logger.info('Making blast database... ({0:s})'.format(cmd))
     subprocess.Popen([cmd, '-in', 'tmp_cds.fa', '-dbtype', 'nucl']).wait()
-    cmd = os.path.join(lib_path, 'ncbi-blast+/bin/blastn')
+    cmd = os.path.join(lib_path, 'ncbi-blast+', 'bin', 'blastn')
     logger.info('Aligning sequences... ({0:s})'.format(cmd))
     subprocess.Popen([cmd, '-db', 'tmp_cds.fa', '-query', 'tmp_cds.fa', '-out', 'blastn.out', '-outfmt', '6', '-penalty', '-15', '-ungapped']).wait()
-    cmd = os.path.join(lib_path, 'check_gene_parent/find_wrongly_split_gene_parent.pl')
+    cmd = os.path.join(lib_path, 'check_gene_parent', 'find_wrongly_split_gene_parent.pl')
     logger.info('Finding mRNAs with wrongly split gene parents... ({0:s})'.format(cmd))
     subprocess.Popen(['perl', cmd, gff_file, 'blastn.out', 'lepdec', 'ck_wrong_split.report']).wait()
     with open('ck_wrong_split.report', 'r') as ck_wrong_split:
