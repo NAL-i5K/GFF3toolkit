@@ -4,22 +4,26 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
-
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
-from os import path, remove
+from os import path, remove, mkdir
 import shutil
 import tarfile
 import urllib
 import platform
-platform_system = platform.system() #Linux: Linux; Mac:Darwin; Windows: Windows
+import sys
+
+platform_system = platform.system() # Linux: Linux; Mac:Darwin; Windows: Windows
 
 here = path.abspath(path.dirname(__file__))
-blast_path_bin = path.abspath(path.join(path.dirname(path.abspath(__file__)), 'gff3tool/lib/ncbi-blast+/bin/'))
-blast_path = path.abspath(path.join(path.dirname(path.abspath(__file__)), 'gff3tool/lib/ncbi-blast+/'))
-blast_file = path.abspath(path.join(blast_path, 'blast.tgz'))
+blast_path_bin = path.join(here, 'gff3tool', 'lib', 'ncbi-blast+', 'bin')
+blast_path = path.join(here, 'gff3tool', 'lib', 'ncbi-blast+')
+blast_file = path.join(blast_path, 'blast.tgz')
+
+if not path.exists(blast_path):
+    mkdir(blast_path)
 
 if path.exists(blast_path_bin):
     shutil.rmtree(blast_path_bin)
@@ -28,10 +32,12 @@ if platform_system == 'Linux':
     urllib.urlretrieve('https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz', blast_file)
 elif platform_system == 'Windows':
     urllib.urlretrieve('https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-win64.tar.gz', blast_file)
-else:
+elif platform_system == 'Darwin':
     urllib.urlretrieve('https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-universal-macosx.tar.gz', blast_file)
+else:
+    sys.error('GFF3 Toolkit currently only supports linux, windows, and MacOS')
 
-tar = tarfile.open(blast_file, "r:gz")
+tar = tarfile.open(blast_file, 'r:gz')
 tar.extractall(blast_path)
 tar.close()
 
@@ -73,7 +79,7 @@ setup(
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#summary
-    description='Python programs for processing GFF3 files/',  # Required
+    description='Python programs for processing GFF3 files',  # Required
 
     # This is an optional longer description of your project that represents
     # the body of text which users will see when they visit PyPI.
