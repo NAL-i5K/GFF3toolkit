@@ -6,18 +6,9 @@
 QC functions for processing multiple features within a model (intra-model) in GFF3 file.
 """
 from __future__ import print_function
-
-from collections import defaultdict
-from itertools import groupby
-try:
-    from urllib import quote, unquote
-except ImportError:
-    from urllib.parse import quote, unquote
-from textwrap import wrap
 import sys
 import re
 import logging
-from os.path import dirname
 from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.function4gff as function4gff
 import gff3tool.lib.ERROR as ERROR
@@ -30,7 +21,8 @@ if not logger.handlers:
     lh = logging.StreamHandler()
     lh.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger.addHandler(lh)
-__version__ = '0.0.1'
+from gff3tool.bin import version
+__version__ = version.__version__
 
 ERROR_INFO = ERROR.INFO
 
@@ -301,7 +293,6 @@ def check_merged_gene_parent(gff, rootline):
     eCode = 'Ema0009'
     result = dict()
     f=0
-    bclist = list()
     badchild = dict()
     children = rootline['children']
     if len(children) > 1:
@@ -325,7 +316,6 @@ def check_merged_gene_parent(gff, rootline):
             result['ID'] = [rootline['attributes']['ID']]
             result['line_num'] = ['Line {0:s}'.format(str(rootline['line_index'] + 1))]
             result['eCode'] = eCode
-            keys = badchild.keys()
             result['eTag'] = '{0:s}: Between Line {1:s}'.format(ERROR_INFO[eCode], ', and Line'.join(badchild))
     if f > 0:
         gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})

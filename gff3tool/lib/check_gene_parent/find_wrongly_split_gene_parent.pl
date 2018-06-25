@@ -23,7 +23,7 @@ open FI, "$gff" or die "[Error] Cannot open $gff.";
 while (<FI>){
 	$line++;
 	chomp $_;
-        $_ =~ s/\R//g;
+    $_ =~ s/\R//g;
 	if ( $_ =~ /^##FASTA/ ){last;}#go to end of file if there's a FASTA section in the gff3 file
         elsif ($_ =~ /^#/){next;}
 	my @t = split("\t", $_);
@@ -101,6 +101,7 @@ print "Reading the blast file: $blast...\n";
 open FI, "$blast" or die "[Error] Cannot open $blast.";
 while (<FI>){
 	chomp $_;
+	$_ =~ s/\R//g;
 	if ($_ =~ /^$/){ print "blast result is empty..."; exit; } # Check whether the blast result is epmpty...
 	my @t = split("\t", $_);
 	$#t!=11 and next;

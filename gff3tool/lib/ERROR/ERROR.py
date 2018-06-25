@@ -6,16 +6,11 @@
 # the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 
-import sys
-# try to import from project first
-from os.path import dirname
-if dirname(__file__) == '':
-    lib_path = '../lib'
-else:
-    lib_path = dirname(__file__) + '/../lib'
-sys.path.insert(1, lib_path)
 
-__version__ = '0.0.1'
+# try to import from project first
+from gff3tool.bin import version
+
+__version__ = version.__version__
 
 INFO = {
     'Ema0001': 'Parent feature start and end coordinates exceed those of child features',

@@ -15,32 +15,13 @@ Changelog:
 import sys
 import re
 import logging
-import subprocess
-from collections import OrderedDict
-from collections import defaultdict
-from itertools import groupby
-from urllib import quote, unquote
-from textwrap import wrap
-# try to import from project first
 import os
-from os.path import dirname
-if dirname(__file__) == '':
-    lib_path = '../'
-else:
-    lib_path = dirname(__file__) + '/../'
-sys.path.insert(1, lib_path)
+from gff3tool.lib.gff3 import Gff3
+from gff3tool.lib import replace_OGS
+import gff3tool.bin.gff3_sort as gff3_sort
+from gff3tool.bin import version
 
-if dirname(__file__) == '':
-    lib_path = '../../bin'
-else:
-    lib_path = dirname(__file__) + '/../../bin'
-sys.path.insert(1, lib_path)
-
-from gff3 import Gff3
-import replace_OGS
-import gff3_sort
-
-__version__ = '0.0.4'
+__version__ = version.__version__
 
 def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_defined2=None, logger=None):
     logger_null = logging.getLogger(__name__+'null')
@@ -314,8 +295,10 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
 
     ReplaceGroups.name2id(gff3M)
     gff3M.write(output_gff)
-
-    subprocess.Popen(['rm', 'WA_sorted.gff', 'other_sorted.gff'])
+    rm_list = ['WA_sorted.gff', 'other_sorted.gff']
+    for rmfile in rm_list:
+        if os.path.exists(rmfile):
+            os.remove(rmfile)
 
 
 if __name__ == '__main__':
