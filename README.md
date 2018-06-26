@@ -1,7 +1,7 @@
 # GFF3toolkit - Python programs for processing GFF3 files
 
 [![Build Status](https://travis-ci.org/NAL-i5K/GFF3toolkit.svg?branch=master)](https://travis-ci.org/NAL-i5K/GFF3toolkit)
-[![Build status](https://ci.appveyor.com/api/projects/status/0do5uwu5je0gag1u?svg=true)](https://ci.appveyor.com/project/hsiaoyi0504/gff3toolkit)
+[![Build status](https://ci.appveyor.com/api/projects/status/0do5uwu5je0gag1u/branch/master?svg=true)](https://ci.appveyor.com/project/hsiaoyi0504/gff3toolkit/branch/master)
 
 ## Background
 
