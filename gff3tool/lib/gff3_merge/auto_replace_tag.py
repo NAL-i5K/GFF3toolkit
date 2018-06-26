@@ -21,10 +21,6 @@ from gff3tool.lib.gff3 import Gff3
 import gff3tool.bin.gff3_to_fasta as gff3_to_fasta
 import shutil
 
-from gff3tool.bin import version
-
-__version__ = version.__version__
-
 
 def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_defined1=None, user_defined2=None):
     logger_null = logging.getLogger(__name__+'null')
@@ -234,74 +230,3 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     check1 = os.path.join(outdir, 'check1.txt')
     logger.info('Generate {0:s} for Check Point 1 internal reviewing...'.format(check1))
     subprocess.Popen(['perl', cmd, summary, report1, report2, check1]).wait()
-
-
-if __name__ == '__main__':
-    logger_stderr = logging.getLogger(__name__+'stderr')
-    logger_stderr.setLevel(logging.INFO)
-    stderr_handler = logging.StreamHandler()
-    stderr_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
-    logger_stderr.addHandler(stderr_handler)
-    logger_null = logging.getLogger(__name__+'null')
-    null_handler = logging.NullHandler()
-    logger_null.addHandler(null_handler)
-    import argparse
-    from textwrap import dedent
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
-    Extract sequences from specific regions of genome based on gff file.
-    Testing enviroment:
-    1. Python 2.7
-
-    Inputs:
-    1. GFF3: reads from STDIN by default, may specify the file name with the -g argument
-    2. fasta file: reads from STDIN by default, may specify the file name with the -f argument
-
-    Outputs:
-    1. Extract sequences from specific regions of genome based on gff file.
-
-    """))
-    parser.add_argument('-g1', '--gff1', type=str, help='GFF for curated gene annotations from Apollo (default: STDIN)')
-    parser.add_argument('-g2', '--gff2', type=str, help='GFF for predicted gene models or previous official gene set (default: STDIN)')
-    parser.add_argument('-f', '--fasta', type=str, help='FASTA for genome sequences (default: STDIN)')
-    parser.add_argument('-s', '--species_code', type=str, help ='Species code used in I5K WorkSapce@NAL')
-    parser.add_argument('-o', '--output_dir', type=str, help='Output directory (default: STDIN)')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-
-    args = parser.parse_args()
-
-    if args.gff1:
-        logger_stderr.info('Checking gff file (%s)...', args.gff1)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
-        args.gff1 = sys.stdin
-        logger_stderr.info('Reading from STDIN...')
-    else: # no input
-        parser.print_help()
-        sys.exit(1)
-
-    if args.gff2:
-        logger_stderr.info('Checking gff file (%s)...', args.gff2)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
-        args.gff2 = sys.stdin
-        logger_stderr.info('Reading from STDIN...')
-    else: # no input
-        parser.print_help()
-        sys.exit(1)
-
-    if args.fasta:
-        logger_stderr.info('Checking genome fasta (%s)...', args.fasta)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
-        args.fasta = sys.stdin
-        logger_stderr.info('Reading from STDIN...')
-    else: # no input
-        parser.print_help()
-        sys.exit(1)
-
-    args.species_code='TEMP'
-    if args.species_code:
-        logger_stderr.info('Specifying species code (%s)...', args.species_code)
-
-    outdir = './auto_replace_tag'
-    if args.output_dir:
-        outdir = '{0:s}/{1:s}'.format('.', args.output_dir)
-
-    main(args.gff1, args.gff2, args.fasta, outdir, args.species_code, logger_stderr)

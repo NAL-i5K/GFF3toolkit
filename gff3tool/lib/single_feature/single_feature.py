@@ -20,8 +20,6 @@ from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.function4gff as function4gff
 import gff3tool.lib.ERROR as ERROR
 
-from gff3tool.bin import version
-__version__ = version.__version__
 
 ERROR_INFO = ERROR.INFO
 
@@ -123,51 +121,3 @@ def main(gff, logger=None):
 
     if len(error_set):
         return(error_set)
-
-if __name__ == '__main__':
-    logger_stderr = logging.getLogger(__name__+'stderr')
-    logger_stderr.setLevel(logging.INFO)
-    stderr_handler = logging.StreamHandler()
-    stderr_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
-    logger_stderr.addHandler(stderr_handler)
-    logger_null = logging.getLogger(__name__+'null')
-    null_handler = logging.NullHandler()
-    logger_null.addHandler(null_handler)
-    import argparse
-    from textwrap import dedent
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
-    QC functions for processing every single feature in GFF3 file.
-
-    Testing enviroment:
-    1. Python 2.7
-
-    Inputs:
-    1. GFF3: reads from STDIN by default, may specify the file name with the -g argument
-
-    Outputs:
-    1. GFF3: fixed GFF file
-
-    """))
-    parser.add_argument('-g', '--gff', type=str, help='Summary Report from Monica (default: STDIN)')
-    parser.add_argument('-o', '--output', type=str, help='Output file name (default: STDIN)')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-
-    args = parser.parse_args()
-
-    if args.gff:
-        logger_stderr.info('Checking gff file (%s)...', args.gff)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
-        args.gff = sys.stdin
-        logger_stderr.info('Reading from STDIN...')
-    else: # no input
-        parser.print_help()
-        sys.exit(1)
-
-    if args.output:
-        logger_stderr.info('Specifying output file name: (%s)...\n', args.output)
-        report_fh = open(args.output, 'wb')
-
-    gff3 = Gff3(gff_file=args.gff, logger=logger_null)
-    main(gff3, logger=logger_stderr)
-    if args.output:
-        gff3.write(args.output)

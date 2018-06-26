@@ -17,9 +17,6 @@ import re
 import logging
 import copy
 from gff3tool.lib.gff3 import Gff3
-from gff3tool.bin import version
-
-__version__ = version.__version__
 
 def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=None, auto=True, logger=None):
     logger_null = logging.getLogger(__name__+'null')
@@ -256,67 +253,3 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
 
     logger.info('Writing revised gff: ({0:s})...'.format(output_gff))
     gff3.write(output_gff)
-
-
-if __name__ == '__main__':
-    logger_stderr = logging.getLogger(__name__+'stderr')
-    logger_stderr.setLevel(logging.INFO)
-    stderr_handler = logging.StreamHandler()
-    stderr_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
-    logger_stderr.addHandler(stderr_handler)
-    logger_null = logging.getLogger(__name__+'null')
-    null_handler = logging.NullHandler()
-    logger_null.addHandler(null_handler)
-    import argparse
-    from textwrap import dedent
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
-
-    After the revision of gff file done by annotators (spreadsheet), incorporating the revised information into the Web Apollo gff before gff integration. Additionally, if there are features containing 'replace' field at gene level, add 'replace' field to every child level of the gene and then delete the replace field of the gene.
-
-    Inputs:
-    1. GFF3: reads from STDIN by default, may specify the file name with the -g argument
-    2. Revision information: reads from STDIN by default, may specify the file name with the -rf argument
-    Outputs:
-    1. MarkDown: contains summary and detail sections, writes to STDOUT by default, may specify the file name with the -r argument
-    2. gff file: Revised gff file, specify the file name with the -og argument
-
-    Examples:
-        Specify the input, output file names and options using short arguments:
-        %(prog)s -g lepdec_6-30-2015_annotations.gff -rf gff_revision_info.txt -r RevisionSummary.txt -og annotations_revised.gff
-
-    """))
-    parser.add_argument('-g', '--gff_file', type=str, help='GFF3 file to validate (default: STDIN)')
-    parser.add_argument('-rf', '--revision_file', type=str, help='A revision file (.txt) to correct the GFF3 file (default: STDIN)')
-    parser.add_argument('-r', '--report_file', type=str, help='Validation report file (default: STDOUT)')
-    parser.add_argument('-og', '--output_gff', type=str, help='Revised gff (default: STDOUT)')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-
-
-    test_lv = 1 # debug
-    if test_lv == 0:
-        args = parser.parse_args(['-g', 'annotations.gff'])
-    else:
-        args = parser.parse_args()
-
-    if args.gff_file:
-        logger_stderr.info('Checking GFF3 file (%s)...', args.gff_file)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
-        args.gff_file = sys.stdin
-        logger_stderr.info('Reading from STDIN...')
-    else: # no input
-        parser.print_help()
-        sys.exit(1)
-
-    if args.revision_file:
-        logger_stderr.info('Checking revision file (%s)...', args.revision_file)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
-        args.revision_file = sys.stdin
-        logger_stderr.info('Reading from STDIN...')
-    else: # no input
-        parser.print_help()
-        sys.exit(1)
-
-    if not args.output_gff:
-        args.output_gff = 'Revised_{0:s}'.format(args.gff_file)
-
-    main(gff_file=args.gff_file, revision_file=args.revision_file, output_gff=args.output_gff, report_file=args.report_file, logger=logger_stderr)
