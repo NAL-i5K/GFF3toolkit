@@ -7,11 +7,6 @@
 # (at your option) any later version.
 
 
-# try to import from project first
-from gff3tool.bin import version
-
-__version__ = version.__version__
-
 INFO = {
     'Ema0001': 'Parent feature start and end coordinates exceed those of child features',
     'Ema0002': 'Protein sequence contains internal stop codons',

@@ -19,9 +19,6 @@ import os
 from gff3tool.lib.gff3 import Gff3
 from gff3tool.lib import replace_OGS
 import gff3tool.bin.gff3_sort as gff3_sort
-from gff3tool.bin import version
-
-__version__ = version.__version__
 
 def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_defined2=None, logger=None):
     logger_null = logging.getLogger(__name__+'null')
@@ -299,75 +296,3 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     for rmfile in rm_list:
         if os.path.exists(rmfile):
             os.remove(rmfile)
-
-
-if __name__ == '__main__':
-    logger_stderr = logging.getLogger(__name__+'stderr')
-    logger_stderr.setLevel(logging.INFO)
-    stderr_handler = logging.StreamHandler()
-    stderr_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
-    logger_stderr.addHandler(stderr_handler)
-    logger_null = logging.getLogger(__name__+'null')
-    null_handler = logging.NullHandler()
-    logger_null.addHandler(null_handler)
-    import argparse
-    from textwrap import dedent
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
-
-    Inputs:
-    1. GFF3 file 1: Web apollo gff, specify the file name with the -g1 argument
-    2. GFF3 file 2: The other gff, specify the file name with the -g2 argument
-
-    Outputs:
-    1. Merged GFF3: WA models would be append to the end of predicted gff file and be assinged a ID based on the naming system of the predicted gff, specify the file name with the -og argument
-    2. Log report for the integration: specify the file name with the -r argument
-
-    Examples:
-    1. Specify the input, output file names and options using short arguments:
-       python2.7 bin/%(prog)s -g1 CPB_WA_test.gff -g2 LDEC.Models-NALmod.gff3 -og merged.gff -r merged_report.txt
-    2. Specify the input, output file names and options using long arguments:
-       python2.7 bin/%(prog)s --gff_file1 CPB_WA_test.gff --gff_file2 LDEC.Models-NALmod.gff3 --output_gff merged.gff --report_file merged_report.txt
-
-    """))
-    parser.add_argument('-g1', '--gff_file1', type=str, help='Web Apollo GFF3 file')
-    parser.add_argument('-g2', '--gff_file2', type=str, help='The other GFF3 file, such as Maker gff or OGS gff')
-    parser.add_argument('-og', '--output_gff', type=str, help='The merged GFF3 file')
-    parser.add_argument('-r', '--report_file', type=str, help='Log file for the intergration')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-
-
-    test_lv = 1 # debug
-    if test_lv == 0:
-        args = parser.parse_args(['-g', 'annotations.gff'])
-    else:
-        args = parser.parse_args()
-
-    if args.gff_file1:
-        logger_stderr.info('Checking Web Apollo GFF3 file (%s)...', args.gff_file1)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
-        args.gff_file1 = sys.stdin
-        logger_stderr.info('Reading from STDIN...')
-    else: # no input
-        parser.print_help()
-        sys.exit(1)
-
-    if args.gff_file2:
-        logger_stderr.info('Checking Predicted GFF3 file (%s)...', args.gff_file2)
-    elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
-        args.gff_file2 = sys.stdin
-        logger_stderr.info('Reading from STDIN...')
-    else: # no input
-        parser.print_help()
-        sys.exit(2)
-
-    if args.report_file:
-        logger_stderr.info('Writing validation report (%s)...\n', args.report_file)
-        report_fh = open(args.report_file, 'wb')
-    else:
-        report_fh = open('merge_report.txt', 'wb')
-
-    if not args.output_gff:
-        args.output_gff='merged.gff'
-
-    main(args.gff_file1, args.gff_file2, args.output_gff, report_fh, logger=logger_stderr)
-
