@@ -117,6 +117,7 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Operating System :: POSIX :: Linux',
         'Operating System :: Microsoft :: Windows',
+        'Operating System :: MacOS :: MacOS X',
         # Indicate who your project is intended for
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
