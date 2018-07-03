@@ -1,11 +1,16 @@
 sudo: required
 
-os: linux
-language: python
-python: 2.7
-
-install:
-  - pip install .
+matrix:
+  include:
+  - os: linux
+    language: python
+    python: 2.7
+    install:
+      - pip install .
+  - os: osx
+    language: generic
+    install:
+      - pip2 install .
 
 script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
