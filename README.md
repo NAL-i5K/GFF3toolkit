@@ -28,6 +28,10 @@ cd GFF3toolkit
 pip install .
 ```
 
+### Troubleshooting
+
+When installing gff3tool, if you found the package was built through wheel (bdist_wheel) but not setup.py, please try to access PyPI by utilizing the `--no-cache-dir` option(pip v6.0 or newer).
+
 ## Current Functions
 
 * [Detect GFF3 format errors](#detect-gff3-format-errors-back)
