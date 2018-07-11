@@ -9,6 +9,7 @@ from __future__ import print_function
 import os
 import sys
 import logging
+from gff3tool.lib.utils import remove_files_from_list
 from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.ERROR as ERROR
 import gff3tool.lib.function4gff as function4gff
@@ -118,9 +119,7 @@ def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
 
     logger.info('Removing unnecessary files...')
     rm_list = ['tmp_cds.fa', 'tmp_cds.fa.nhr', 'tmp_cds.fa.nin', 'tmp_cds.fa.nsq', 'blastn.out', 'GeneModelwithMultipleIsoforms.txt','ck_wrong_split.report']
-    for rmfile in rm_list:
-        if os.path.exists(rmfile):
-            os.remove(rmfile)
+    remove_files_from_list(rm_list)
 
     if len(eSet):
         return eSet

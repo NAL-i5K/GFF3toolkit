@@ -16,8 +16,9 @@ import sys
 import re
 import logging
 import os
-from gff3tool.lib.gff3 import Gff3
 from gff3tool.lib import replace_OGS
+from gff3tool.lib.gff3 import Gff3
+from gff3tool.lib.utils import remove_files_from_list
 import gff3tool.bin.gff3_sort as gff3_sort
 
 def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_defined2=None, logger=None):
@@ -293,6 +294,4 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     ReplaceGroups.name2id(gff3M)
     gff3M.write(output_gff)
     rm_list = ['WA_sorted.gff', 'other_sorted.gff']
-    for rmfile in rm_list:
-        if os.path.exists(rmfile):
-            os.remove(rmfile)
+    remove_files_from_list(rm_list)
