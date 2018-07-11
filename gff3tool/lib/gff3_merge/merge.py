@@ -44,13 +44,13 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
 
     logger.info('Replacing...')
     u1_types = set()
-    if user_defined1 != None:
+    if user_defined1 is not None:
         for line in user_defined1:
             u1_types.add(line[0])
     else:
         u1_types = None
     u2_types = set()
-    if user_defined2 != None:
+    if user_defined2 is not None:
         for line in user_defined2:
             u2_types.add(line[0])
     else:
@@ -77,6 +77,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     rnum, cnum, changed = 0, 0, 0
     cal_type_children = {}
     changed_rootid = set()
+    not_orphan = set()
     for root in roots:
         rnum += 1
         if user_defined1 is None:
@@ -101,6 +102,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
             tags[str(child['attributes']['replace'])] = 0
             for tag in child['attributes']['replace']:
                 if not tag == 'NA':
+                    not_orphan.add(tag)
                     t = gff3M.features[ReplaceGroups.mapName2ID[tag]][0]
                     if user_defined2 is None:
                         tmp = len(t['parents'][0][0]['children'])
@@ -201,7 +203,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                                 children.append(child)
                                 unique.add(child['line_raw'])
                 children = sorted(children, key=lambda k: k['line_index'])
-        elif root['attributes']['ID'] in changed_rootid and user_defined1 != None:
+        elif root['attributes']['ID'] in changed_rootid and user_defined1 is not None:
             children = []
             unique = set()
             if root['type'] in u1_types:
@@ -223,7 +225,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                 #print(child['attributes'])
                 if child['attributes'].has_key('replace_type'):
                     for i in root['attributes']['replace']:
-                        tname, tid, gid = 'NA', 'NA', 'NA'
+                        tname, tid, gid, tmpid = 'NA', 'NA', 'NA', 'NA'
                         if not i == 'NA':
                             t = gff3M.features[ReplaceGroups.mapName2ID[i]][0]
                             try:
@@ -241,7 +243,10 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                                 for tp in gff3M.collect_roots(t):
                                     gid_list.append(tp['attributes']['ID'])
                                 gid = ','.join(gid_list)
-                        report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\n'.format(ReplaceGroups.mapType2Log[child['attributes']['replace_type']], gid, tid, tname, child['attributes']['ID']))
+                        tmpid = child['attributes']['ID']
+                        if tname not in not_orphan:
+                            tmpid = 'NA'
+                        report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\n'.format(ReplaceGroups.mapType2Log[child['attributes']['replace_type']], gid, tid, tname, tmpid))
                     del child['attributes']['replace_type']
                     cflag += 1
                 if child['attributes'].has_key('replace'):
