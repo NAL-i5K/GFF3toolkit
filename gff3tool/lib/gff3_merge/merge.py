@@ -59,7 +59,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     transcripts = []
     unique = set()
     for line in gff3.lines:
-        if user_defined1 == None:
+        if user_defined1 is None:
             try:
                 if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
                     roots.append(line)
@@ -79,7 +79,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     changed_rootid = set()
     for root in roots:
         rnum += 1
-        if user_defined1 == None:
+        if user_defined1 is None:
             children = root['children']
         else:
             children = []
@@ -102,7 +102,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
             for tag in child['attributes']['replace']:
                 if not tag == 'NA':
                     t = gff3M.features[ReplaceGroups.mapName2ID[tag]][0]
-                    if user_defined2 == None:
+                    if user_defined2 is None:
                         tmp = len(t['parents'][0][0]['children'])
                     else:
                         if len(t['parents']) == 0 and t['type'] in u2_types:
@@ -119,7 +119,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                 root['attributes']['replace_type'] = 'multi-ref'
                 for child in children:
                     child['attributes']['replace_type'] = 'multi-ref'
-                if user_defined1 == None:
+                if user_defined1 is None:
                     ans = ReplaceGroups.replacer_multi(root, ReplaceGroups, gff3M, u1_types, u2_types)
                 else:
                     ans = ReplaceGroups.replacer_multi(root, ReplaceGroups, gff3M, u1_types, u2_types, gff3)
@@ -169,7 +169,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     transcripts = []
     unique = set()
     for line in gff3M.lines:
-        if user_defined2 == None:
+        if user_defined2 is None:
             try:
                 if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
                     roots.append(line)
@@ -186,7 +186,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     #roots = [line for line in gff3M.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
     for root in roots:
         if root['attributes']['ID'] not in changed_rootid:
-            if user_defined2 == None:
+            if user_defined2 is None:
                 children = root['children']
 
             else:
@@ -232,7 +232,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                                 tname = t['attributes']['ID']
                             tid = t['attributes']['ID']
                             gid_list = list()
-                            if user_defined2 == None:
+                            if user_defined2 is None:
                                 for tp_line in t['parents']:
                                     for tp in tp_line:
                                         gid_list.append(tp['attributes']['ID'])
@@ -249,7 +249,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                 if cflag == 0:
                     gid = None
                     gid_list = list()
-                    if user_defined2 == None:
+                    if user_defined2 is None:
                         for p_line in child['parents']:
                             for p in p_line:
                                 gid_list.append(p['attributes']['ID'])
@@ -268,7 +268,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                         tname = t['attributes']['Name']
                         tid = t['attributes']['ID']
                         gid_list = list()
-                        if user_defined2 == None:
+                        if user_defined2 is None:
                             for tp_line in t['parents']:
                                 for tp in tp_line:
                                     gid_list.append(tp['attributes']['ID'])

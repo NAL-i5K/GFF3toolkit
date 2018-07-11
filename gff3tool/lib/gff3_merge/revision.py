@@ -117,7 +117,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
     transcripts = []
     unique = set()
     for line in gff3.lines:
-        if user_defined1 == None:
+        if user_defined1 is None:
             try:
                 if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
                     roots.append(line)
@@ -136,7 +136,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
         if line['attributes'].has_key('replace') and line.has_key('children'):
             for index in range(len(line['attributes']['replace'])):
                 line['attributes']['replace'][index] = re.sub('\s+', '', line['attributes']['replace'][index])
-            if user_defined1 == None:
+            if user_defined1 is None:
                 children = line['children']
             else:
                 children = []
@@ -167,14 +167,14 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                     j = str(sorted(child['attributes']['replace']))
                     if not i == j:
                         print '[Warning!] replace tag at gene level ({0:s}) is not consistent with that at mRNA level ({1:s})'.format(i,j)
-            if user_defined1 == None:
+            if user_defined1 is None:
                 del line['attributes']['replace']
             else:
                 if line['type'] not in u_types:
                     del line['attributes']['replace']
 
             # add an exon features with the same coordiantes to the ncRNA feature if the ncRNA does not contain at least one exon.
-            if user_defined1 == None:
+            if user_defined1 is None:
                 children = line['children']
             else:
                 children = []
@@ -218,7 +218,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                     gff3.remove(line)
         if auto:
             if line.has_key('children'):
-                if user_defined1 == None:
+                if user_defined1 is None:
                     children = line['children']
                 else:
                     children = []

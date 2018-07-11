@@ -276,7 +276,7 @@ class Groups(object):
         transcripts = []
         unique = set()
         for line in WAgff.lines:
-            if user_defined1 == None:
+            if user_defined1 is None:
                 try:
                     if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
                         roots.append(line)
@@ -293,7 +293,7 @@ class Groups(object):
         #roots = [line for line in WAgff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
         uniqueReplaceID = {}
         for root in roots:
-            if user_defined1 == None:
+            if user_defined1 is None:
                 children = root['children']
             else:
                 children = []
@@ -307,7 +307,7 @@ class Groups(object):
             for child in children:
                 child['attributes']['replace'].sort()
                 if len(child['attributes']['replace']) == 1 and child['attributes']['replace'][0] == 'NA':
-                    if user_defined1 == None:
+                    if user_defined1 is None:
                         parent = child['parents']
                         childrtag = {}
                         for parent_lines in parent:
@@ -354,7 +354,7 @@ class Groups(object):
         for k, v in uniqueReplaceID.items():
             parents = {} # for each replace tag, all the gene IDs involved.
             for i in v:
-                if user_defined1 == None:
+                if user_defined1 is None:
                     parent = i['parents']
                     for parent_lines in parent:
                         for line in parent_lines:
@@ -366,7 +366,7 @@ class Groups(object):
 
             for i in v:
                 if k == 'NA':
-                    if user_defined1 == None:
+                    if user_defined1 is None:
                         parent = i['parents']
                         childrtag = {}
                         for parent_lines in parent:
@@ -411,7 +411,7 @@ class Groups(object):
             '''
 
         for root in roots:
-            if user_defined1 == None:
+            if user_defined1 is None:
                 children = root['children']
             else:
                 children = []
@@ -443,7 +443,7 @@ class Groups(object):
                 print('Warning! Two or more replace types for a gene model: {0:s}. This gene model is not processed!'.format(root['attributes']['ID']))
                 root['attributes']['replace_type'] = 'internal_review'
         for root in roots:
-            if user_defined1 == None:
+            if user_defined1 is None:
                 children = root['children']
             else:
                 children = []
@@ -458,7 +458,7 @@ class Groups(object):
             for child in children:
                 if child['attributes'].has_key('status') and (child['attributes']['status'] == 'Delete' or child['attributes']['status'] == 'delete'):
                     child['attributes']['replace_type'] == 'Delete'
-                    if user_defined1 == None:
+                    if user_defined1 is None:
                         for p_line in child['parents']:
                             for p in p_line:
                                 p['attributes']['replace_type'] == 'Delete'
@@ -469,14 +469,14 @@ class Groups(object):
 
     def name2id(self, Mgff, user_defined2=None):
         u_types = set()
-        if user_defined2 != None:
+        if user_defined2 is not None:
             for line in user_defined2:
                 u_types.add(line[0])
         roots = []
         transcripts = []
         unique = set()
         for line in Mgff.lines:
-            if user_defined2 == None:
+            if user_defined2 is None:
                 try:
                     if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
                         roots.append(line)
@@ -509,7 +509,7 @@ class Groups(object):
                 #digitlen = len(IDnumber)
                 #if int(IDnumber) > maxIDnumber:
                     #maxIDnumber = int(IDnumber)
-            if user_defined2 == None:
+            if user_defined2 is None:
                 children = root['children']
             else:
                 children = []
@@ -818,7 +818,7 @@ class Groups(object):
                     Mgff.remove(t['line'])
                 else:
                     t['line']['line_status'] = 'removed'
-        if u1_types != None:
+        if u1_types is not None:
             children = []
             unique = set()
             if newtarget['type'] in u1_types:
@@ -849,7 +849,7 @@ class Groups(object):
         mid = []
         newtarget=line
         if line['attributes']['replace_type'] == 'multi-ref':
-            if u1_types == None:
+            if u1_types is None:
                 children = line['children']
             else:
                 children = []
@@ -876,7 +876,7 @@ class Groups(object):
             replace_parent = {}
             for ri in line['attributes']['replace']:
                 feature = Mgff.features[Name2ID[ri]][0]
-                if u2_types == None:
+                if u2_types is None:
                     parents = feature['parents']
                     for p_line in parents:
                         for p in p_line:
@@ -892,7 +892,7 @@ class Groups(object):
             tmp=[]
             for k in replace_parent.keys():
                 feature = Mgff.features[k][0]
-                if u2_types == None:
+                if u2_types is None:
                     children = feature['children']
                 else:
                     children = []
@@ -911,11 +911,11 @@ class Groups(object):
                         count += 1
                 if count == num:
                     feature['line_status'] = 'removed'
-                else: # Merge the genes locate in the same locus
-                    feature2 = Mgff.features[newid['ID']][0]
-                    feature['attributes']['replace'] = feature2['attributes']['replace']
-                    mresult = merge(Mgff, feature, feature2, originalID)
-                    tmp.extend(mresult)
+                #else: # Merge the genes locate in the same locus
+                #    feature2 = Mgff.features[newid['ID']][0]
+                #    feature['attributes']['replace'] = feature2['attributes']['replace']
+                #    mresult = merge(Mgff, feature, feature2, originalID)
+                #    tmp.extend(mresult)
 
             if len(tmp)>=1:
                 pass

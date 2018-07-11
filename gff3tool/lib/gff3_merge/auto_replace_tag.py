@@ -42,7 +42,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     makeblastdb_path = os.path.join(lib_path, 'ncbi-blast+', 'bin', 'makeblastdb')
     blastn_path = os.path.join(lib_path, 'ncbi-blast+', 'bin', 'blastn')
 
-    if user_defined1 == None:
+    if user_defined1 is None:
         roots =[]
         for line in gff3_1.lines:
             try:
@@ -83,7 +83,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
                     id = line['attributes']['ID']
                     transcripts.add(id)
     gff2_transcripts_type = set()
-    if user_defined2 == None:
+    if user_defined2 is None:
         for line in gff3_2.lines:
             for child in root['children']:
                 if 'type' in child:
@@ -110,7 +110,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
 
     logger.info('Extract sequences from {0:s}...'.format(gff1))
     out1 = os.path.join(tmpdir, 'gff1')
-    if user_defined1 == None:
+    if user_defined1 is None:
         logger.info('\tExtract CDS sequences...')
         gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
         logger.info('\tExtract premature transcript sequences...')
@@ -142,7 +142,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
 
     logger.info('Extract sequences from {0:s}...'.format(gff2))
     out2 = os.path.join(tmpdir, 'gff2')
-    if user_defined2 == None:
+    if user_defined2 is None:
         logger.info('\tExtract CDS sequences...')
         gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out2, logger=logger_null)
         logger.info('\tExtract premature transcript sequences...')
@@ -202,7 +202,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
             except:
                 pass
     if len(transcripts) >0:
-        if user_defined2 == None:
+        if user_defined2 is None:
             bdb = '{0:s}_{1:s}'.format(out2, 'trans.fa')
         else:
             bdb = '{0:s}_{1:s}'.format(out2, 'cds.fa')
