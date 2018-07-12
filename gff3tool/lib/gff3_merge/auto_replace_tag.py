@@ -42,7 +42,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     makeblastdb_path = os.path.join(lib_path, 'ncbi-blast+', 'bin', 'makeblastdb')
     blastn_path = os.path.join(lib_path, 'ncbi-blast+', 'bin', 'blastn')
 
-    if user_defined1 == None:
+    if user_defined1 is None:
         roots =[]
         for line in gff3_1.lines:
             try:
@@ -82,6 +82,16 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
                 if line['attributes'].has_key('ID'):
                     id = line['attributes']['ID']
                     transcripts.add(id)
+    gff2_transcripts_type = set()
+    if user_defined2 is None:
+        for line in gff3_2.lines:
+            for child in root['children']:
+                if 'type' in child:
+                    gff2_transcripts_type.add(child['type'])
+    else:
+        for lines in user_defined2:
+            gff2_transcripts_type.add(lines[0])
+
     if all_assign:
         # modified gff1 without any relace attributes
         gff3_1_mod = os.path.join(tmpdir, 'gff1_mod.gff3')
@@ -100,7 +110,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
 
     logger.info('Extract sequences from {0:s}...'.format(gff1))
     out1 = os.path.join(tmpdir, 'gff1')
-    if user_defined1 == None:
+    if user_defined1 is None:
         logger.info('\tExtract CDS sequences...')
         gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
         logger.info('\tExtract premature transcript sequences...')
@@ -132,7 +142,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
 
     logger.info('Extract sequences from {0:s}...'.format(gff2))
     out2 = os.path.join(tmpdir, 'gff2')
-    if user_defined2 == None:
+    if user_defined2 is None:
         logger.info('\tExtract CDS sequences...')
         gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out2, logger=logger_null)
         logger.info('\tExtract premature transcript sequences...')
@@ -174,6 +184,11 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     binput = '{0:s}_{1:s}'.format(out1, 'cds.fa')
     bout = os.path.join(tmpdir, 'blastn.out')
     subprocess.Popen([blastn_path, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
+    # update out1_type
+    transcripts_type.update(gff2_transcripts_type)
+    with open(out1_type, "w") as trans_type:
+        for line in transcripts_type:
+            trans_type.write(line+"\n")
     logger.info('Find CDS matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))
     cmd = os.path.join(lib_path, 'auto_assignment', 'find_match.pl')
     report1 = os.path.join(tmpdir, 'report1.txt')
@@ -187,7 +202,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
             except:
                 pass
     if len(transcripts) >0:
-        if user_defined2 == None:
+        if user_defined2 is None:
             bdb = '{0:s}_{1:s}'.format(out2, 'trans.fa')
         else:
             bdb = '{0:s}_{1:s}'.format(out2, 'cds.fa')

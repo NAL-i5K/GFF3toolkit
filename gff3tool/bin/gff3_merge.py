@@ -9,7 +9,7 @@ from gff3tool.bin import version
 __version__ = version.__version__
 
 def check_replace(gff, user_defined1=None):
-    if user_defined1 != None:
+    if user_defined1 is not None:
         u_type = set()
         for line in user_defined1:
             u_type.add(line[0])
