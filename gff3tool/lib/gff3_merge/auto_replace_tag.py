@@ -210,6 +210,11 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
         subprocess.Popen([makeblastdb_path, '-in', bdb, '-dbtype', 'nucl']).wait()
         print('\n')
         logger.info('Sequence alignment for transcript fasta files between {0:s} and {1:s}...'.format(gff1, gff2))
+        if user_defined1 is None:
+            binput  = '{0:s}_{1:s}'.format(out1, 'trans.fa')
+        else:
+            binput = '{0:s}_{1:s}'.format(out1, 'cds.fa')
+            bout = '{0:s}/{1:s}'.format(tmpdir, 'blastn.out')
         subprocess.Popen([blastn_path, '-db', bdb, '-query', binput,'-out', bout, '-evalue', '1e-10', '-penalty', '-15', '-ungapped', '-outfmt', '6']).wait()
 
         logger.info('Find transcript matched pairs between {0:s} and {1:s}...'.format(gff1, gff2))
