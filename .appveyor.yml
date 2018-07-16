@@ -19,9 +19,6 @@ platform: x64
 
 configuration: Release
 
-services:
-  - postgresql96
-
 install:
   - cd c:\projects\GFF3toolkit
   - pip install .
