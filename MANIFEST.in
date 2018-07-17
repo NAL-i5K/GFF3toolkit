@@ -1,1 +1,2 @@
 graft gff3tool
+include README.md
