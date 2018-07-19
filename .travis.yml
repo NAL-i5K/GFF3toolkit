@@ -7,10 +7,19 @@ matrix:
     python: 2.7
     install:
       - pip install .
+  - os: linux
+    language: python
+    python: 2.7
+    install:
+      - pip install gff3tool --no-cache
   - os: osx
     language: generic
     install:
       - pip2 install .
+  - os: osx
+    language: generic
+    install:
+      - pip2 install gff3tool --no-cache
 
 script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
