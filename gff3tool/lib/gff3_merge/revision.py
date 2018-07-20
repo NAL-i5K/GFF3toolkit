@@ -1,15 +1,6 @@
-#! /usr/local/bin/python2.7
-# Copyright (C) 2015  Mei-Ju Chen <arbula [at] gmail [dot] com>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-
+#!/usr/bin/env python2.7
 """
 After the revision of gff file done by annotators (spreadsheet), incorporating the revised information into the Web Apollo gff before gff integration. Additionally, if there are features containing 'replace' field at gene level, add 'replace' field to every child level of the gene and then delete the replace field of the gene.
-
-Changelog:
 """
 
 import sys
@@ -17,6 +8,7 @@ import re
 import logging
 import copy
 from gff3tool.lib.gff3 import Gff3
+
 
 def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=None, auto=True, logger=None):
     logger_null = logging.getLogger(__name__+'null')

@@ -1,25 +1,16 @@
-#! /usr/local/bin/python2.7
-# Copyright (C) 2015  Mei-Ju Chen <arbula [at] gmail [dot] com>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-
+#! /usr/bin/env python2.7
 """
 Replace predicted models with Web Apollo models accoriding to attribute, relace=
-
-Changelog:
 """
 
 import sys
 import re
 import logging
-import os
 from gff3tool.lib import replace_OGS
 from gff3tool.lib.gff3 import Gff3
 from gff3tool.lib.utils import remove_files_from_list
 import gff3tool.bin.gff3_sort as gff3_sort
+
 
 def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_defined2=None, logger=None):
     logger_null = logging.getLogger(__name__+'null')
