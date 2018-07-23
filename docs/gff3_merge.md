@@ -11,7 +11,7 @@ gff3_merge.py [-h] [-g1 GFF_FILE1] [-g2 GFF_FILE2] [-f FASTA] [-u1 USER_DEFINED_
 
 ## Inputs
 1. GFF3 file with new or modified annotations, to be merged into GFF3 file 2. Specify the file name with the -g1 or --gff_file1 argument. Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcript to have an ID attribute in column 9. If replace tags are present (see below), these tags **must** refer to transcript/mRNA model IDs in the reference GFF3 file, specified by -g2. 
-2. Reference models in GFF3 format: Specify the file name with the -g2 or --gff_file2 argument. The models from -g1 will be merged into this file, replacing models in -g2. Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcript to have an ID attribute in column 9. If the reference GFF3 file contains gene models with multiple isoforms, please review the section "[Odd use cases](https://github.com/NAL-i5K/GFF3toolkit/wiki/Merge-two-GFF3-files#odd-use-cases)" below prior to running the program.
+2. Reference models in GFF3 format: Specify the file name with the -g2 or --gff_file2 argument. The models from -g1 will be merged into this file, replacing models in -g2. Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcript to have an ID attribute in column 9. If the reference GFF3 file contains gene models with multiple isoforms, please review the section "[Odd use cases](Merge-two-GFF3-files#odd-use-cases.md)" below prior to running the program.
 3. Fasta file: Specify the file name with the -f or --fasta argument. This file **must** be the Fasta file that the GFF3 seqids and coordinates in both GFF3 files refer to. For more information, refer to the [GFF3 specification](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md).
 
 ## Outputs
@@ -51,4 +51,4 @@ gff3_merge.py [-h] [-g1 GFF_FILE1] [-g2 GFF_FILE2] [-f FASTA] [-u1 USER_DEFINED_
     - show program's version number and exit
 
 ## More information 
-- [gff3_merge.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Merge-two-GFF3-files)
+- [gff3_merge.py full documentation](Merge-two-GFF3-files.md)

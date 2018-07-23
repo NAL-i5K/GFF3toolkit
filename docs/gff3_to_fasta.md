@@ -5,7 +5,7 @@ Extract sequences from specific regions of genome based on gff file.
 ## Features
 
 * **Incorporation of [gff3.py](https://github.com/hotdogee/gff3-py)**: `gff3.py` is contributed by [Han Lin](https://github.com/hotdogee) which uses simple data structures to parse a [`GFF3`] file into a structure composed of simple python [`dict`] and [`list`].
-* **Validation**: Validate the [GFF3 formatting errors](https://github.com/NAL-i5K/GFF3toolkit/wiki/Detection-of-GFF3-format-errors) utilizing [QC methods](tree/master/bin/gff-QC.py) contributed by the [I5K Workspace@NAL team](https://i5k.nal.usda.gov/). Provide `WARNING` messages for gene models that may have incorrect biological sequences generated because of [`GFF3`] formatting errors.
+* **Validation**: Validate the [GFF3 formatting errors](Detection-of-GFF3-format-errors.md) utilizing [QC methods](tree/master/bin/gff-QC.py) contributed by the [I5K Workspace@NAL team](https://i5k.nal.usda.gov/). Provide `WARNING` messages for gene models that may have incorrect biological sequences generated because of [`GFF3`] formatting errors.
 * **Easy extraction of biological sequences**: Provide options for extracting six types of biological sequences or user-specified type of spliced sequences.
     - **`gene`**: Gene sequence for each record in the [`FASTA`] output. Gene or pseudogene features need to be included in the gff file
     - **`exon`**: Exon sequence for each record in the [`FASTA`] output. Exon features need to be included in the gff file
