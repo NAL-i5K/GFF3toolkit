@@ -1,3 +1,5 @@
+# gff3_merge full documentation
+
 ## Table of Contents  
 
 [Background](#background)

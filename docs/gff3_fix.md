@@ -1,4 +1,4 @@
-# gff3_fix.py
+# gff3_fix readme
 
 ## Usage 
 

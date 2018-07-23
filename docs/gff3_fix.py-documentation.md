@@ -1,7 +1,11 @@
-## Background  
+# gff3_fix full documentation
+
+## Background
+
 The gff3_fix program fixes 30 error types detected by the program [gff3_QC.py](Detection-of-GFF3-format-errors.md). The section 'gff3_fix' lists all error types that currently can be fixed by the gff3_fix.py function (currently 30), including the method used for the fix. (Note that in some cases, this means removing the affected gene model). The section 'Fix function' describes the methods used to fix the error type in question. The section 'Currently no automatic fix available' lists the error types which gff3_fix currently does not handle.
 
 ## gff3_fix
+
 |Error code|Error tag|Fix function|
 |---|---|---|
 Ema0001|Parent feature start and end coordinates exceed those of child features|fix_boundary

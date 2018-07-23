@@ -1,4 +1,4 @@
-# gff3_QC.py
+# gff3_QC readme
 
 ## Usage 
 

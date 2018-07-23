@@ -1,3 +1,5 @@
+# gff3_QC full documentation
+
 ## Background
 
 The GFF3 format is flexible and easy to use for most biologists, but this flexibility also allows many errors to be introduced. This QC program aims to detect over 50 types of formatting errors. 

@@ -1,4 +1,4 @@
-# gff3_to_fasta
+# gff3_to_fasta readme
 
 Extract sequences from specific regions of genome based on gff file.
 

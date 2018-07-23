@@ -1,3 +1,5 @@
+# FAQ
+
 ## Q: When running one of the GFF3-toolkit programs, the program fails with a stack trace error. 
 Usually, this means that there is a problem with the input file. We are working on having each program output error messages with the input file line number. In the meantime, send us your input file and we can help figure out what the problem is. 
 

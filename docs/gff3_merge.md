@@ -1,4 +1,4 @@
-# gff3_merge.py
+# gff3_merge readme
 
 ## Usage 
 
