@@ -1,4 +1,4 @@
-# gff3_QC.py
+# gff3_QC readme
 
 ## Usage 
 
@@ -48,4 +48,4 @@ or
     - show program's version number and exit
 
 ## More information
-- [gff3_QC.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)
+- [gff3_QC.py full documentation](Detection-of-GFF3-format-errors.md)

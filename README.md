@@ -8,7 +8,7 @@
 
 The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md) (Generic Feature Format Version 3) is one of the standard formats to describe and represent genomic features. It is an incredibly flexible, 9-column format, which is easily manipulated by biologists. This flexibility, however, makes it very easy to break the format. We have developed the GFF3toolkit to help identify common problems with GFF3 files; fix 30 of these common problems; sort GFF3 files (which can aid in using down-stream processing programs and custom parsing); merge two GFF3 files into a single, non-redundant GFF3 file; and generate FASTA files from a GFF3 file for many use cases (e.g. feature types beyond mRNA).
 
-[Frequently Asked Questions/FAQ](https://github.com/NAL-i5K/GFF3toolkit/wiki/FAQ)
+[Frequently Asked Questions/FAQ](docs/FAQ.md)
 
 ## Prerequisite
 
@@ -47,7 +47,7 @@ When installing gff3tool, if you found the package was built through wheel (bdis
 
 * `gff3_QC` - Detection of GFF format errors (~50 types of errors).
   * [gff3_QC readme](docs/gff3_QC.md)
-  * [gff3_QC full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Detection-of-GFF3-format-errors)
+  * [gff3_QC full documentation](docs/Detection-of-GFF3-format-errors.md)
   * Quick start:
     `gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt`
   * Please refer to [gff3tool/lib/ERROR/ERROR.py](gff3tool/lib/ERROR/ERROR.py) to see the full list of Error codes and the corresponding Error tags.
@@ -56,7 +56,7 @@ When installing gff3tool, if you found the package was built through wheel (bdis
 
 * `gff3_fix` - Correct GFF3 errors detected by gff3_QC.py (30 types of errors).
   * [gff3_fix readme](docs/gff3_fix.md)
-  * [gff3_fix full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/gff3_fix.py-documentation/)
+  * [gff3_fix full documentation](docs/gff3_fix.py-documentation.md)
   * Quick start:
     `gff3_fix -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3`
 
@@ -64,7 +64,7 @@ When installing gff3tool, if you found the package was built through wheel (bdis
 
 * `gff3_merge` - Merge two GFF3 files
   * [gff3_merge readme](docs/gff3_merge.md)
-  * [gff3_merge full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/Merge-two-GFF3-files)
+  * [gff3_merge full documentation](docs/Merge-two-GFF3-files.md)
   * Quick start:
     * Merge the two file with auto-assignment of replace tags (default)
       `gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt`
