@@ -1,12 +1,4 @@
-#! /usr/local/bin/python2.7
-# Contributed by Mei-Ju May Chen <arbula [at] gmail [dot] com> (2015)
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-
-
+#!/usr/bin/env python2.7
 INFO = {
     'Ema0001': 'Parent feature start and end coordinates exceed those of child features',
     'Ema0002': 'Protein sequence contains internal stop codons',
@@ -62,4 +54,3 @@ INFO = {
     'Esf0040': 'Value of Is_circular attribute is not "true"',
     'Esf0041': 'Unknown reserved (uppercase) attribute'
 }
-

@@ -1,18 +1,10 @@
-#! /usr/local/bin/python2.7
-# Contributed by Mei-Ju Chen <arbula [at] gmail [dot] com> (2015)
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-
-import sys
+#!/usr/bin/env python2.7
 import re
 import logging
 import subprocess
 import os
 try:
-    from subprocess import DEVNULL # py3k
+    from subprocess import DEVNULL  # py3k
 except ImportError:
     DEVNULL = open(os.devnull, 'wb')
 # try to import from project first
