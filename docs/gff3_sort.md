@@ -1,4 +1,4 @@
-# gff3_sort.py 
+# gff3_sort readme
 
 Sort features in a gff3 file by according to their order on a scaffold, their coordinates on a scaffold, and parent-child relationships.
 

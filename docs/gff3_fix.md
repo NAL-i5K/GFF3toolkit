@@ -1,4 +1,4 @@
-# gff3_fix.py
+# gff3_fix readme
 
 ## Usage 
 
@@ -29,4 +29,4 @@ Python 2.7
     - show program's version number and exit
 
 ## More information
-- [gff3_fix.py full documentation](https://github.com/NAL-i5K/GFF3toolkit/wiki/gff3_fix.py-documentation)
+- [gff3_fix.py full documentation](gff3_fix.py-documentation.md)
