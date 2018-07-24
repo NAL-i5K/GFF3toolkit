@@ -11,7 +11,7 @@ matrix:
     language: python
     python: 2.7
     install:
-      - pip install gff3tool --no-cache
+      - pip install --no-cache-dir gff3tool
   - os: osx
     language: generic
     install:
@@ -19,7 +19,7 @@ matrix:
   - os: osx
     language: generic
     install:
-      - pip2 install gff3tool --no-cache
+      - pip2 install --no-cache-dir gff3tool
 
 script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
