@@ -20,6 +20,7 @@ platform: x64
 configuration: Release
 
 install:
+  - pip install wheel
   - cd c:\projects\GFF3toolkit
   - pip install .
 

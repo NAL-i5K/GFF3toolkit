@@ -7,6 +7,7 @@ https://github.com/pypa/sampleproject
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 from setuptools.command.install import install
+from distutils.command.build import build
 # To use a consistent encoding
 from codecs import open
 from os import path, remove, mkdir
@@ -15,11 +16,19 @@ import tarfile
 import urllib
 import platform
 import sys
+from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+
 
 here = path.abspath(path.dirname(__file__))
 
 
-class CustomInstallCommand(install):
+class bdist_wheel(_bdist_wheel):
+    def finalize_options(self):
+        _bdist_wheel.finalize_options(self)
+        # Mark us as not a pure python package
+        self.root_is_pure = False
+
+class CustomBuildCommand(build):
     def run(self):
         platform_system = platform.system()   # Linux: Linux; Mac:Darwin; Windows: Windows
 
@@ -47,8 +56,6 @@ class CustomInstallCommand(install):
             remove(blast_file)
         if path.exists(extract_path):
             shutil.rmtree(extract_path)
-        install.run(self)  # run default installation operation
-
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -149,7 +156,8 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),  # Required
 
     cmdclass={
-        'install': CustomInstallCommand
+        'build': CustomBuildCommand,
+        'bdist_wheel': bdist_wheel
     },
 
     # This field lists other packages that your project depends on to run.
