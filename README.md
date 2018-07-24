@@ -23,11 +23,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 ### Latest version
 
-``` shell
-git clone https://github.com/NAL-i5K/GFF3toolkit/
-cd GFF3toolkit
-pip install .
-```
+`pip install git+https://github.com/NAL-i5K/GFF3toolkit.git`
 
 ### Troubleshooting
 
