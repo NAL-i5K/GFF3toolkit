@@ -14,7 +14,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 ## Prerequisite
 
 * Python 2.7
-  * [wheel](https://pythonwheels.com/) (should have been installed for most python distributions)
+  * [wheel](https://pythonwheels.com/) (should have been installed for most python distributions, if you don't have, use `pip install wheel` to install it.)
 * Perl
 
 ## Installation
