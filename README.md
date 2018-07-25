@@ -13,6 +13,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 ## Prerequisite
 
 * Python 2.7
+  * [wheel](https://pythonwheels.com/) (should have been installed for most python distributions)
 * Perl
 
 ## Installation
@@ -28,10 +29,6 @@ git clone https://github.com/NAL-i5K/GFF3toolkit/
 cd GFF3toolkit
 pip install .
 ```
-
-### Troubleshooting
-
-When installing gff3tool, if you found the package was built through wheel (bdist_wheel) but not setup.py, please try to access PyPI by utilizing the `--no-cache-dir` option(pip v6.0 or newer).
 
 ## Current Functions
 
