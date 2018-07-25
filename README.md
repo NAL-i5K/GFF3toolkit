@@ -96,11 +96,11 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
   * Functions for gff3 processing
 * [gff3tool/lib/gff3/gff3.py](gff3tool/lib/gff3/gff3.py)
   * This program was contributed by Han Lin (http://gff3-py.readthedocs.org/en/latest/readme.html). Code was modified for customized usage.
-* [gff3tool/lib/inter_model](lib/inter_model)/
+* [gff3tool/lib/inter_model](gff3tool/lib/inter_model)/
   * QC functions for processing multiple features between models (inter-model) in a GFF3 file.
-* [gff3tool/lib/intra_model](lib/intra_model)/
+* [gff3tool/lib/intra_model](gff3tool/lib/intra_model)/
   * QC functions for processing multiple features within a model (intra-model) in a GFF3 file.
-* [gff3tool/lib/single_feature](lib/single_feature)/
+* [gff3tool/lib/single_feature](gff3tool/lib/single_feature)/
   * QC functions for processing single features in a GFF3 file.
 
 ## Authors
