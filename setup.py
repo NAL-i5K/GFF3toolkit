@@ -30,7 +30,8 @@ class bdist_wheel(_bdist_wheel):
 
 class CustomBuildCommand(build):
     def run(self):
-        platform_system = platform.system()   # Linux: Linux; Mac:Darwin; Windows: Windows
+        platform_system = platform.system(
+        )  # Linux: Linux; Mac:Darwin; Windows: Windows
 
         blast_path = path.join(here, 'gff3tool', 'lib', 'ncbi-blast+')
         blast_file = path.join(blast_path, 'blast.tgz')
@@ -38,13 +39,21 @@ class CustomBuildCommand(build):
         mkdir(blast_path)
 
         if platform_system == 'Linux':
-            urllib.urlretrieve('https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz', blast_file)
+            urllib.urlretrieve(
+                'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz',
+                blast_file)
         elif platform_system == 'Windows':
-            urllib.urlretrieve('https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-win64.tar.gz', blast_file)
+            urllib.urlretrieve(
+                'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-win64.tar.gz',
+                blast_file)
         elif platform_system == 'Darwin':
-            urllib.urlretrieve('https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-universal-macosx.tar.gz', blast_file)
+            urllib.urlretrieve(
+                'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-universal-macosx.tar.gz',
+                blast_file)
         else:
-            sys.error('GFF3 Toolkit currently only supports linux, windows, and MacOS')
+            sys.error(
+                'GFF3 Toolkit currently only supports linux, windows, and MacOS'
+            )
 
         tar = tarfile.open(blast_file, 'r:gz')
         tar.extractall(blast_path)
@@ -61,9 +70,12 @@ class CustomBuildCommand(build):
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+version = {}
+with open(path.join(here, 'gff3tool', 'bin', 'version.py')) as fp:
+    exec (fp.read(), version)
+
 # Arguments marked as "Required" below must be included for upload to PyPI.
 # Fields marked as "Optional" may be commented out.
-
 setup(
     # This is the name of your project. The first time you publish this
     # package, this name will be registered for you. It will determine how
@@ -84,7 +96,7 @@ setup(
     # For a discussion on single-sourcing the version across setup.py and the
     # project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.4.2',  # Required
+    version=version['__version__'],  # Required
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
