@@ -102,10 +102,3 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
   * QC functions for processing multiple features within a model (intra-model) in a GFF3 file.
 * [gff3tool/lib/single_feature](gff3tool/lib/single_feature)/
   * QC functions for processing single features in a GFF3 file.
-
-## Authors
-
-* Monica Poelchau
-* Mei-Ju May Chen
-* Li-Mei Chiang
-* Yi Hsiao
