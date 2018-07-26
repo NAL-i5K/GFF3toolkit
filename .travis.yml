@@ -24,7 +24,7 @@ matrix:
     language: ruby
     rvm: 2.2
     before_script: gem install awesome_bot
-    script: awesome_bot --allow-redirect --allow-dupe README.md  # only this instance will check the document
+    script: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md # only this instance will check the documents
 
 script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
