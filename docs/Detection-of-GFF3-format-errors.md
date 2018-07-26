@@ -13,7 +13,7 @@ In addition, we distinguish between errors that apply to protein-coding genes in
 
 Below we list all errors currently considered by gff3_QC.py, including the error code, the error tag (a brief explanation of the error), and whether the error is checked for non-canonical gene models (when using the –noncg argument).
 
-View the [gff3_QC.py readme](https://github.com/NAL-i5K/GFF3toolkit/blob/master/gff3_QC.md) for instructions on how to run the program.
+View the [gff3_QC.py readme](gff3_QC.md) for instructions on how to run the program.
 
 ### Intra-model: Multiple features within a model (Ema)
 The error category 'Intra-model' collects formatting errors that can be found by jointly considering multiple features within a gene model, such as gene, mRNA, exon, and CDS features. Errors in this category are given an 'Error_Code' starting with 'Ema'.
