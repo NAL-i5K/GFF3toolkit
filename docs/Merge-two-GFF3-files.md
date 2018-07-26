@@ -36,7 +36,7 @@ The program gff3_merge.py can be conceptually separated into 3 steps:
 
 Note that all information, including functional information (e.g. Name, Dbxrefs, etc.), from the modified GFF3 file replaces the corresponding reference information in the merged GFF3 file, meaning that any functional information in models slated to be replaced in the reference GFF3 file will NOT be carried over into the merged GFF3 file.
 
-View the [gff3_merge.py readme](https://github.com/NAL-i5K/GFF3toolkit/blob/master/gff3_merge.md) for instructions on how to run the program.
+View the [gff3_merge.py readme](gff3_merge.md) for instructions on how to run the program.
 
 ## Replace Tags 
 ([back](#table-of-contents))
