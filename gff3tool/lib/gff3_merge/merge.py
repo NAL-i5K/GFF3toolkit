@@ -35,22 +35,26 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     ReplaceGroups = replace_OGS.Groups(WAgff=gff3, Pgff=gff3M, outsideNum=1, user_defined1=user_defined1, user_defined2=user_defined2, logger=logger_null)
 
     logger.info('Replacing...')
+    u_types = set()
     u1_types = set()
     if user_defined1 is not None:
         for line in user_defined1:
             u1_types.add(line[0])
+        u_types |= u1_types
     else:
         u1_types = None
     u2_types = set()
     if user_defined2 is not None:
         for line in user_defined2:
             u2_types.add(line[0])
+        u_types |= u2_types
     else:
         u2_types = None
     roots = []
     transcripts = []
     unique = set()
     for line in gff3.lines:
+
         if user_defined1 is None:
             try:
                 if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
@@ -170,7 +174,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
             except:
                 pass
         else:
-            if line['type'] in u2_types:
+            if line['type'] in u_types:
                 transcripts.append(line)
                 for root in gff3M.collect_roots(line):
                     if root['line_raw'] not in unique:
@@ -186,11 +190,11 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
             else:
                 children = []
                 unique = set()
-                if root['type'] in u2_types:
+                if root['type'] in u_types:
                     children.append(root)
                 else:
                     for child in gff3M.collect_descendants(root):
-                        if child['type'] in u2_types:
+                        if child['type'] in u_types:
                             if child['line_raw'] not in unique:
                                 children.append(child)
                                 unique.add(child['line_raw'])
