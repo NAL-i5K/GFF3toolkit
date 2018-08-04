@@ -6,7 +6,6 @@ https://github.com/pypa/sampleproject
 """
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
-from setuptools.command.install import install
 from distutils.command.build import build
 # To use a consistent encoding
 from codecs import open

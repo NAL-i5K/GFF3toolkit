@@ -1,26 +1,14 @@
-#! /usr/local/bin/python2.7
-# -*- coding: utf-8 -*-
-# Copyright (C) 2015 Mei-Ju May Chen <arbula [at] gmail [dot] com>
-
-"""
-
-Changelog:
-"""
 from __future__ import print_function
-from collections import defaultdict
-from itertools import groupby
 try:
     from urllib import quote, unquote
 except ImportError:
     from urllib.parse import quote, unquote
-from textwrap import wrap
 import sys
 import re
 import string
-import copy
 import logging
-import id_processor
-import fix
+from gff3tool.lib import id_processor
+
 logger = logging.getLogger(__name__)
 #log.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
 logger.setLevel(logging.INFO)
@@ -57,7 +45,7 @@ def featureSort(linelist, reverse=False):
         else:
             seq2id[seqnum] = [str(line['line_raw'])]
     keys = sorted(seq2id, key=lambda i: int(i))
-    newlinelist=[]
+    newlinelist = []
     for k in keys:
         ids = seq2id[k]
         d = {}
@@ -67,6 +55,7 @@ def featureSort(linelist, reverse=False):
         for i in id_sorted:
             newlinelist.append(id2line[i])
     return newlinelist
+
 
 def merge(gff, line, line2, oID):
     """

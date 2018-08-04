@@ -119,8 +119,6 @@ def script_main():
         report_fh = open('report.txt', 'wb')
 
 
-    ERROR_INFO = ERROR.INFO
-
     report_fh.write('Line_num\tError_code\tError_tag\n')
     for e in sorted(error_set):
         tag = '[{0:s}]'.format(e['eTag'])
