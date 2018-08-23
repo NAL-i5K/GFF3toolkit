@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-from .auto_replace_tag import *
-from .revision import *
-from .merge import *
+from .merge import main as merge_main
+from .auto_replace_tag import main as auto_replace_tag_main
+from .revision import main as revision_main
 
-__author__ = 'Mei-Ju May Chen'
-__email__ = 'arbula [at] gmail [dot] com'
-__homepage__ = 'https://github.com/NAL-i5K/I5KNAL_OGS'
-__docformat__ = 'restructuredtext'
+__homepage__ = 'https://github.com/NAL-i5K/GFF3toolkit'
+__all__ = ['merge_main', 'auto_replace_tag_main', 'revision_main']
