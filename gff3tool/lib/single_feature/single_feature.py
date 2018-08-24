@@ -6,7 +6,6 @@
 QC functions for processing every single feature in GFF3 file.
 """
 from __future__ import print_function
-import sys
 import re
 import logging
 logger = logging.getLogger(__name__)
@@ -16,7 +15,6 @@ if not logger.handlers:
     lh = logging.StreamHandler()
     lh.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger.addHandler(lh)
-from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.function4gff as function4gff
 import gff3tool.lib.ERROR as ERROR
 

@@ -20,8 +20,6 @@ try:
     from urllib import quote, unquote
 except ImportError:
     from urllib.parse import quote, unquote
-from textwrap import wrap
-import sys
 import re
 import string
 import logging
