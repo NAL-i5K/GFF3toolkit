@@ -76,7 +76,15 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
                     transcripts.add(id)
     gff2_transcripts_type = set()
     if user_defined2 is None:
+        roots = []
         for line in gff3_2.lines:
+            try:
+                if line['line_type'] == 'feature':
+                    if 'Parent' not in line['attributes'] and len(line['attributes']) != 0:
+                        roots.append(line)
+            except KeyError:
+                pass
+        for root in roots:
             for child in root['children']:
                 if 'type' in child:
                     gff2_transcripts_type.add(child['type'])

@@ -1,0 +1,2 @@
+mRNA CDS
+mRNA exon
