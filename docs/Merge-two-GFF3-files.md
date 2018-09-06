@@ -8,6 +8,8 @@
 
 [Automatically assigning replace tags](#automatically-assigning-replace-tags)
 
+[Rules for using user-defined files](#rules-for-using-user-defined-files)
+
 [Rules for adding a replace tag on your own](#rules-for-adding-a-replace-tag-on-your-own)
 
 [Replacing and adding models with  multiple isoforms](#replacing-and-adding-models-with-multiple-isoforms)
@@ -70,12 +72,55 @@ LGIB01000001.1  Gnomon  CDS     359515  359920  .       -       1       ID=cds33
 ### Automatically assigning replace tags
 ([back](#table-of-contents))
 
-You can choose to have the program auto-assign [replace tags](#replace-tags) for you. (This is the default behavior.) **The auto-assignment program ONLY works for mRNA features.** For all other feature types, if there is no replace tag, the program will add 'replace=NA'.  The program will identify which mRNA models from the modified GFF3 file overlap in coding sequence with models from the reference GFF3 file. The program will add a 'replace' attribute with the IDs of overlapping models. Specifically, the program will do the following:
-- Extract CDS and pre-mRNA sequences from mRNA features from both GFF3 files.
-- Use blastn to determine which sequences from the modified and reference GFF3 file align to each other **in their coding sequence**. These parameters are used: `-evalue 1e-10 -penalty -15 -ungapped`
+You can choose to have the program auto-assign [replace tags](#replace-tags) for you. (This is the default behavior.)  The program will identify which models from the modified GFF3 file overlap in coding/non-coding sequence with models from the reference GFF3 file. The program will add a 'replace' attribute with the IDs of overlapping models. Specifically, the program will do the following:
+- Extract CDS and pre-mRNA sequences from mRNA features from both GFF3 files. (For all other feature types, this program will extract transcript and pre-transcript from both GFF3 files)
+- Use blastn to determine which sequences from the modified and reference GFF3 file align to each other **in their coding/non-coding sequence**. These parameters are used: `-evalue 1e-10 -penalty -15 -ungapped`
 - If two models pass the alignment step, the program will add a 'replace' attribute with the ID of each overlapping model to the modified gff3 file.
 - If no reference model overlaps with a new model, then the program will add 'replace=NA'.
 - If one model overlaps another in an intron or UTR (but not within the coding sequence), the auto-assignment program will NOT assign a replace tag. This is because it's not always clear whether the overlapping model should be replaced. You will receive a warning message that this model does not have a replace tag and therefore was not incorporated into the merged gff3 file. You can then go back and manually add a replace tag to the original gff3 file. 
+
+### Rules for using user-defined files
+([back](#table-of-contents))
+
+By default, the program will only use exon to generate spliced sequences for transcripts. If you choose to have the program auto-assign replace tags but there is a model without exon features in your GFF3 files, then you must generate user-defined files for specifying parent and child features for sequences extraction.
+
+**Example**, a user-defined file for extracting CDS sequences from mRNA, using exon to generate spliced sequences for miRNA and using pseudogenic_exon to generate spliced sequences for pseudogenic_transcript.
+
+User-defined file:
+```
+mRNA CDS
+miRNA exon
+pseudogenic_transcript pseudogenic_exon
+```
+
+**Usage**: The user-defined can be specified via **--user_defined_file1** and **--user_defined_file2** argument. You can either give --user_defined_file1 for sequences extraction from updated GFF3 file or give --user_defined_file2 for sequences extraction from reference GFF3 file. Then, the program will use blastn to determine which sequences from the updated and reference GFF3 file align to each other. Specifically, the program will do the blastn with the following query and subject sequences:
+
+- If **--user_defined_file1** is given
+
+Query sequence | Subject sequence
+--- | ---
+user-defined sequences from updated GFF3 file | CDS sequences from reference GFF3 file
+user-defined sequences from updated GFF3 file | transcript sequences from reference GFF3 file
+pre-transcript sequences from updated GFF3 file | pre-transcript from reference GFF3 file
+
+- If **--user_defined_file2** is given
+
+Query sequence | Subject sequence
+--- | ---
+CDS sequences from updated GFF3 file | user-defined sequences from reference GFF3 file
+transcript sequences from updated GFF3 file | user-defined sequences from reference GFF3 file
+pre-transcript sequences from updated GFF3 file | pre-transcript from reference GFF3 file
+
+- If both **--user_defined_file1** and **--user_defined_file2** are given
+
+Query sequence | Subject sequence
+--- | ---
+user-defined sequences from updated GFF3 file | user-defined sequences from reference GFF3 file
+pre-transcript sequences from updated GFF3 file | pre-transcript from reference GFF3 file
+
+**Note**:
+- About the parent-child pair, the parent feature should be a transcript (e.g. mRNA, ncRNA) and the child feature is its children (e.g. exon, CDS).
+- This program will only generate sequences for the parent-child pair in the user-defined file.
 
 ### Rules for adding a replace tag on your own
 ([back](#table-of-contents))
