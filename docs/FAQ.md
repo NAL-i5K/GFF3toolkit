@@ -10,7 +10,7 @@ Usually, this means that there is a problem with the input file. We are working 
 
 ## Q: What are the licensing terms for this project?
 
-This software/database is a "United States Government Work" under the terms of the United States Copyright Act. It was written as part of the author's official duties as a United States Government employee and thus cannot be copyrighted. This software/database is freely available to the public for use. The National Agriculture Library and the U.S. Government have not placed any restriction on its use or reproduction. (Please see [LICENCE.md](https://github.com/NAL-i5K/GFF3toolkit/blob/master/LICENCE.md))
+This software/database is a "United States Government Work" under the terms of the United States Copyright Act. It was written as part of the author's official duties as a United States Government employee and thus cannot be copyrighted. This software/database is freely available to the public for use. The National Agriculture Library and the U.S. Government have not placed any restriction on its use or reproduction. (Please see [LICENSE.md](https://github.com/NAL-i5K/GFF3toolkit/blob/master/LICENSE.md))
 
 ## Q: What kind of errors can be detected by gff3_QC.py? (Detection of GFF3 format errors: gff3_QC.py)
 
