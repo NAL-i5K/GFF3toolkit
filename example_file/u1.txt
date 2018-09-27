@@ -1,0 +1,3 @@
+transcript exon
+mRNA CDS
+mRNA exon

@@ -30,6 +30,9 @@ test_script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
   - gff3_fix -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
   - gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt
+  - gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u1 example_file/u1.txt -u2 example_file/u2.txt -r merged_report.txt
+  - gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u1 example_file/u1.txt -r merged_report.txt
+  - gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u2 example_file/u2.txt -r merged_report.txt
   - gff3_merge -g1 example_file/new_models_w_replace.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto
   - gff3_sort -g example_file/example.gff3 -og example-sorted.gff3
   - ps: Write-Host "Test scripts are finished ..."
