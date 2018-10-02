@@ -1,6 +1,4 @@
-#! /usr/local/bin/python2.7
-# -*- coding: utf-8 -*-
-# Contributed by Mei-Ju May Chen <arbula [at] gmail [dot] com> (2016)
+#! /usr/env/bin python2.7
 
 """
 QC functions for processing every single feature in GFF3 file.

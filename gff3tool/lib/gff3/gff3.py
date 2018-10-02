@@ -1,7 +1,4 @@
-#! /usr/local/bin/python2.7
-# -*- coding: utf-8 -*-
-# Contributed by Han Lin <hotdogee [at] gmail [dot] com> (2014)
-# Contributed by Mei-Ju May Chen <arbula [at] gmail [dot] com> (2015)
+#! /usr/bin/env python2.7
 
 """
 Check a GFF3 file for errors and unwanted features, with an option to correct the errors and output a valid GFF3 file.
@@ -161,9 +158,10 @@ class Gff3(object):
             self.parse_fasta_external(fasta_external)
 
     error_format = 'Line {current_line_num}: {error_type}: {message}\n-> {line}'
-    def collect_descendants(self, line_data): #Function defined by Mei-Ju May Chen 11/04/2015
+
+    def collect_descendants(self, line_data):
         collected_list = []
-        if line_data.has_key('children'):
+        if 'children' in line_data:
             children = line_data['children']
             for child in children:
                 collected_list.append(child)
@@ -171,14 +169,15 @@ class Gff3(object):
         else:
             return
         return(collected_list)
-    def collect_roots(self, line_data): #Function defined by Li-Mei Chiang 10/06/2017
+
+    def collect_roots(self, line_data):
         collected_list = []
         try:
-            if line_data['attributes'].has_key('Parent'):
+            if 'Parent' in line_data['attributes']:
                 for p_line in line_data['parents']:
                     for p in p_line:
                         try:
-                            if not p['attributes'].has_key('Parent'):
+                            if not 'Parent' in p['attributes']:
                                 collected_list.append(p)
                             else:
                                 collected_list.extend(self.collect_roots(p))
@@ -511,9 +510,9 @@ class Gff3(object):
         """
         valid_strand = set(('+', '-', '.', '?'))
         valid_phase = set((0, 1, 2))
-        multi_value_attributes = set(('replace','Parent', 'Alias', 'Note', 'Dbxref', 'Ontology_term')) # add 'replace' on 05182015 by Mei-Ju May Chen
+        multi_value_attributes = set(('replace','Parent', 'Alias', 'Note', 'Dbxref', 'Ontology_term'))
         valid_attribute_target_strand = set(('+', '-', ''))
-        reserved_attributes = set(('replace','ID', 'Name', 'Alias', 'Parent', 'Target', 'Gap', 'Derives_from', 'Note', 'Dbxref', 'Ontology_term', 'Is_circular')) # add 'replace' on 05182015 by Mei-Ju May Chen
+        reserved_attributes = set(('replace','ID', 'Name', 'Alias', 'Parent', 'Target', 'Gap', 'Derives_from', 'Note', 'Dbxref', 'Ontology_term', 'Is_circular'))
 
         # illegal character check
         # Literal use of tab, newline, carriage return, the percent (%) sign, and control characters must be encoded using RFC 3986 Percent-Encoding; no other characters may be encoded.
@@ -764,7 +763,7 @@ class Gff3(object):
                                 self.add_line_error(line_data, {'message': '%s: "%s"' % (ERROR_INFO['Esf0031'], '='.join(a)), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0031'}, log_level=logging.WARNING)
                             if tag in line_data['attributes']:
                                 self.add_line_error(line_data, {'message': '%s: "%s"' % (ERROR_INFO['Esf0032'], tag), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0032'})
-                            if tag in multi_value_attributes: # set(['replace', 'Parent', 'Alias', 'Note', 'Dbxref', 'Ontology_term']) # add 'replace on 05182015' by Mei-Ju May Chen
+                            if tag in multi_value_attributes: # set(['replace', 'Parent', 'Alias', 'Note', 'Dbxref', 'Ontology_term'])
                                 if value.find(', ') >= 0 or value.find(' ,') >= 0:
                                     self.add_line_error(line_data, {'message': 'Found ", " in %s attribute, possible unescaped ",": "%s"' % (tag, value), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0033'}, log_level=logging.WARNING)
                                 # In addition to Parent, the Alias, Note, Dbxref and Ontology_term attributes can have multiple values.
@@ -832,7 +831,7 @@ class Gff3(object):
                                 line_data['attributes'][tag] = value
                                 if tag == 'Is_circular' and value != 'true':
                                     self.add_line_error(line_data, {'message': 'Value of Is_circular attribute is not "true": "%s"' % value, 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0040'})
-                                elif tag[:1].isupper() and tag not in reserved_attributes: # {'replace','ID', 'Name', 'Alias', 'Parent', 'Target', 'Gap', 'Derives_from', 'Note', 'Dbxref', 'Ontology_term', 'Is_circular'} # add 'replace' on 05182015 by Mei-Ju May Chen
+                                elif tag[:1].isupper() and tag not in reserved_attributes: # {'replace','ID', 'Name', 'Alias', 'Parent', 'Target', 'Gap', 'Derives_from', 'Note', 'Dbxref', 'Ontology_term', 'Is_circular'}
                                     self.add_line_error(line_data, {'message': 'Unknown reserved (uppercase) attribute: "%s"' % tag, 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0041'})
                                 elif tag == 'ID':
                                     # check for duplicate ID in non-adjacent lines
@@ -880,8 +879,8 @@ class Gff3(object):
             if node not in visited_set:
                 visited_set.add(node)
                 visited_list.append(self.lines[node])
-                #queue.extend([ld['line_index'] for ld in self.lines[node]['children'] if ld['line_index'] not in visited_set]) #commented on 08/13/2015 by Mei-Ju May Chen
-                ### To write out gff file follwing the order of gene, mRNA, exon, CDS (by Mei-Ju May Chen)
+                #queue.extend([ld['line_index'] for ld in self.lines[node]['children'] if ld['line_index'] not in visited_set])
+                ### To write out gff file follwing the order of gene, mRNA, exon, CDS
                 #'''
                 for ld in self.lines[node]['children']:
                     if ld['line_index'] not in visited_set:
@@ -890,7 +889,7 @@ class Gff3(object):
                         if gld['line_index'] not in visited_set:
                             queue.extend([gld['line_index']])
                 #'''
-                ### To write out gff file follwing the order of gene, mRNA, exon, CDS (by Mei-Ju May Chen)
+                ### To write out gff file follwing the order of gene, mRNA, exon, CDS
         return visited_list[1:]
 
     def ancestors(self, line_data):

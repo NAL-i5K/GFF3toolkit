@@ -1,6 +1,5 @@
-#! /usr/local/bin/python2.7
+#! /usr/env/bin python2.7
 # -*- coding: utf-8 -*-
-# Contributed by Mei-Ju May Chen <arbula [at] gmail [dot] com> (2016)
 
 """
 QC functions for processing multiple features between models (inter-model) in GFF3 file.
@@ -23,7 +22,7 @@ def randomID(size=32, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 def FIX_MISSING_ATTR(gff, logger=None):
-    features = [line for line in gff.lines if line['line_type']=='feature']
+    features = [line for line in gff.lines if line['line_type'] == 'feature']
     flag = 0
     for f in features:
         try:

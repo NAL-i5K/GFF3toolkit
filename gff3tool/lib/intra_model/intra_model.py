@@ -1,6 +1,4 @@
-#! /usr/local/bin/python2.7
-# -*- coding: utf-8 -*-
-# Contributed by Mei-Ju May Chen <arbula [at] gmail [dot] com> (2016)
+#! /usr/bin/env python2.7
 
 """
 QC functions for processing multiple features within a model (intra-model) in GFF3 file.
@@ -9,7 +7,6 @@ from __future__ import print_function
 import sys
 import re
 import logging
-from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.function4gff as function4gff
 import gff3tool.lib.ERROR as ERROR
 

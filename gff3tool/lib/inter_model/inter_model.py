@@ -1,6 +1,4 @@
-#! /usr/local/bin/python2.7
-# -*- coding: utf-8 -*-
-# Contributed by Mei-Ju May Chen <arbula [at] gmail [dot] com> (2016)
+#! /usr/bin/env python2.7
 
 """
 QC functions for processing multiple features between models (inter-model) in GFF3 file.

@@ -68,8 +68,8 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
             key = '{0:s}:{1:s}-{2:s}:{3:s}:{4:s}'.format(line['seqid'], str(line['start']), str(line['end']), line['strand'], line['type'])
             if revision_id.has_key(line['attributes']['ID']):
                 match += 1
-                #if not line['attributes'].has_key('replace'): #modified by Mei-Ju May Chen 12162015
-                #    line['attributes']['replace'] = revision_id[line['attributes']['ID']][0] #modified by Mei-Ju May Chen 12162015
+                #if not line['attributes'].has_key('replace'):
+                #    line['attributes']['replace'] = revision_id[line['attributes']['ID']][0]
                 line['attributes']['replace'] = [revision_id[line['attributes']['ID']][0]]
                 revision_id[line['attributes']['ID']][1] = 'hit'
             elif revision.has_key(key):

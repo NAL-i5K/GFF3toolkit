@@ -512,7 +512,7 @@ class Groups(object):
             for child in children:
                 if child['attributes'].has_key('Name'):
                     mapName2ID[child['attributes']['Name']] = child['attributes']['ID']
-                mapName2ID[child['attributes']['ID']] = child['attributes']['ID'] # modified by Mei-Ju May Chen 12/17/2015 for OncFas.
+                mapName2ID[child['attributes']['ID']] = child['attributes']['ID']
                 if child['attributes'].has_key('Name'):
                     id2name[child['attributes']['ID']]=child['attributes']['Name']
                 else:
