@@ -51,8 +51,9 @@ def script_main():
     parser.add_argument('-n', '--allowed_num_of_n', type=int, default=0, help='Max number of Ns allowed in a feature, anything more will be reported as an error (default: 0)')
     parser.add_argument('-t', '--check_n_feature_types', nargs='*', default=['CDS'], help='Count the number of Ns in each feature with the type specified, multiple types may be specified, ex: -t CDS exon (default: "CDS")')
     parser.add_argument('-o', '--output', type=str, help='output file name (default: report.txt)')
+    parser.add_argument('-s', '--statistic', type=str, help='statistic file name (default: statistic.txt)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-
+    
 
     args = parser.parse_args()
     if args.gff:
@@ -118,8 +119,32 @@ def script_main():
         logger_stderr.info('Print QC report at {0:s}'.format('report.txt'))
         report_fh = open('report.txt', 'wb')
 
+    if args.statistic:
+        logger_stderr.info('Print QC statistic report at {0:s}'.format(args.statistic))
+        statistic_fh = open(args.statistic, 'wb')
+    else:
+        logger_stderr.info('Print QC statistic report at {0:s}'.format('statistic.txt'))
+        statistic_fh = open('statistic.txt', 'wb')
+
 
     report_fh.write('Line_num\tError_code\tError_tag\n')
     for e in sorted(error_set):
         tag = '[{0:s}]'.format(e['eTag'])
         report_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(e['line_num']), str(e['eCode']), str(tag)))
+        
+
+    #statistic_file
+    error_counts = dict()
+    ERROR_INFO=ERROR.INFO
+    statistic_fh.write('Error_code\tNumber_of_problematic_models\tError_tag\n')
+    for s in sorted(error_set):
+        if s['eCode'] not in error_counts:
+            error_counts[s['eCode']]= {'count':0,'etag':ERROR_INFO[s['eCode']]}
+        error_counts[s['eCode']]['count'] += 1
+        
+    for a in error_counts:
+
+        statistic_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(a),str(error_counts[a]['count']),str(error_counts[a]['etag'])))
+
+
+    
