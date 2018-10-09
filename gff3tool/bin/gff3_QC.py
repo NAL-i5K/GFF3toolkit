@@ -54,7 +54,6 @@ def script_main():
     parser.add_argument('-s', '--statistic', type=str, help='statistic file name (default: statistic.txt)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     
-
     args = parser.parse_args()
     if args.gff:
         logger_stderr.info('Checking gff file (%s)...', args.gff)
@@ -64,7 +63,6 @@ def script_main():
     else: # no input
         parser.print_help()
         sys.exit(1)
-
     if args.fasta:
         logger_stderr.info('Checking genome fasta (%s)...', args.fasta)
     elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
@@ -83,7 +81,6 @@ def script_main():
     logger_stderr.info('Checking errors in the gff files: (%s)...\n', args.gff)
     if not gff3.check_parent_boundary():
         sys.exit()
-
     gff3.check_unresolved_parents()
     if args.noncanonical_gene == False:
         gff3.check_phase(args.initial_phase)
@@ -111,7 +108,6 @@ def script_main():
     cmd = single_feature.main(gff3, logger=logger_stderr)
     if cmd:
         error_set.extend(cmd)
-
     if args.output:
         logger_stderr.info('Print QC report at {0:s}'.format(args.output))
         report_fh = open(args.output, 'wb')
@@ -125,14 +121,10 @@ def script_main():
     else:
         logger_stderr.info('Print QC statistic report at {0:s}'.format('statistic.txt'))
         statistic_fh = open('statistic.txt', 'wb')
-
-
     report_fh.write('Line_num\tError_code\tError_tag\n')
     for e in sorted(error_set):
         tag = '[{0:s}]'.format(e['eTag'])
         report_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(e['line_num']), str(e['eCode']), str(tag)))
-        
-
     #statistic_file
     error_counts = dict()
     ERROR_INFO=ERROR.INFO
@@ -140,11 +132,6 @@ def script_main():
     for s in sorted(error_set):
         if s['eCode'] not in error_counts:
             error_counts[s['eCode']]= {'count':0,'etag':ERROR_INFO[s['eCode']]}
-        error_counts[s['eCode']]['count'] += 1
-        
+        error_counts[s['eCode']]['count'] += 1   
     for a in error_counts:
-
         statistic_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(a),str(error_counts[a]['count']),str(error_counts[a]['etag'])))
-
-
-    
