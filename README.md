@@ -43,7 +43,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
   * [gff3_QC readme](docs/gff3_QC.md)
   * [gff3_QC full documentation](docs/Detection-of-GFF3-format-errors.md)
   * Quick start:
-    `gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt`
+    `gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt -s statistic.txt`
   * Please refer to [gff3tool/lib/ERROR/ERROR.py](gff3tool/lib/ERROR/ERROR.py) to see the full list of Error codes and the corresponding Error tags.
 
 ### Correct GFF3 format errors ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
