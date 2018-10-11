@@ -18,7 +18,7 @@ Python 2.7
     * Line_num: Line numbers of the found problematic models in the input GFF3 file.
     * Error_code: Error codes for the found problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
         * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
-2. statistic report for the output files
+2. Statistic report for the output files
     * Error_code: Error codes for the found problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
     * Number of problematic models: Calculate the type and number of error_code.
         * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
