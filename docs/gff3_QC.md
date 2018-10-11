@@ -3,7 +3,7 @@
 ## Usage 
 
 gff3_QC.py [-h] [-g GFF] [-f FASTA] [-noncg] [-i] [-n ALLOWED_NUM_OF_N]   
-[-t [CHECK_N_FEATURE_TYPES [CHECK_N_FEATURE_TYPES ...]]] [-o OUTPUT] [-v]
+[-t [CHECK_N_FEATURE_TYPES [CHECK_N_FEATURE_TYPES ...]]] [-o OUTPUT] [-v] [-s STATISTIC]
 
 ## Testing environment
 
@@ -17,6 +17,10 @@ Python 2.7
 1. Error report for the input GFF3 file
     * Line_num: Line numbers of the found problematic models in the input GFF3 file.
     * Error_code: Error codes for the found problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
+        * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
+2. statistic report for the output files
+    * Error_code: Error codes for the found problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
+    * Number of problematic models: Calculate the type and number of error_code.
         * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
 
 ## Quick start
@@ -44,7 +48,9 @@ or
     - Count the number of Ns in each feature with the type specified, multiple types may be specified, ex: -t CDS exon (default: "CDS")    
 8.  -o OUTPUT, --output OUTPUT
     - output file name (default: report.txt)
-9.  -v, --version         
+9.  -s STATISTIC, --statistic STATISTIC
+    - statistic file name (default: statistic.txt
+10. -v, --version         
     - show program's version number and exit
 
 ## More information
