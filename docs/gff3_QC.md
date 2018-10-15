@@ -28,7 +28,7 @@ Python 2.7
 
 or
 
-`gff3_QC --gff example_file/example.gff3 --fasta example_file/reference.fa --output test -s statistic.txt`
+`gff3_QC --gff example_file/example.gff3 --fasta example_file/reference.fa --output test --statistic statistic.txt`
 
 ## Optional arguments
 
