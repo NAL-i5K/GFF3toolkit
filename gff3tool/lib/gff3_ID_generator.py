@@ -47,7 +47,10 @@ def descendants_list(line_data, level):
         for child in children:
             child['level'] = level
             collected_list.append(child)
-            collected_list.extend(descendants_list(child, level+1))
+            try:
+                collected_list.extend(descendants_list(child, level+1))
+            except:
+                print child['line_errors']
     else:
         return
     return collected_list
