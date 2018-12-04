@@ -165,7 +165,7 @@ def TypeSort(line_list, sorting_order, reverse=False):
         lineindex = line['start'] if reverse==False else line['end']
         id2line[str(line['line_raw'])] = line
         try:
-            if sorting_order.has_key(line['type']):
+            if line['type'] in sorting_order:
                 id2index[str(line['line_raw'])] = [lineindex, sorting_order[line['type']] if reverse==False else (-sorting_order[line['type']])]
             else:
                 id2index[str(line['line_raw'])] = [lineindex, 99 if reverse==False else -99]
@@ -184,7 +184,7 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None, 
     gff3 = Gff3(gff_file=gff, logger=logger_null)
 
     if output:
-        report = open(output, 'wb')
+        report = open(output, 'w')
     else:
         report = sys.stdout
 
@@ -196,14 +196,14 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None, 
     gff3_linenum_Set = set()
 
     for line in gff3.lines:
-       if line['line_type'] == 'feature':
+        if line['line_type'] == 'feature':
            gff3_linenum_Set.add(line['line_index'])
-       try:
-           if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent') and len(line['attributes']) != 0:
-               roots.append(line)
-       except:
-           logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-    #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+        try:
+            if line['line_type'] == 'feature' and 'Parent' not in line['attributes'] and len(line['attributes']) != 0:
+                roots.append(line)
+        except:
+            logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+    # roots = [line for line in gff3.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
 
     # Sort the root-level features based on the order of the genomic sequences
     roots_sorted = PositionSort(roots,reference)
@@ -248,8 +248,8 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None, 
                 grandchildren = child['children'] # Collect third-level features (eg. exon, CDS, and etc.)
                 gchildgroup = {}
                 # Visit every third-level feature, and collect a dictionary of 'type' to 'features'
-                for grandchild in grandchildren: # Visit each third-level feature
-                    if gchildgroup.has_key(str(grandchild['type'])):
+                for grandchild in grandchildren:  # Visit each third-level feature
+                    if str(grandchild['type']) in gchildgroup:
                         gchildgroup[str(grandchild['type'])].append(grandchild)
                     else:
                         gchildgroup[str(grandchild['type'])] = []
@@ -273,7 +273,7 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None, 
                     if StrandSort(exons):
                         exons_sorted = StrandSort(exons)
                         for exon in exons_sorted:
-                            if exon['attributes'].has_key('Parent'):
+                            if 'Parent' in exon['attributes']:
                                 if isinstance(exon['attributes']['Parent'], list) and len(exon['attributes']['Parent']) > 1:
                                     gff3_linenum_Set.discard(exon['line_index'])
                                     report.write(TwoParent(child['attributes']['ID'],exon))
@@ -289,7 +289,7 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None, 
                     if StrandSort(cdss):
                         cdss_sorted = StrandSort(cdss)
                         for cds in cdss_sorted:
-                            if cds['attributes'].has_key('Parent'):
+                            if 'Parent' in cds['attributes']:
                                 if isinstance(cds['attributes']['Parent'], list) and len(cds['attributes']['Parent']) > 1:
                                     gff3_linenum_Set.discard(cds['line_index'])
                                     report.write(TwoParent(child['attributes']['ID'],cds))
@@ -303,7 +303,7 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None, 
                 if len(others):
                     if PositionSort(others,reference):
                         for other in others:
-                            if other['attributes'].has_key('Parent'):
+                            if 'Parent' in other['attributes']:
                                 if isinstance(other['attributes']['Parent'], list) and len(other['attributes']['Parent']) > 1:
                                     gff3_linenum_Set.discard(other['line_index'])
                                     report.write(TwoParent(child['attributes']['ID'],other))

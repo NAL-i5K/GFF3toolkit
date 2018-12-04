@@ -33,7 +33,7 @@ def idgenerator(prefix, lastnumber, digitlen):
 def simpleIDreplace(model, newid):
     tmp  = re.search('(.+?)(\d+)',newid)
     newidnumber = tmp.groups()[1]
-    if model['attributes'].has_key('ID'):
+    if 'ID' in model['attributes']:
         tmp  = re.search('(.+?)(\d+)(.*)',model['attributes']['ID'])
         prefix, _, suffix = tmp.groups()[0], tmp.groups()[1], tmp.groups()[2]
         renamedID = prefix + newidnumber + suffix
@@ -44,9 +44,9 @@ def simpleIDreplace(model, newid):
 
 def newParentModel(oldmodel, newid, gff):
     newmodel = copy.deepcopy(oldmodel)
-    if oldmodel['attributes'].has_key('Name') and oldmodel['attributes']['Name'] == oldmodel['attributes']['ID']:
+    if 'Name' in oldmodel['attributes'] and oldmodel['attributes']['Name'] == oldmodel['attributes']['ID']:
         newmodel['attributes']['Name'] = newid
-    elif not oldmodel['attributes'].has_key('Name'):
+    elif 'Name' not in oldmodel['attributes']:
         newmodel['attributes']['Name'] = newid
     newmodel['attributes']['ID'] = newid
     eofindex = len(gff.lines)
@@ -62,9 +62,9 @@ def newChildModel(ochild, newid, gff):
     nchild['attributes']['Parent']=[]
     if newid:
         simpleIDreplace(nchild, newid)
-    if ochild['attributes'].has_key('Name') and ochild['attributes']['Name'] == ochild['attributes']['ID']:
+    if 'Name' in ochild['attributes'] and ochild['attributes']['Name'] == ochild['attributes']['ID']:
         nchild['attributes']['Name'] = nchild['attributes']['ID']
-    if nchild.has_key('children'):
+    if 'children' in nchild:
         nchild['children'] = []
     return nchild
 
@@ -92,9 +92,9 @@ def newPepModel(ochild, gff):
         newpep['type'] = 'polypeptide'
         tmp = re.search('-R(.)-CDS$', newpep['attributes']['ID'])
         newpep['attributes']['ID'] = re.sub('-R.*', '-P{0:s}'.format(tmp.groups()[0]), newpep['attributes']['ID'])
-        if newpep['attributes'].has_key('Name') and newpep['attributes']['Name'] == newpep['attributes']['Name']:
+        if 'Name' in newpep['attributes'] and newpep['attributes']['Name'] == newpep['attributes']['Name']:
             newpep['attributes']['Name'] = newpep['attributes']['ID']
-        if newpep.has_key('children'):
+        if 'children' in newpep:
             newpep['children'] = []
         ochild['children'].append(newpep)
         gff.features[newpep['attributes']['ID']].append(newpep)
@@ -105,8 +105,8 @@ def threadin(oldmodel, newid, gff): #implement later 09/01/2015
 
 def newModel(oldmodel, newid, gff):
     '''
-	 model should be root model.
-	 '''
+    model should be root model.
+    '''
     newmodel = newParentModel(oldmodel, newid, gff)
     gff.features[newid].append(newmodel)
     gff.lines.append(newmodel)
@@ -121,7 +121,7 @@ def newModel(oldmodel, newid, gff):
         nchild['attributes']['Parent'].append(newmodel['attributes']['ID'])
         # generate new mRNA ID when merging multiple isoforms
         name_add_flag = 0
-        if childids.has_key(nchild['attributes']['ID']):
+        if nchild['attributes']['ID'] in childids:
             newalphabet = string.uppercase[(maxindex+1)]
             nchild['attributes']['ID'] = re.sub('(.)$',newalphabet,nchild['attributes']['ID'])
             name_add_flag += 1
@@ -147,12 +147,12 @@ def newModel(oldmodel, newid, gff):
                 ngchild['attributes']['ID'] = idchange
             ngchild['parents'].append(gff.features[nchild['attributes']['ID']])
             ngchild['attributes']['Parent'].append(nchild['attributes']['ID'])
-            if ngchild['attributes'].has_key('ID'):
+            if 'ID' in ngchild['attributes']:
                 gff.features[ngchild['attributes']['ID']].append(ngchild)
             gff.lines.append(ngchild)
             nchild['children'].append(ngchild)
             otherlines.extend(gff.collect_descendants(ogchild))
-            if ngchild['attributes'].has_key('ID') and ogchild['attributes'].has_key('ID'):
+            if 'ID' in ngchild['attributes'] and 'ID' in ogchild['attributes']:
                 old2new[ogchild['attributes']['ID']] = ngchild['attributes']['ID']
                 #print('{0:s}\t{1:s}\t{2:s}'.format(ngchild['attributes']['ID'], 'changed from', ogchild['attributes']['ID']))
 
@@ -164,19 +164,19 @@ def newModel(oldmodel, newid, gff):
             newk = newChildModel(k, nchild['attributes']['ID'], gff)
             uniqueparent = {}
             for parents in parent_lines:
-					 for parent in parents:
-						  newkpid = old2new[parent['attributes']['ID']]
-						  uniqueparent[newkpid]=1
+                    for parent in parents:
+                        newkpid = old2new[parent['attributes']['ID']]
+                        uniqueparent[newkpid] = 1
             if len(uniqueparent) == 1:
                 for upi in uniqueparent:
                     newk['parents'].append(gff.features[upi])
                     newk['attributes']['Parent'].append(upi)
-                if newk['attributes'].has_key('ID'):
+                if 'ID' in newk['attributes']:
                     newk['attributes']['ID'] = newk['attributes']['Parent'][0] + '-' + newk['type']
                     newk['attributes']['Name'] = newk['attributes']['ID']
                     gff.features[newk['attributes']['ID']].append(newk)
             else:
-					 print('Warning!! features have multiple errors:\t' + k['attributes']['ID'])
+                print('Warning!! features have multiple errors:\t' + k['attributes']['ID'])
             gff.lines.append(newk)
             parent_lines = newk['parents']
             for parents in parent_lines:
@@ -189,7 +189,7 @@ def newModel(oldmodel, newid, gff):
 
 def general_newModel(oldmodel, gff):
     '''
-	 model should be root model.
+    model should be root model.
     '''
     newid = oldmodel['attributes']['ID']
     if newid in gff.features.keys():
@@ -209,7 +209,7 @@ def general_newModel(oldmodel, gff):
         nchild['attributes']['Parent'].append(newmodel['attributes']['ID'])
         # generate new mRNA ID when merging multiple isoforms
         name_add_flag = 0
-        if childids.has_key(nchild['attributes']['ID']):
+        if nchild['attributes']['ID'] in childids:
             #newalphabet = string.uppercase[(maxindex+1)]
             #nchild['attributes']['ID'] = re.sub('(.)$',newalphabet,nchild['attributes']['ID'])
             name_add_flag += 1
@@ -237,12 +237,12 @@ def general_newModel(oldmodel, gff):
                 #ngchild['attributes']['ID'] = idchange
             ngchild['parents'].append(gff.features[nchild['attributes']['ID']])
             ngchild['attributes']['Parent'].append(nchild['attributes']['ID'])
-            if ngchild['attributes'].has_key('ID'):
+            if 'ID' in ngchild['attributes']:
                 gff.features[ngchild['attributes']['ID']].append(ngchild)
             gff.lines.append(ngchild)
             nchild['children'].append(ngchild)
             otherlines.extend(gff.collect_descendants(ogchild))
-            if ngchild['attributes'].has_key('ID') and ogchild['attributes'].has_key('ID'):
+            if 'ID' in ngchild['attributes'] and 'ID' in ogchild['attributes']:
                 old2new[ogchild['attributes']['ID']] = ngchild['attributes']['ID']
                 #print('!!!!! {0:s}\t{1:s}\t{2:s}'.format(ngchild['attributes']['ID'], 'changed from', ogchild['attributes']['ID']))
             #print("!!!!!!After {0:s}\t{1:s}".format(ogchild['attributes']['ID'],ngchild['attributes']['ID']))
@@ -258,18 +258,18 @@ def general_newModel(oldmodel, gff):
             uniqueparent = {}
             for parents in parent_lines:
                 for parent in parents:
-		    newkpid = old2new[parent['attributes']['ID']]
-		    uniqueparent[newkpid]=1
+                    newkpid = old2new[parent['attributes']['ID']]
+            uniqueparent[newkpid]=1
             if len(uniqueparent) == 1:
                 for upi in uniqueparent:
                     newk['parents'].append(gff.features[upi])
                     newk['attributes']['Parent'].append(upi)
-                if newk['attributes'].has_key('ID'):
+                if 'ID' in newk['attributes']:
                     #newk['attributes']['ID'] = newk['attributes']['Parent'][0] + '-' + newk['type']
                     #newk['attributes']['Name'] = newk['attributes']['ID']
                     gff.features[newk['attributes']['ID']].append(newk)
             else:
-					 print('Warning!! features have multiple errors:\t' + k['attributes']['ID'])
+                print('Warning!! features have multiple errors:\t' + k['attributes']['ID'])
 
             gff.lines.append(newk)
             parent_lines = newk['parents']
@@ -285,8 +285,8 @@ def general_newModel(oldmodel, gff):
 
 def newNreplaceModel(oldmodel, newid, gff):
     '''
-	 model should be root model.
-	 '''
+    model should be root model.
+    '''
     newmodel = newParentModel(oldmodel, newid, gff)
     gff.features[newid].append(newmodel)
     gff.lines.append(newmodel)
@@ -300,7 +300,7 @@ def newNreplaceModel(oldmodel, newid, gff):
         nchild['attributes']['Parent'].append(newmodel['attributes']['ID'])
         # generate new mRNA ID when merging multiple isoforms
         name_add_flag = 0
-        if childids.has_key(nchild['attributes']['ID']):
+        if nchild['attributes']['ID'] in childids:
             newalphabet = string.uppercase[(maxindex+1)]
             nchild['attributes']['ID'] = re.sub('(.)$',newalphabet,nchild['attributes']['ID'])
             name_add_flag += 1
@@ -326,13 +326,13 @@ def newNreplaceModel(oldmodel, newid, gff):
                 ngchild['attributes']['ID'] = idchange
             ngchild['parents'].append(gff.features[nchild['attributes']['ID']])
             ngchild['attributes']['Parent'].append(nchild['attributes']['ID'])
-            if ngchild['attributes'].has_key('ID'):
+            if 'ID' in ngchild['attributes']:
                 gff.features[ngchild['attributes']['ID']].append(ngchild)
             gff.lines.append(ngchild)
             nchild['children'].append(ngchild)
-            if ngchild['attributes'].has_key('ID') and ogchild['attributes'].has_key('ID'):
+            if 'ID' in ngchild['attributes'] and 'ID' in ogchild['attributes']:
                 print('{0:s}\t{1:s}\t{2:s}'.format(ngchild['attributes']['ID'], 'changed from', ogchild['attributes']['ID']))
-            #elif ngchild['attributes'].has_key('ID'):
+            #elif 'ID' in ngchild['attributes']:
                 #print('{0:s}\t{1:s}\t{2:s}'.format(ngchild['attributes']['ID'], 'added to CDS of', nchild['attributes']['ID']))
 
     oldid = oldmodel['attributes']['ID']
@@ -343,7 +343,7 @@ def newNreplaceModel(oldmodel, newid, gff):
 
 
 def IDprocessing(gff):
-    roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
+    roots = [line for line in gff.lines if line['line_type']=='feature' and 'Parent' not in line['attributes']]
     tmp  = re.search('(.+?)(\d+)',roots[0]['attributes']['ID'])
     idprefix = tmp.groups()[0]
     maxIDnumber = 0
@@ -360,12 +360,12 @@ def IDprocessing(gff):
         for child in children:
             gchildren = child['children']
             for gchild in gchildren:
-                if gchild['type'] == 'CDS' and not gchild['attributes'].has_key('ID'):
+                if gchild['type'] == 'CDS' and 'ID' not in gchild['attributes']:
                     for pid in gchild['attributes']['Parent']:
                         gid = pid + '-CDS'
                         gchild['attributes']['ID'] = gid
 
-    models = [line for line in gff.lines if line['line_type']=='feature' and line['attributes'].has_key('modified_track')]
+    models = [line for line in gff.lines if line['line_type']=='feature' and 'modified_track' in line['attributes']]
     for model in models:
         track, modelid = model['attributes']['modified_track'], model['attributes']['ID']
         del model['attributes']['modified_track']
@@ -413,7 +413,7 @@ def ncbiNamingSystem(gff, tag):
         other child features (such as pseudogenic_transcript, rRNA and so on): 'transcript_id=' is added
         CDS: 'transcript_id=', 'protein_id=' and 'product=' are added
     '''
-    roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    roots = [line for line in gff.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
     roottype={}
     childtype={}
     grandchildtype={}
@@ -428,7 +428,7 @@ def ncbiNamingSystem(gff, tag):
             cid, ctype = child['attributes']['ID'], child['type']
             childtype[ctype] = 0
             product='NA'
-            if child['attributes'].has_key('Name') and not child['attributes']['Name'] == cid:
+            if 'Name' in child['attributes'] and not child['attributes']['Name'] == cid:
                 product = child['attributes']['Name']
 
             transcript_id = cid

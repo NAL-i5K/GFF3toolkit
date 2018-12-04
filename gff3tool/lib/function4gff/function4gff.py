@@ -26,9 +26,9 @@ def FIX_MISSING_ATTR(gff, logger=None):
     flag = 0
     for f in features:
         try:
-            if not f['attributes'].has_key('owner'):
+            if 'owner' not in f['attributes']:
                 f['attributes']['owner'] = 'Unassigned'
-            if not f['attributes'].has_key('ID'):
+            if 'ID' not in f['attributes']:
                 IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript']
                 if f['type'] in IDrequired:
                     logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line {0:s}: {1:s}'.format(str(f['line_index']+1), f['line_raw']))
@@ -70,7 +70,7 @@ def featureSort(linelist, reverse=False):
     for line in linelist:
         lineindex = line['start'] if reverse==False else line['end']
         id2line[str(line['line_raw'])] = line
-        if FEATURECODE.has_key(line['type']):
+        if line['type'] in FEATURECODE:
             id2index[str(line['line_raw'])] = [lineindex, FEATURECODE[line['type']] if reverse==False else (-FEATURECODE[line['type']])]
         else:
             id2index[str(line['line_raw'])] = [lineindex, 99 if reverse==False else -99]
@@ -79,12 +79,12 @@ def featureSort(linelist, reverse=False):
             seqnum = tmp.groups()[1]
         except AttributeError:
             continue
-        if seq2id.has_key(seqnum):
+        if seqnum in seq2id:
             seq2id[seqnum].append(str(line['line_raw']))
         else:
             seq2id[seqnum] = [str(line['line_raw'])]
     keys = sorted(seq2id, key=lambda i: int(i))
-    newlinelist=[]
+    newlinelist = []
     for k in keys:
         ids = seq2id[k]
         d = {}

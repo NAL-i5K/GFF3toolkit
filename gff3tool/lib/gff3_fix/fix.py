@@ -153,7 +153,7 @@ def split(gff3, error_list, logger):
                     try:
                         oldID = root['attributes']['ID']
                         old_feature = gff3.features[oldID]
-                        if root['attributes'].has_key('modified_track') and root['attributes']['modified_track'] == 'removed':
+                        if 'modified_track' in root['attributes'] and root['attributes']['modified_track'] == 'removed':
                             continue
                     except KeyError:
                         logger.warning('[Missing ID] - Line %s', str(line_num))
@@ -181,13 +181,13 @@ def split(gff3, error_list, logger):
                     flag = 1
                     for i, val in enumerate(childgroup):
                         newID = ''
-                        if root['attributes'].has_key('modified_track'):
+                        if 'modified_track' in root['attributes']:
                             newID = '{0:s}.s{1:d}'.format(root['attributes']['modified_track'], flag)
                         else:
                             newID = '{0:s}.s{1:d}'.format(oldID, flag)
                         newparent = copy.deepcopy(root)
                         newparent['attributes']['ID'] = newID
-                        if newparent['attributes'].has_key('Name') and newparent['attributes']['Name'] == newparent['attributes']['ID']:
+                        if 'Name' in newparent['attributes'] and newparent['attributes']['Name'] == newparent['attributes']['ID']:
                             newparent['attributes']['Name'] = newID
                         eofindex += 1
                         newparent['line_index'] = eofindex
@@ -196,7 +196,7 @@ def split(gff3, error_list, logger):
                             children = gff3.features[j]
                             for child in children:
                                 newparent['children'].append(child)
-                        if newparent['attributes'].has_key('modified_track'):
+                        if 'modified_track' in newparent['attributes']:
                             del newparent['attributes']['modified_track']
                         gff3.features[newID].append(newparent)
                         gff3.lines.append(newparent)
@@ -333,7 +333,7 @@ def merge(gff3, error_list, logger):
                         newID = str(uuid.uuid1())
                     newparent = copy.deepcopy(p)
                     newparent['attributes']['ID'] = newID
-                    if newparent['attributes'].has_key('Name'):
+                    if 'Name' in newparent['attributes']:
                         if newparent['attributes']['Name'] == newparent['attributes']['ID']:
                             newparent['attributes']['Name'] = newID
                     eofindex += 1
@@ -571,7 +571,7 @@ def fix_attributes(gff3, error_list, logger):
 def write(gff3, output_gff, embed_fasta=None, fasta_char_limit=None, logger=None):
     gff_fp = output_gff
     if isinstance(output_gff, str):
-        gff_fp = open(output_gff, 'wb')
+        gff_fp = open(output_gff, 'w')
 
     wrote_sequence_region = set()
     # build sequence region data

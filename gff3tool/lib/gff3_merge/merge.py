@@ -57,7 +57,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
 
         if user_defined1 is None:
             try:
-                if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                if line['line_type'] == 'feature' and 'Parent' not in line['attributes']:
                     roots.append(line)
             except:
                 pass
@@ -69,7 +69,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                         roots.append(root)
                         unique.add(root['line_raw'])
 
-    #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
     rnum, cnum, changed = 0, 0, 0
     cal_type_children = {}
     changed_rootid = set()
@@ -132,9 +132,9 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
             logger.info('[Warning] multiple replace tags in multiple isoforms! {0:s}. This model is not processed\n'.format(root['attributes']['ID']))
             report_fh.write('[Warning] multiple replace tags in multiple isoforms! {0:s}. This model is not processed\n'.format(root['attributes']['ID']))
         for child in children:
-            if child['attributes'].has_key('status') and (child['attributes']['status'] == 'Delete' or child['attributes']['status'] == 'delete'):
+            if 'status' in child['attributes'] and (child['attributes']['status'] == 'Delete' or child['attributes']['status'] == 'delete'):
                 child['attributes']['replace_type'] = 'Delete'
-            if cal_type_children.has_key(child['attributes']['replace_type']):
+            if child['attributes']['replace_type'] in cal_type_children:
                 cal_type_children[child['attributes']['replace_type']] += 1
             else:
                 cal_type_children[child['attributes']['replace_type']] = 1
@@ -143,7 +143,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     for i in ReplaceGroups.info:
         tokens = i.split('\t')
         tmp = re.search('(.+?):(.*)', tokens[3])
-        if cal_type.has_key(tmp.groups()[0]):
+        if tmp.groups()[0] in cal_type:
             cal_type[tmp.groups()[0]] += 1
         else:
             cal_type[tmp.groups()[0]] = 1
@@ -169,7 +169,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
     for line in gff3M.lines:
         if user_defined2 is None:
             try:
-                if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                if line['line_type'] == 'feature' and 'Parent' not in line['attributes']:
                     roots.append(line)
             except:
                 pass
@@ -181,7 +181,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                         roots.append(root)
                         unique.add(root['line_raw'])
 
-    #roots = [line for line in gff3M.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    # roots = [line for line in gff3M.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
     for root in roots:
         if root['attributes']['ID'] not in changed_rootid:
             if user_defined2 is None:
@@ -219,7 +219,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
             cflag = 0
             if not child['line_status'] == 'removed':
                 #print(child['attributes'])
-                if child['attributes'].has_key('replace_type'):
+                if 'replace_type' in child['attributes']:
                     for i in root['attributes']['replace']:
                         tname, tid, gid, tmpid = 'NA', 'NA', 'NA', 'NA'
                         tmpid = child['attributes']['ID']
@@ -245,7 +245,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                         report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\n'.format(ReplaceGroups.mapType2Log[child['attributes']['replace_type']], gid, tid, tname, tmpid))
                     del child['attributes']['replace_type']
                     cflag += 1
-                if child['attributes'].has_key('replace'):
+                if 'replace' in child['attributes']:
                     del child['attributes']['replace']
                 if cflag == 0:
                     gid = None
@@ -261,7 +261,7 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                     gid = ','.join(gid_list)
                     report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\n'.format(ReplaceGroups.mapType2Log['other'], gid, child['attributes']['ID'], ReplaceGroups.id2name[child['attributes']['ID']], child['attributes']['ID']))
             else:
-                if child['attributes'].has_key('status') and child['attributes']['status'] == 'Delete':
+                if 'status' in child['attributes'] and child['attributes']['status'] == 'Delete':
                     for i in child['attributes']['replace']:
                         if i == 'NA':
                             sys.exit('The replace tag for Delete replacement cannot be NA: {0:s}'.format(child['line_raw']))
@@ -280,16 +280,11 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                         gid = ','.join(gid_list)
 
                         report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\n'.format(ReplaceGroups.mapType2Log['Delete'], gid, tid, tname, "NA"))
-                    if child['attributes'].has_key('replace'):
+                    if 'replace' in child['attributes']:
                         del child['attributes']['replace']
-
-
-        if root['attributes'].has_key('replace'):
-            del root['attributes']['replace']
-        if root['attributes'].has_key('replace_type'):
-            del root['attributes']['replace_type']
-        if root['attributes'].has_key('modified_track'):
-            del root['attributes']['modified_track']
+        for attr in ['replace', 'replace_type', 'modified_track']:
+            if attr in root['attributes']:
+                del root['attributes'][attr]
 
     ReplaceGroups.name2id(gff3M)
     gff3M.write(output_gff)
