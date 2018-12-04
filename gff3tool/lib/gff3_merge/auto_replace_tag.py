@@ -50,7 +50,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
             children = root['children']
             for child in children:
                 cid = 'NA'
-                if child['attributes'].has_key('ID'):
+                if 'ID' in child['attributes']:
                     cid = child['attributes']['ID']
                 defline = cid
                 gchildren = child['children']
@@ -60,7 +60,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
                         CDSflag += 1
                 if CDSflag == 0:
                     transcripts.add(defline)
-                if child.has_key('type'):
+                if 'type' in child:
                     transcripts_type.add(child['type'])
     else:
         for lines in user_defined1:
@@ -71,7 +71,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
                     del line['attributes']['replace']
             if line['type'] in transcripts_type:
                 id = str()
-                if line['attributes'].has_key('ID'):
+                if 'ID' in line['attributes']:
                     id = line['attributes']['ID']
                     transcripts.add(id)
     gff2_transcripts_type = set()
@@ -127,7 +127,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
         with open(user_defined_out1, "w") as outfile:
             for lines in user_defined1:
                 gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='user_defined', user_defined=lines, dline='complete', qc=False, output_prefix=out1, logger=logger_null)
-                with open(user_defined_tmp, 'rb') as fd:
+                with open(user_defined_tmp, 'r') as fd:
                     shutil.copyfileobj(fd, outfile)
                 parent_type.add(lines[0])
 
@@ -159,7 +159,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
         with open(user_defined_out2, "w") as outfile:
             for lines in user_defined2:
                 gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='user_defined', user_defined=lines, dline='complete', qc=False, output_prefix=out2, logger=logger_null)
-                with open(user_defined_tmp, 'rb') as fd:
+                with open(user_defined_tmp, 'r') as fd:
                     shutil.copyfileobj(fd, outfile)
                 parent_type.add(lines[0])
 
@@ -174,7 +174,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     cgff = os.path.join(tmpdir, 'cat.gff')
     with open(cgff, "w") as outfile:
         for catfile in [gff1, gff2]:
-            with open(catfile, 'rb') as fd:
+            with open(catfile, 'r') as fd:
                 shutil.copyfileobj(fd, outfile)
     bdb = '{0:s}_{1:s}'.format(out2, 'cds.fa')
     logger.info('Make blastDB for CDS sequences from {0:s}...'.format(bdb))

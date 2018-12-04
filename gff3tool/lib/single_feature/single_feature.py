@@ -23,7 +23,7 @@ def FIX_PSEUDOGENE(gff):
     roots = []
     for line in gff.lines:
         try:
-            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+            if line['line_type'] == 'feature' and 'Parent' not in line['attributes']:
                 if len(line['attributes']) != 0:
                     roots.append(line)
                 else:
@@ -32,7 +32,7 @@ def FIX_PSEUDOGENE(gff):
             print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
 
 
-    #roots = [line for line in gff.lines if line['line_type']=='feature' and not line['attributes'].has_key('Parent')]
+    #roots = [line for line in gff.lines if line['line_type']=='feature' and 'Parent' not in line['attributes']]
     for root in roots:
         if root['type'] == 'pseudogene':
             for child in root['children']:
@@ -57,7 +57,7 @@ def check_pseudogene(gff, line):
     flag = 0
     result=dict()
     try:
-        for v in line['attributes'].itervalues():
+        for v in list(line['attributes'].values()):
             if re.search(r"[Pp][Ss][EUeu][EUeu][Dd][Oo][Gg][Ee][Nn]*", str(v)):
                 flag += 1
         if flag and not re.search(r"pseudogen*", line['type']):
