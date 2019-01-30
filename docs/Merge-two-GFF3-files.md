@@ -125,14 +125,13 @@ pre-transcript sequences from updated GFF3 file | pre-transcript from reference 
 ### Rules for adding a replace tag on your own
 ([back](#table-of-contents))
 
-- **If you are replacing non-coding features, and/or replacing coding features with non-coding features, then you must manually include a [replace tag](#replace-tags) for these replacement actions.**
 - **Replacing a model**: Use the Name or ID attribute of the mRNA or transcript to be replaced. (Don't use the ID or Name of the gene, exon, CDS, or other child features). `replace=CLEC00001-RA`
 - **Adding a new model**: Use 'NA' as the replace tag value. `replace=NA`
 - **Deleting a reference model**: Use the 'status' attribute with value 'delete' to indicate whether a model from the original gff3 should be deleted. The model that carries the status attribute will NOT be used in the merged gff3. `status=delete`
 - **Merging a reference model**: If multiple reference models need to be merged into one, then the modified, merged model should carry replace tags with IDs or Names of all models to be merged. `replace=CLEC00001-RA,CLEC00002-RA`
 - **Splitting a reference model**: If a reference model needs to be split, you will need to add a replace tag with the model ID or Name of the split reference model to BOTH models in the modified GFF3. E.g. split model 1: `replace=CLEC00001-RA`, split model 2: `replace=CLEC00001-RA`
 - The merge program will check your replace tags, and will throw an error if your replace tag does not meet these assumptions. You will need to update your replace tags according to the error message, and run the program again after fixing.
-- If you are using the Apollo manual annotation program at the i5k Workspace to generate the modified GFF3 file, there will be a 'Replaced Models' field in the information editor where you should enter the replace tag information. See https://i5k.nal.usda.gov/apollo-replaced-models-field-explanations-and-examples.
+
 
 ## Replacing and adding models with multiple isoforms
 ([back](#table-of-contents))
