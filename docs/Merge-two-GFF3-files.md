@@ -43,7 +43,7 @@ View the [gff3_merge.py readme](gff3_merge.md) for instructions on how to run th
 ## Replace Tags 
 ([back](#table-of-contents))
 
-The replace tag is a custom GFF3 attribute in the new or modified GFF3 file that specifies which mRNA(s) or transcript(s) from a single reference GFF3 file should be replaced by the new annotation. The replace tag follows this format: replace=[Name or ID attribute of reference mRNA or transcript to be replaced]. The replace tag could be added through Apollo program (check the tutorial [here](https://i5k.nal.usda.gov/apollo-replaced-models-field-explanations-and-examples)), or directly added into the new or modified GFF3 file.
+The replace tag is a custom GFF3 attribute in the new or modified GFF3 file that specifies which mRNA(s) or transcript(s) from a single reference GFF3 file should be replaced by the new annotation. The replace tag follows this format: replace=[Name or ID attribute of reference mRNA or transcript to be replaced]. The replace tag can be directly added into the new or modified GFF3 file.
 
 Here's an example:
 
