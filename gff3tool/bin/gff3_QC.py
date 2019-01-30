@@ -84,7 +84,7 @@ def script_main():
     gff3.check_unresolved_parents()
     if args.noncanonical_gene == False:
         gff3.check_phase(args.initial_phase)
-    gff3.check_reference(check_n=check_n, allowed_num_of_n=args.allowed_num_of_n, feature_types=args.check_n_feature_types)
+    gff3.check_reference(fasta_external=args.fasta, check_n=check_n, allowed_num_of_n=args.allowed_num_of_n, feature_types=args.check_n_feature_types)
     logger_stderr.info('\t- Checking missing attributes: (%s)...\n', 'function4gff.FIX_MISSING_ATTR()')
     function4gff.FIX_MISSING_ATTR(gff3, logger=logger_stderr)
 
