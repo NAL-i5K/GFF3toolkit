@@ -43,7 +43,7 @@ View the [gff3_merge.py readme](gff3_merge.md) for instructions on how to run th
 ## Replace Tags 
 ([back](#table-of-contents))
 
-The replace tag is a custom GFF3 attribute in the new or modified GFF3 file that specifies which mRNA(s) or transcript(s) from a single reference GFF3 file should be replaced by the new annotation. The replace tag follows this format: replace=[Name or ID attribute of reference mRNA or transcript to be replaced]. The replace tag could be added through Apollo program (check the tutorial [here](https://i5k.nal.usda.gov/apollo-replaced-models-field-explanations-and-examples)), or directly added into the new or modified GFF3 file.
+The replace tag is a custom GFF3 attribute in the new or modified GFF3 file that specifies which mRNA(s) or transcript(s) from a single reference GFF3 file should be replaced by the new annotation. The replace tag follows this format: replace=[Name or ID attribute of reference mRNA or transcript to be replaced]. The replace tag can be directly added into the new or modified GFF3 file.
 
 Here's an example:
 
@@ -131,6 +131,7 @@ pre-transcript sequences from updated GFF3 file | pre-transcript from reference 
 - **Merging a reference model**: If multiple reference models need to be merged into one, then the modified, merged model should carry replace tags with IDs or Names of all models to be merged. `replace=CLEC00001-RA,CLEC00002-RA`
 - **Splitting a reference model**: If a reference model needs to be split, you will need to add a replace tag with the model ID or Name of the split reference model to BOTH models in the modified GFF3. E.g. split model 1: `replace=CLEC00001-RA`, split model 2: `replace=CLEC00001-RA`
 - The merge program will check your replace tags, and will throw an error if your replace tag does not meet these assumptions. You will need to update your replace tags according to the error message, and run the program again after fixing.
+
 
 ## Replacing and adding models with multiple isoforms
 ([back](#table-of-contents))
