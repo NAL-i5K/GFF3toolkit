@@ -4,13 +4,13 @@ Changelog:
     * v0.0.2
         - Sort the features grouped as 'others' by PositionSort
         - Add comments
+        - Add argument -r to sort seqID does not end with a number
 """
 import sys
 import re
 import logging
 from gff3tool.lib.gff3 import Gff3
 from gff3tool.bin import version
-
 
 __version__ = version.__version__
 
@@ -20,7 +20,6 @@ def PositionSort(linelist,reference):
     id2start = {}
     seq2id = {}
     if reference==True:
-        #print('New_Function')
         for line in linelist:
             id2line[str(line['line_raw'])] = line
             id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
@@ -37,7 +36,6 @@ def PositionSort(linelist,reference):
         keys=sorted(seq2id)
 
     else:
-        #print('Origin')
         for line in linelist:
             id2line[str(line['line_raw'])] = line
             id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
@@ -46,16 +44,16 @@ def PositionSort(linelist,reference):
                 seqnum = tmp.groups()[1]
             except AttributeError:
                 print('ERROR [SeqID] SeqID does not end with a number. \n\t\t- Line {0:s}: {1:s} \n Adding argument -r like " gff3_sort -g example_file/example.gff3 -og example-sorted.gff3 -r " can handle this situation.'.format(str(line['line_index']+1),line['line_raw']))
-                sys.exit(1)     
+                sys.exit(1)
             # 'seq2id': a dictionary mapping sequence number to their features
             if seq2id.has_key(seqnum):
                 seq2id[seqnum].append(str(line['line_raw']))
             else:
                 seq2id[seqnum] = [str(line['line_raw'])]
         # Sort by sequence ID number, and store them in 'keys'
-        keys = sorted(seq2id, key=lambda i: int(i))   
-
+        keys = sorted(seq2id, key=lambda i: int(i))  
     newlinelist=[]
+
     # Visit every sequence number in the sorted list
     for k in keys:
         ids = seq2id[k] # Collect features having the same sequence ID number
@@ -70,8 +68,9 @@ def PositionSort(linelist,reference):
         id_sorted = sorted(d, key=lambda i: int(d[i])) # Sort the features by their 'start' coordinates
         for i in id_sorted:
             newlinelist.append(id2line[i]) # Collect the sorted features to the result parameter
-    return newlinelist # Return the sorted result
-    
+    # Return the sorted result
+    return newlinelist
+
 def StrandSort(linelist):
     # the input argument, 'linelist', is a python list collecting features with the same strand information and the same type! Please note that linelist has to be single feature type, eg. exon.
     strand = {}
@@ -386,7 +385,7 @@ def script_main():
     parser.add_argument('-t', '--sort_template', type=str, help='A file that indicates the sorting order of features within a gene model')
     parser.add_argument('-i', '--isoform_sort', action="store_true", help='Sort multi-isoform gene models by feature type (default: False)', default=False)
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-    parser.add_argument('-r', '--reference', action="store_true", help='Handle seqID does not end with a number', default=False)
+    parser.add_argument('-r', '--reference', action="store_true", help='Sort seqID does not end with a number', default=False)
     # Process the required arguments
     test_lv = 1 # debug
     if test_lv == 0:
