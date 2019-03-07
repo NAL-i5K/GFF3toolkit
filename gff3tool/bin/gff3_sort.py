@@ -27,7 +27,7 @@ def PositionSort(linelist,reference):
             try:
                 seqnum = tmp.groups()[0]
             except AttributeError:
-                sys.exit(1)     
+                sys.exit(1)
             # 'seq2id': a dictionary mapping sequence number to their features
             if seq2id.has_key(seqnum):
                 seq2id[seqnum].append(str(line['line_raw']))
@@ -51,7 +51,7 @@ def PositionSort(linelist,reference):
             else:
                 seq2id[seqnum] = [str(line['line_raw'])]
         # Sort by sequence ID number, and store them in 'keys'
-        keys = sorted(seq2id, key=lambda i: int(i))  
+        keys = sorted(seq2id, key=lambda i: int(i))
     newlinelist=[]
 
     # Visit every sequence number in the sorted list
