@@ -19,22 +19,30 @@ def PositionSort(linelist,reference):
     id2line = {}
     id2start = {}
     seq2id = {}
+    seqorder=[]
     if reference==True:
+        for seqid in linelist:
+            if seqid['seqid'] not in seqorder:
+                seqorder.append(str(seqid['seqid'])) 
+        #print seqorder
+
         for line in linelist:
             id2line[str(line['line_raw'])] = line
             id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
-            tmp = re.search('(.+?)(\D+)',line['seqid']) # Truncate the sequence ID, and only keep the sequence ID number
+            tmp = re.search('(\S+)',line['seqid'])
             try:
                 seqnum = tmp.groups()[0]
+
             except AttributeError:
+                print ('Error')
                 sys.exit(1)
             # 'seq2id': a dictionary mapping sequence number to their features
             if seq2id.has_key(seqnum):
                 seq2id[seqnum].append(str(line['line_raw']))
             else:
                 seq2id[seqnum] = [str(line['line_raw'])]
-        keys=sorted(seq2id)
-
+        keys=sorted(seq2id, key=seqorder.index)
+       
     else:
         for line in linelist:
             id2line[str(line['line_raw'])] = line
@@ -196,6 +204,7 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None, 
                roots.append(line)
        except:
            logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+        
     #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
 
     # Sort the root-level features based on the order of the genomic sequences
