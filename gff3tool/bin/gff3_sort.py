@@ -204,7 +204,6 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None, 
                roots.append(line)
        except:
            logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-   
     #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
 
     # Sort the root-level features based on the order of the genomic sequences
