@@ -33,7 +33,7 @@ Sort features in a gff3 file by according to their order on a scaffold, their co
 6. -v, --version
     - show program's version number and exit
 7. -r, --reference
-    - Sort seqID does not end with a number
+    - Sort scaffold (seqID) by order of appearance in gff3 file (default is by number)
 
 ## Example:
 
