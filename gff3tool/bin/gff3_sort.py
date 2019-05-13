@@ -42,7 +42,6 @@ def PositionSort(linelist,reference):
             else:
                 seq2id[seqnum] = [str(line['line_raw'])]
         keys=sorted(seq2id, key=seqorder.index)
-       
     else:
         for line in linelist:
             id2line[str(line['line_raw'])] = line
