@@ -372,7 +372,7 @@ def script_main():
     from textwrap import dedent
     # Help information
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
-    Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and feature relationship based on sequence ontology.
+    Sort a GFF3 file according to the order of Scaffold (seqID), coordinates on a Scaffold, and feature relationship based on sequence ontology.
 
     Inputs:
     1. GFF3 file: Specify the file name with the -g argument
@@ -392,7 +392,7 @@ def script_main():
     parser.add_argument('-t', '--sort_template', type=str, help='A file that indicates the sorting order of features within a gene model')
     parser.add_argument('-i', '--isoform_sort', action="store_true", help='Sort multi-isoform gene models by feature type (default: False)', default=False)
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-    parser.add_argument('-r', '--reference', action="store_true", help='Sort seqID does not end with a number', default=False)
+    parser.add_argument('-r', '--reference', action="store_true", help='Sort scaffold (seqID) by order of appearance in gff3 file (default is by number)', default=False)
     # Process the required arguments
     test_lv = 1 # debug
     if test_lv == 0:
