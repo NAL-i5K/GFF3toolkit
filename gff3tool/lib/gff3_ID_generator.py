@@ -196,7 +196,7 @@ def main(in_gff, merge_report, out_merge_report, out_gff, uuid_on, prefix, digit
                             if alias:
                                 line['attributes']['Alias'] = line['attributes']['ID']
                             if line['attributes']['ID'] not in Copy_ID_dict:
-                                Copy_ID_dict.append(line['attributes']['ID'])                       
+                                Copy_ID_dict.append(line['attributes']['ID'])              
                             line['attributes']['ID'] = newID
                         else:
                             ID_dict[line['attributes']['ID']] = [newID]
@@ -231,7 +231,7 @@ def main(in_gff, merge_report, out_merge_report, out_gff, uuid_on, prefix, digit
         ID_dict[root['attributes']['ID']] = [newID['ID']]
         ID_order.append(root['attributes']['ID'])
         if alias: 
-            root['attributes']['Alias'] = root['attributes']['ID'] 
+            root['attributes']['Alias'] = root['attributes']['ID']
         root['attributes']['ID'] = newID['ID']
         children = root['children']
         alphabets = list(string.ascii_uppercase)
@@ -306,7 +306,7 @@ def main(in_gff, merge_report, out_merge_report, out_gff, uuid_on, prefix, digit
                 for i in line['attributes']['Parent']:
                     if i not in cds_parent:
                         cds_parent.append(i)
-      
+
                 #parent_feature
                 for z in cds_parent:
                     newID2 = str(uuid.uuid4())
