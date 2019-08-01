@@ -196,7 +196,7 @@ def main(in_gff, merge_report, out_merge_report, out_gff, uuid_on, prefix, digit
                             if alias:
                                 line['attributes']['Alias'] = line['attributes']['ID']
                             if line['attributes']['ID'] not in Copy_ID_dict:
-                                Copy_ID_dict.append(line['attributes']['ID'])              
+                                Copy_ID_dict.append(line['attributes']['ID'])
                             line['attributes']['ID'] = newID
                         else:
                             ID_dict[line['attributes']['ID']] = [newID]
@@ -207,7 +207,7 @@ def main(in_gff, merge_report, out_merge_report, out_gff, uuid_on, prefix, digit
                     else:
                         ID_dict['missing'].append(newID)
                         line['attributes']['ID'] = newID
-                        
+
                     if 'Parent' in line['attributes']:
                         for index, parent in enumerate(line['attributes']['Parent']):
                             if parent in ID_dict:
