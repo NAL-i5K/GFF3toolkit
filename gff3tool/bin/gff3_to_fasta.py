@@ -1,4 +1,4 @@
-#! /usr/local/bin/python2.7
+#! /usr/local/bin/python3.6
 from __future__ import print_function
 import sys
 import re
