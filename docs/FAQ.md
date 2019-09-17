@@ -37,7 +37,7 @@ In addition, if your input gff file contains a feature that has two or more pare
 
 ## Q: Which codons are considered for translation? (Generate biological sequences from a GFF3 file: gff3_to_fasta.py)
 
-Translation from 64 combinations of [standard codons](https://www-bimas.cit.nih.gov/molbio/translate/codes.html) (Only standard codons and universal stop codons are considered.)
+Translation from 64 combinations of [standard codons]( https://web.archive.org/web/20161201123943/https://www-bimas.cit.nih.gov/molbio/translate/codes.html) (Only standard codons and universal stop codons are considered.)
 
 ## Q: Why does gff3_merge.py sometimes reject auto-assigned replace tags when the reference model has multiple isoforms? (Merge 2 GFF3 files: gff3_merge.py)
 
