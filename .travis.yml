@@ -40,7 +40,7 @@ script:
   - gff3_sort -g example_file/example.gff3 -og example-sorted.gff3
   - gff3_to_fasta -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
   
-  after_success:
+after_success:
   - coveralls
   - codecov
   
