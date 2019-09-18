@@ -16,7 +16,7 @@ Extract sequences from specific regions of genome based on gff file.
     - **`user_defined`**: Specify parent and child features for fasta extraction via the -u argument, format [parent feature type] [child feature type].(e.g. `-st user_defined -u miRNA exon`)
 * **`translator` method for universal translation**: The `translator` method is feasible for
     - translation from 64 combitions of [standard codons](http://www-bimas.cit.nih.gov/molbio/translate/codes.html) (Only standard codons and universal stop condons are considered.)
-    - translation from [codons with IUB Depiction](http://www-bimas.cit.nih.gov/molbio/translate/codes.html)
+    - translation from [codons with IUB Depiction](https://en.wikipedia.org/wiki/DNA_codon_table)
     - translation from mRNA (U contained) or CDS (T, instead of U contained)
 
 ## Usage
