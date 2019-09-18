@@ -27,7 +27,7 @@ matrix:
     script: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md # only this instance will check the documents
 
 install:
- - pip install --user coveralls coverage
+  - pip install --user coveralls coverage
 
 script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
