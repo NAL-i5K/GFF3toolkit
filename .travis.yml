@@ -4,22 +4,22 @@ matrix:
   include:
   - os: linux
     language: python
-    python: 2.7
+    python: 3.6
     install:
-      - pip install .
+      - pip3 install .
   - os: linux
     language: python
-    python: 2.7
+    python: 3.6
     install:
-      - pip install --no-cache-dir gff3tool
+      - pip3 install --no-cache-dir gff3tool
   - os: osx
     language: generic
     install:
-      - pip2 install .
+      - pip3 install .
   - os: osx
     language: generic
     install:
-      - pip2 install --no-cache-dir gff3tool
+      - pip3 install --no-cache-dir gff3tool
   - os: linux
     language: ruby
     rvm: 2.2
@@ -43,4 +43,3 @@ script:
 after_success:
   - coveralls
   - codecov
-  
