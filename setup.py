@@ -12,7 +12,7 @@ from codecs import open
 from os import path, remove, mkdir
 import shutil
 import tarfile
-import urllib.request
+import urllib.request as urllib
 import platform
 import sys
 from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
@@ -38,15 +38,15 @@ class CustomBuildCommand(build):
         mkdir(blast_path)
 
         if platform_system == 'Linux':
-            urllib.request.urlretrieve(
+            urllib.urlretrieve(
                 'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz',
                 blast_file)
         elif platform_system == 'Windows':
-            urllib.request.urlretrieve(
+            urllib.urlretrieve(
                 'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-win64.tar.gz',
                 blast_file)
         elif platform_system == 'Darwin':
-            urllib.request.urlretrieve(
+            urllib.urlretrieve(
                 'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-universal-macosx.tar.gz',
                 blast_file)
         else:
@@ -147,6 +147,7 @@ setup(
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.6',
     ],
 
     # This field adds keywords for your project which will appear on the
