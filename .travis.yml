@@ -41,7 +41,7 @@ script:
   - gff3_to_fasta -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
 
 after_success:
-  - coverage run tests.py
+  - tests.sh
   - coverage report
   - coveralls
   - codecov
