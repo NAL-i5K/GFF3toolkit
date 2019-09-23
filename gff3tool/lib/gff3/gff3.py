@@ -18,7 +18,11 @@ try:
 except ImportError:
     from urllib.parse import quote, unquote
 import re
-import string
+try:
+    maketrans = ''.maketrans
+except AttributeError:
+    # fallback for Python 2
+    from string import maketrans
 import logging
 import gff3tool.lib.ERROR as ERROR
 
@@ -36,10 +40,8 @@ ERROR_INFO = ERROR.INFO
 
 IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript']
 
-try:
-    COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
-except AttributeError:
-    COMPLEMENT_TRANS = str.maketrans('TAGCtagc', 'ATCGATCG')
+
+COMPLEMENT_TRANS = maketrans('TAGCtagc', 'ATCGATCG')
 def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
 
@@ -248,7 +250,7 @@ class Gff3(object):
         flag = True
         for line in self.lines:
             if 'attributes' in line and 'ID' not in line['attributes'] and line['type'] in IDrequired:
-                logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line %s: %s'.format(str(line['line_index']+1), line['line_raw']))
                 check += 1
         if check > 0:
             flag = False
