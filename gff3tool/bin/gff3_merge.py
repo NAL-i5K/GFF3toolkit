@@ -19,14 +19,14 @@ def check_replace(gff, user_defined1=None):
     for line in gff.lines:
         if not user_defined1:
             try:
-                if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                if line['line_type'] == 'feature' and not 'Parent' in line['attributes']:
                    roots.append(line)
             except KeyError:
-                print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+                print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line %s: %s'.format(str(line['line_index']+1), line['line_raw']))
         else:
             if line['type'] in u_type:
                 try:
-                    if not line['attributes'].has_key('replace'):
+                    if not 'replace' in line['attributes']:
                         error_lines.append(line)
                 except KeyError:
                     print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
@@ -36,7 +36,7 @@ def check_replace(gff, user_defined1=None):
     for root in roots:
         children = root['children']
         for child in children:
-            if not child['attributes'].has_key('replace'):
+            if not 'replace' in child['attributes']:
                 error_lines.append(child)
 
     if len(error_lines):

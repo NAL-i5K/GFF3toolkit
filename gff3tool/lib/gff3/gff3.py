@@ -18,7 +18,11 @@ try:
 except ImportError:
     from urllib.parse import quote, unquote
 import re
-import string
+try:
+    maketrans = ''.maketrans
+except AttributeError:
+    # fallback for Python 2
+    from string import maketrans
 import logging
 import gff3tool.lib.ERROR as ERROR
 
@@ -37,7 +41,7 @@ ERROR_INFO = ERROR.INFO
 IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript']
 
 
-COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
+COMPLEMENT_TRANS = maketrans('TAGCtagc', 'ATCGATCG')
 def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
 
@@ -48,7 +52,7 @@ CODON_TABLE = dict(zip(CODONS, AMINO_ACIDS))
 def translate(seq):
     seq = seq.lower().replace('\n', '').replace(' ', '')
     peptide = ''
-    for i in xrange(0, len(seq), 3):
+    for i in range(0, len(seq), 3):
         codon = seq[i: i+3]
         amino_acid = CODON_TABLE.get(codon, '!')
         if amino_acid != '!': # end of seq
@@ -245,8 +249,8 @@ class Gff3(object):
         check = 0
         flag = True
         for line in self.lines:
-            if line.has_key('attributes') and not line['attributes'].has_key('ID') and line['type'] in IDrequired:
-                logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+            if 'attributes' in line and 'ID' not in line['attributes'] and line['type'] in IDrequired:
+                logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line %s: %s'.format(str(line['line_index']+1), line['line_raw']))
                 check += 1
         if check > 0:
             flag = False
@@ -836,9 +840,9 @@ class Gff3(object):
                                 elif tag == 'ID':
                                     # check for duplicate ID in non-adjacent lines
                                     try:
-                                        if value in features and lines[-1].has_key('attributes') and lines[-1]['attributes'][tag] != value:
+                                        if value in features and 'attributes' in lines[-1] and lines[-1]['attributes'][tag] != value:
                                             self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'}, log_level=logging.WARNING)
-                                        elif value in features and not lines[-1].has_key('attributes'):
+                                        elif value in features and not 'attributes' in lines[-1]:
                                             self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'}, log_level=logging.WARNING)
                                     except:
                                         logger.warning('[Missing ID] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(lines[-1]['line_index']+1), lines[-1]['line_raw']))
