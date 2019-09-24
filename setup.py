@@ -12,9 +12,15 @@ from codecs import open
 from os import path, remove, mkdir
 import shutil
 import tarfile
-import urllib.request as urllib
-import platform
 import sys
+if sys.version_info[0] >= 3:
+    from urllib.request import urlretrieve
+else:
+    # Not Python 3 - today, it is most likely to be Python 2
+    # But note that this might need an update when Python 4
+    # might be around one day
+    from urllib import urlretrieve
+import platform
 from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 
 
@@ -38,15 +44,15 @@ class CustomBuildCommand(build):
         mkdir(blast_path)
 
         if platform_system == 'Linux':
-            urllib.urlretrieve(
+            urlretrieve(
                 'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz',
                 blast_file)
         elif platform_system == 'Windows':
-            urllib.urlretrieve(
+            urlretrieve(
                 'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-win64.tar.gz',
                 blast_file)
         elif platform_system == 'Darwin':
-            urllib.urlretrieve(
+            urlretrieve(
                 'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-universal-macosx.tar.gz',
                 blast_file)
         else:
