@@ -23,7 +23,7 @@ def FIX_PSEUDOGENE(gff):
     roots = []
     for line in gff.lines:
         try:
-            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+            if line['line_type'] == 'feature' and not 'Parent' in line['attributes']:
                 if len(line['attributes']) != 0:
                     roots.append(line)
                 else:

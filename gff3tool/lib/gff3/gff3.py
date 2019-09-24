@@ -541,6 +541,7 @@ class Gff3(object):
         unresolved_parents = defaultdict(list)
 
         for line_raw in gff_fp:
+            line_raw = str(line_raw,'utf-8')
             line_data = {
                 'line_index': current_line_num - 1,
                 'line_raw': line_raw,
@@ -686,7 +687,7 @@ class Gff3(object):
             else:
                 # line_type may be a feature or unknown
                 line_data['line_type'] = 'feature'
-                tokens = map(str.strip, line_raw.split('\t'))
+                tokens = list(map(str.strip, line_raw.split('\t')))
                 if len(tokens) != 9:
                     self.add_line_error(line_data, {'message': 'Features should contain 9 fields, got %d: %s' % (len(tokens) - 1, repr(tokens[1:])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0022'})
                 for i, t in enumerate(tokens):

@@ -2,7 +2,12 @@
 import sys
 import re
 import logging
-import string
+try:
+    maketrans = ''.maketrans
+except AttributeError:
+    # fallback for Python 2
+    from string import maketrans
+
 from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.function4gff as function4gff
 import gff3tool.lib.intra_model as intra_model
@@ -14,7 +19,7 @@ from gff3tool.bin import version
 __version__ = version.__version__
 
 
-COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
+COMPLEMENT_TRANS = maketrans('TAGCtagc', 'ATCGATCG')
 def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
 
@@ -459,7 +464,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
                 print('ID\tError_Code\tError_Tag')
                 for e in eSet:
                     tag = '[{0:s}]'.format(e['eTag'])
-                    print e['ID'], e['eCode'], tag
+                    print(e['ID'], e['eCode'], tag)
     else:
         gff = Gff3(gff_file=gff_file, fasta_external=fasta_file, logger=logger_null)
         if embedded_fasta and len(gff.fasta_embedded) == 0:
