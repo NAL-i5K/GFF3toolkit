@@ -70,7 +70,11 @@ def featureSort(linelist, reverse=False):
     for line in linelist:
         lineindex = line['start'] if reverse==False else line['end']
         id2line[str(line['line_raw'])] = line
+<<<<<<< HEAD
         if line['type'] in FEATURECODE:
+=======
+        if 'type' in FEATURECODE:
+>>>>>>> b99d4e3... py2-3 update2
             id2index[str(line['line_raw'])] = [lineindex, FEATURECODE[line['type']] if reverse==False else (-FEATURECODE[line['type']])]
         else:
             id2index[str(line['line_raw'])] = [lineindex, 99 if reverse==False else -99]
