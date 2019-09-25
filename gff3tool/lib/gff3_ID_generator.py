@@ -50,7 +50,7 @@ def descendants_list(line_data, level):
             try:
                 collected_list.extend(descendants_list(child, level+1))
             except:
-                print(child['line_errors'])
+                print child['line_errors']
     else:
         return
     return collected_list

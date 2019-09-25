@@ -18,11 +18,7 @@ try:
 except ImportError:
     from urllib.parse import quote, unquote
 import re
-try:
-    maketrans = ''.maketrans
-except AttributeError:
-    # fallback for Python 2
-    from string import maketrans
+import string
 import logging
 import gff3tool.lib.ERROR as ERROR
 
@@ -40,8 +36,10 @@ ERROR_INFO = ERROR.INFO
 
 IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript']
 
-
-COMPLEMENT_TRANS = maketrans('TAGCtagc', 'ATCGATCG')
+try:
+    COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
+except AttributeError:
+    COMPLEMENT_TRANS = str.maketrans('TAGCtagc', 'ATCGATCG')
 def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
 
@@ -250,7 +248,7 @@ class Gff3(object):
         flag = True
         for line in self.lines:
             if 'attributes' in line and 'ID' not in line['attributes'] and line['type'] in IDrequired:
-                logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line %s: %s'.format(str(line['line_index']+1), line['line_raw']))
+                logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                 check += 1
         if check > 0:
             flag = False
@@ -541,7 +539,6 @@ class Gff3(object):
         unresolved_parents = defaultdict(list)
 
         for line_raw in gff_fp:
-            line_raw = str(line_raw,'utf-8')
             line_data = {
                 'line_index': current_line_num - 1,
                 'line_raw': line_raw,
@@ -687,7 +684,7 @@ class Gff3(object):
             else:
                 # line_type may be a feature or unknown
                 line_data['line_type'] = 'feature'
-                tokens = list(map(str.strip, line_raw.split('\t')))
+                tokens =  list(map(str.strip, line_raw.split('\t')))
                 if len(tokens) != 9:
                     self.add_line_error(line_data, {'message': 'Features should contain 9 fields, got %d: %s' % (len(tokens) - 1, repr(tokens[1:])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0022'})
                 for i, t in enumerate(tokens):

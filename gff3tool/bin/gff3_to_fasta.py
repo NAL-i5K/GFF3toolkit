@@ -1,14 +1,9 @@
-#! /usr/local/bin/python2.7
+#! /usr/local/bin/python3.6
 from __future__ import print_function
 import sys
 import re
 import logging
-try:
-    maketrans = ''.maketrans
-except AttributeError:
-    # fallback for Python 2
-    from string import maketrans
-
+import string
 from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.function4gff as function4gff
 import gff3tool.lib.intra_model as intra_model
@@ -20,7 +15,12 @@ from gff3tool.bin import version
 __version__ = version.__version__
 
 
-COMPLEMENT_TRANS = maketrans('TAGCtagc', 'ATCGATCG')
+try:
+    COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
+except AttributeError:
+    COMPLEMENT_TRANS = str.maketrans('TAGCtagc', 'ATCGATCG')
+
+
 def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
 

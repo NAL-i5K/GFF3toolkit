@@ -7,29 +7,19 @@ matrix:
     python: 3.4
     install:
       - pip install .
-  - os: linux
-    language: python
-    python: 3.4
-    install:
-      - pip install gff3tool
-
   - os: osx
     language: generic
     install:
-      - pip install .
+      - pip2 install .
   - os: osx
     language: generic
     install:
-      - pip install gff3tool
-
+      - pip2 install --no-cache-dir gff3tool
   - os: linux
     language: ruby
     rvm: 2.2
     before_script: gem install awesome_bot
     script: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md # only this instance will check the documents
-
-install:
-  - pip install --user coveralls coverage codecov
 
 script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt

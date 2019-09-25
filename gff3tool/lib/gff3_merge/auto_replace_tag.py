@@ -21,7 +21,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     if not os.path.isdir(outdir):
         os.makedirs(outdir)
 
-    tmpdir = '%s/%s'%(outdir, 'tmp')
+    tmpdir = '{0:s}/{1:s}'.format(outdir, 'tmp')
     if not os.path.isdir(tmpdir):
         os.makedirs(tmpdir)
 

@@ -1,4 +1,4 @@
-#! /usr/local/bin/python2.7
+#! /usr/local/bin/python3.6
 import sys
 import re
 import logging
@@ -22,7 +22,7 @@ def check_replace(gff, user_defined1=None):
                 if line['line_type'] == 'feature' and 'Parent' not in line['attributes']:
                    roots.append(line)
             except KeyError:
-                print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line %s: %s'.format(str(line['line_index']+1), line['line_raw']))
+                print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         else:
             if line['type'] in u_type:
                 try:

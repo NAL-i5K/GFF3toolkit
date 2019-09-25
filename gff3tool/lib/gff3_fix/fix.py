@@ -187,7 +187,7 @@ def split(gff3, error_list, logger):
                             newID = '{0:s}.s{1:d}'.format(oldID, flag)
                         newparent = copy.deepcopy(root)
                         newparent['attributes']['ID'] = newID
-                        if 'Name' in root['attributes'] and newparent['attributes']['Name'] == newparent['attributes']['ID']:
+                        if 'Name' in newparent['attributes'] and newparent['attributes']['Name'] == newparent['attributes']['ID']:
                             newparent['attributes']['Name'] = newID
                         eofindex += 1
                         newparent['line_index'] = eofindex

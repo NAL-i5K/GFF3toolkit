@@ -32,8 +32,6 @@ Sort features in a gff3 file by according to their order on a scaffold, their co
     - Sort multi-isoform gene models by feature type (default: False)
 6. -v, --version
     - show program's version number and exit
-7. -r, --reference
-    - Sort scaffold (seqID) by order of appearance in gff3 file (default is by number)
 
 ## Example:
 
