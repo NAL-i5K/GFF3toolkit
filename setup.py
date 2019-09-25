@@ -13,13 +13,7 @@ from os import path, remove, mkdir
 import shutil
 import tarfile
 import sys
-if sys.version_info[0] >= 3:
-    from urllib.request import urlretrieve
-else:
-    # Not Python 3 - today, it is most likely to be Python 2
-    # But note that this might need an update when Python 4
-    # might be around one day
-    from urllib import urlretrieve
+from urllib.request import urlretrieve
 import platform
 from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 
