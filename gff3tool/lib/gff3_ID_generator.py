@@ -30,7 +30,7 @@ def TypeSort(line_list, sorting_order, reverse=False):
         lineindex = line['start'] if reverse==False else line['end']
         id2line[str(line['line_raw'])] = line
         try:
-            if sorting_order.has_key(line['type']):
+            if line['type'] in sorting_order:
                 id2index[str(line['line_raw'])] = [lineindex, sorting_order[line['type']] if reverse==False else (-sorting_order[line['type']])]
             else:
                 id2index[str(line['line_raw'])] = [lineindex, 99 if reverse==False else -99]
@@ -50,7 +50,7 @@ def descendants_list(line_data, level):
             try:
                 collected_list.extend(descendants_list(child, level+1))
             except:
-                print(child['line_errors'])
+                print child['line_errors']
     else:
         return
     return collected_list

@@ -2,7 +2,7 @@
 """
 After the revision of gff file done by annotators (spreadsheet), incorporating the revised information into the Web Apollo gff before gff integration. Additionally, if there are features containing 'replace' field at gene level, add 'replace' field to every child level of the gene and then delete the replace field of the gene.
 """
-
+from __future__ import print_function
 import sys
 import re
 import logging
@@ -20,8 +20,8 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
 
     NCRNA = ['rRNA', 'miRNA', 'ncRNA', 'snRNA', 'snoRNA', 'tRNA']
 
-    logger.info('Reading revision file... (%s)'.format(revision_file))
-    flines = open(revision_file, 'rb')
+    logger.info('Reading revision file... ({0:s})'.format(revision_file))
+    flines = open(revision_file, 'r')
     fflag = 0
     revision = {}
     revision_id = {}
@@ -34,25 +34,25 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
             if not re.search('\t\n', line_raw):
                 line_strip = line_raw.rstrip('\n')
                 tokens = line_strip.split('\t')
-                key = '%s:%s-%s:%s:%s'%(tokens[6], tokens[7], tokens[8], tokens[9], tokens[10])
+                key = '{0:s}:{1:s}-{2:s}:{3:s}:{4:s}'.format(tokens[6], tokens[7], tokens[8], tokens[9], tokens[10])
                 revision[key]=[tokens[24], line_strip]
                 revision_id[tokens[12]] = [tokens[24], line_strip]
                 rtype[tokens[10]] = 1
 
-    logger.info('Reading gff3 file... (%s)'%(gff_file))
+    logger.info('Reading gff3 file... ({0:s})'.format(gff_file))
     gff3 = Gff3(gff_file=gff_file, logger=logger_null)
 
     if report_file:
-        logger.info('Writing summary report (%s)...'%(report_file))
+        logger.info('Writing summary report ({0:s})...'.format(report_file))
         report_fh = open(report_file, 'w')
     else:
         logger.info('Writing summary report: replace_tag_report.txt...')
         report_fh = open('replace_tag_report.txt', 'w')
 
     # Validation Summary
-    report_fh.write('# GFF3 Revision Report (%s)'.format(report_file))
+    report_fh.write('# GFF3 Revision Report ({0:s})'.format(report_file))
     if gff_file and sys.stdin.isatty():
-        report_fh.write(': %s and %s'.format(gff_file, revision_file))
+        report_fh.write(': {0:s} and {1:s}'.format(gff_file, revision_file))
     report_fh.write('\n\n')
 
     report_fh.write('# Summary\n')
@@ -65,23 +65,23 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
     match = 0
     for line in gff3.lines:
         if line['type'] in rtype:
-            key = '%s:%s-%s:%s:%s'%(line['seqid'], str(line['start']), str(line['end']), line['strand'], line['type'])
+            key = '{0:s}:{1:s}-{2:s}:{3:s}:{4:s}'.format(line['seqid'], str(line['start']), str(line['end']), line['strand'], line['type'])
             if line['attributes']['ID'] in revision_id:
                 match += 1
-                #if not line['attributes'].has_key('replace'):
-                #    line['attributes']['replace'] = revision_id[line['attributes']['ID']][0]
+                # if 'replace' not in line['attributes']:
+                #     line['attributes']['replace'] = revision_id[line['attributes']['ID']][0]
                 line['attributes']['replace'] = [revision_id[line['attributes']['ID']][0]]
                 revision_id[line['attributes']['ID']][1] = 'hit'
             elif key in revision:
                 tokens = revision[key][1].split('\t')
                 if not revision[key][1] == 'hit':
-                    report_fh.write('\t- Same genomic region, but different IDs:\t(Annotator)%s\t(Gff)%s\n'%(tokens[12], line['attributes']['ID']))
+                    report_fh.write('\t- Same genomic region, but different IDs:\t(Annotator){0:s}\t(Gff){1:s}\n'.format(tokens[12], line['attributes']['ID']))
                     match += 1
-                    if not 'replace' in line['attributes']:
+                    if 'replace' not in line['attributes']:
                         line['attributes']['replace'] = [revision[key][0]]
                     revision[key][1] = 'hit'
                 else:
-                    report_fh.write('\t- Same genomic region, but different IDs and duplicate seuqences at the same location:\t(Location)%s\t(Gff)%s\n'%(key, line['attributes']['ID']))
+                    report_fh.write('\t- Same genomic region, but different IDs and duplicate seuqences at the same location:\t(Location){0:s}\t(Gff){1:s}\n'.format(key, line['attributes']['ID']))
     if match == 0:
         #print '\n[Warning!] No matched lines in the input gff!\n'
         print('\n')
@@ -90,12 +90,12 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
         report_fh.write('* Found {0:d} matched IDs of the revision file\n'.format(match))
         report_fh.write('* Are there IDs that should be revised, but cannot be found in the gff?\n')
         count = 0
-        for v in revision_id.itervalues():
+        for v in list(revision_id.values()):
             if not v[1] == 'hit':
                 tokens = v[1].split('\t')
-                key = '%s:%s-:%s:%s:%s'%(tokens[6], tokens[7], tokens[8], tokens[9], tokens[10])
+                key = '{0:s}:{1:s}-{2:s}:{3:s}:{4:s}'.format(tokens[6], tokens[7], tokens[8], tokens[9], tokens[10])
                 if not revision[key][1] == 'hit':
-                    report_fh.write('\t- %s\n'%(v[1]))
+                    report_fh.write('\t- {0:s}\n'.format(v[1]))
                     count += 1
         if count == 0:
             report_fh.write('\t- All IDs are properly found in the gff.\n')
@@ -111,10 +111,10 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
     for line in gff3.lines:
         if user_defined1 is None:
             try:
-                if line['line_type'] == 'feature' and not 'Parent' in line['attributes']:
+                if line['line_type'] == 'feature' and 'Parent' not in line['attributes']:
                     roots.append(line)
             except KeyError:
-                print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line %s: %s'%(str(line['line_index']+1), line['line_raw']))
+                print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         else:
             if line['type'] in u_types:
                 transcripts.append(line)
@@ -123,7 +123,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                         roots.append(root)
                         unique.add(root['line_raw'])
 
-    #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
     for line in roots:
         if 'replace' in line['attributes'] and 'children' in line:
             for index in range(len(line['attributes']['replace'])):
@@ -145,7 +145,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
             flag = 0
             for child in children:
                 f=0
-                if not 'replace' in child['attributes']:
+                if 'replace' not in child['attributes']:
                     child['attributes']['replace'] = line['attributes']['replace']
                     flag += 1
                     f+=1
@@ -158,7 +158,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                     i = str(sorted(line['attributes']['replace']))
                     j = str(sorted(child['attributes']['replace']))
                     if not i == j:
-                        print '[Warning!] replace tag at gene level (%s) is not consistent with that at mRNA level (%s)'%(i,j)
+                        print('[Warning!] replace tag at gene level ({0:s}) is not consistent with that at mRNA level ({1:s})'.format(i,j))
             if user_defined1 is None:
                 del line['attributes']['replace']
             else:
@@ -188,7 +188,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                         if gchild['type'] == 'exon':
                             exonflag += 1
                     if exonflag == 0:
-                        newid = '%s-EXON1'.format(child['attributes']['ID'])
+                        newid = '{0:s}-EXON1'.format(child['attributes']['ID'])
                         newExon = copy.deepcopy(child)
                         eofindex = len(gff3.lines)
                         newExon['line_index'] = eofindex
@@ -198,7 +198,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                         newExon['attributes']['Name'] = newid
                         newExon['type'] = 'exon'
                         if 'replace' in newExon['attributes']:
-                           del newExon['attributes']['replace']
+                            del newExon['attributes']['replace']
                         newExon['parents'].append(child)
                         newExon['attributes']['Parent'].append(child['attributes']['ID'])
                         child['children'].append(newExon)
@@ -206,7 +206,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                         gff3.lines.append(newExon)
 
             if line['type'] == 'gene' or line['type'] == 'pseudogene':
-                if not 'children' in line:
+                if 'children' not in line:
                     gff3.remove(line)
         if auto:
             if 'children' in line:
@@ -243,5 +243,5 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
     if report_file:
         report_fh.close()
 
-    logger.info('Writing revised gff: (%s)...'%(output_gff))
+    logger.info('Writing revised gff: ({0:s})...'.format(output_gff))
     gff3.write(output_gff)
