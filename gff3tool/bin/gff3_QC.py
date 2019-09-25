@@ -1,4 +1,4 @@
-#! /usr/local/bin/python2.7
+#! /usr/local/bin/python3.6
 import sys
 import logging
 from gff3tool.lib.gff3 import Gff3
@@ -109,24 +109,22 @@ def script_main():
     if cmd:
         error_set.extend(cmd)
     if args.output:
-        logger_stderr.info('Print QC report at %s'%(args.output))
+        logger_stderr.info('Print QC report at {0:s}'.format(args.output))
         report_fh = open(args.output, 'w')
     else:
-        logger_stderr.info('Print QC report at %s'%('report.txt'))
+        logger_stderr.info('Print QC report at {0:s}'.format('report.txt'))
         report_fh = open('report.txt', 'w')
 
     if args.statistic:
-        logger_stderr.info('Print QC statistic report at %s'%(args.statistic))
+        logger_stderr.info('Print QC statistic report at {0:s}'.format(args.statistic))
         statistic_fh = open(args.statistic, 'w')
     else:
-        logger_stderr.info('Print QC statistic report at %s'%('statistic.txt'))
+        logger_stderr.info('Print QC statistic report at {0:s}'.format('statistic.txt'))
         statistic_fh = open('statistic.txt', 'w')
     report_fh.write('Line_num\tError_code\tError_tag\n')
-    print('?????',sorted(error_set))
-    sys.exit()
-    for e in sorted(error_set):
-        tag = '[%s]'%(e['eTag'])
-        report_fh.write('%s\t%s\t%s\n'%(str(e['line_num']), str(e['eCode']), str(tag)))
+    for e in sorted(error_set, key=lambda x: sorted(x.keys())):
+        tag = '[{0:s}]'.format(e['eTag'])
+        report_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(e['line_num']), str(e['eCode']), str(tag)))
     #statistic_file
     error_counts = dict()
     ERROR_INFO=ERROR.INFO
@@ -136,4 +134,4 @@ def script_main():
             error_counts[s['eCode']]= {'count':0,'etag':ERROR_INFO[s['eCode']]}
         error_counts[s['eCode']]['count'] += 1   
     for a in error_counts:
-        statistic_fh.write('%s\t%s\t%s\n'%(str(a),str(error_counts[a]['count']),str(error_counts[a]['etag'])))
+        statistic_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(a),str(error_counts[a]['count']),str(error_counts[a]['etag'])))
