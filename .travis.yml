@@ -11,7 +11,8 @@ matrix:
     language: python
     python: 3.4
     install:
-      - pip install --no-cache-dir gff3tool
+      - pip install gff3tool
+
   - os: osx
     language: generic
     install:
@@ -19,7 +20,8 @@ matrix:
   - os: osx
     language: generic
     install:
-      - pip install --no-cache-dir gff3tool
+      - pip install gff3tool
+
   - os: linux
     language: ruby
     rvm: 2.2
@@ -27,7 +29,7 @@ matrix:
     script: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md # only this instance will check the documents
 
 install:
-  - pip3 install --user coveralls coverage codecov
+  - pip install --user coveralls coverage codecov
 
 script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
