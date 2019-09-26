@@ -15,8 +15,8 @@ Extract sequences from specific regions of genome based on gff file.
     - **`pep`**: Translated peptide sequences (translation based on cds regions) for each record in the [`FASTA`] output. CDS features need to be included in the gff file.
     - **`user_defined`**: Specify parent and child features for fasta extraction via the -u argument, format [parent feature type] [child feature type].(e.g. `-st user_defined -u miRNA exon`)
 * **`translator` method for universal translation**: The `translator` method is feasible for
-    - translation from 64 combitions of [standard codons](http://www-bimas.cit.nih.gov/molbio/translate/codes.html) (Only standard codons and universal stop condons are considered.)
-    - translation from [codons with IUB Depiction](http://www-bimas.cit.nih.gov/molbio/translate/codes.html)
+    - translation from 64 combitions of [standard codons](https://web.archive.org/web/20161201123943/https://www-bimas.cit.nih.gov/molbio/translate/codes.html) (Only standard codons and universal stop condons are considered.)
+    - translation from [codons with IUB Depiction](https://web.archive.org/web/20161201123943/https://www-bimas.cit.nih.gov/molbio/translate/codes.html)
     - translation from mRNA (U contained) or CDS (T, instead of U contained)
 
 ## Usage
