@@ -19,6 +19,7 @@ matrix:
       - pip3 install gff3tool
   - os: linux
     language: ruby
+    python: 3.7
     rvm: 2.2
     before_script: gem install awesome_bot
     script: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md # only this instance will check the documents
