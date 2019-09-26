@@ -12,10 +12,7 @@ from codecs import open
 from os import path, remove, mkdir
 import shutil
 import tarfile
-try:
-    from urllib import urlretrieve
-except ImportError:
-    from urllib.request import urlretrieve
+from urllib.request import urlretrieve
 
 import platform
 import sys
