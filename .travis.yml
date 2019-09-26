@@ -16,7 +16,7 @@ matrix:
     language: generic
     python: 3.7
     install:
-      - pip3 install --no-cache-dir gff3tool
+      - pip3 install gff3tool
   - os: linux
     language: ruby
     rvm: 2.2
