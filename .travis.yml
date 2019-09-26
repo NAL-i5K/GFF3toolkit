@@ -21,6 +21,11 @@ matrix:
     before_script: gem install awesome_bot
     script: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md # only this instance will check the documents
 
+install:
+  - pip2 install --user coveralls 
+  - pip2 install --user coverage 
+  - pip2 install --user codecov
+
 script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
   - gff3_fix -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
@@ -31,7 +36,8 @@ script:
   - gff3_merge -g1 example_file/new_models_w_replace.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto
   - gff3_sort -g example_file/example.gff3 -og example-sorted.gff3
   - gff3_to_fasta -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
-  
+
 after_success:
+  - coverage report
   - coveralls
   - codecov
