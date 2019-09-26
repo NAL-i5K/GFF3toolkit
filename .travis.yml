@@ -6,17 +6,17 @@ matrix:
     language: python
     python: 3.6
     install:
-      - pip install .
+      - pip3 install .
   - os: osx
     language: generic
     python: 3.6
     install:
-      - pip install .
+      - pip3 install .
   - os: osx
     language: generic
     python: 3.6
     install:
-      - pip install --no-cache-dir gff3tool
+      - pip3 install --no-cache-dir gff3tool
   - os: linux
     language: ruby
     rvm: 2.2
@@ -24,9 +24,9 @@ matrix:
     script: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md # only this instance will check the documents
 
 install:
-  - pip install --user coveralls 
-  - pip install --user coverage 
-  - pip install --user codecov
+  - pip3 install --user coveralls 
+  - pip3 install --user coverage 
+  - pip3 install --user codecov
 
 script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
