@@ -9,10 +9,12 @@ matrix:
       - pip install .
   - os: osx
     language: generic
+    python: 3.6
     install:
       - pip install .
   - os: osx
     language: generic
+    python: 3.6
     install:
       - pip install --no-cache-dir gff3tool
   - os: linux
