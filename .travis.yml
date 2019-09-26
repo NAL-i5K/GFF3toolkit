@@ -4,17 +4,17 @@ matrix:
   include:
   - os: linux
     language: python
-    python: 3.6
+    python: 3.7
     install:
       - pip3 install .
   - os: osx
     language: generic
-    python: 3.6
+    python: 3.7
     install:
       - pip3 install .
   - os: osx
     language: generic
-    python: 3.6
+    python: 3.7
     install:
       - pip3 install --no-cache-dir gff3tool
   - os: linux
