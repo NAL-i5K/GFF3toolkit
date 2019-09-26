@@ -6,7 +6,13 @@ matrix:
     language: python
     python: 3.7
     install:
-      - pip3 install .
+      - pip install .
+      - pip install coveralls coverage codecov
+  - os: linux
+    language: python
+    python: 2.7
+    install:
+      - pip install --no-cache-dir gff3tool
   - os: osx
     language: generic
     python: 3.7
@@ -24,9 +30,6 @@ matrix:
     before_script: gem install awesome_bot
     script: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md # only this instance will check the documents
 
-install:
-  - pip install --user coveralls coverage codecov
-
 script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
   - gff3_fix -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
@@ -39,7 +42,6 @@ script:
   - gff3_to_fasta -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
 
 after_success:
-  - tests.sh
   - coverage report
   - coveralls
   - codecov
