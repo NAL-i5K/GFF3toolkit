@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Contributed by Li-Mei Chiang <dytk2134 [at] gmail [dot] com> (2018)
 #
 # This program is free software; you can redistribute it and/or modify

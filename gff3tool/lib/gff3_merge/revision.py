@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 """
 After the revision of gff file done by annotators (spreadsheet), incorporating the revised information into the Web Apollo gff before gff integration. Additionally, if there are features containing 'replace' field at gene level, add 'replace' field to every child level of the gene and then delete the replace field of the gene.
 """

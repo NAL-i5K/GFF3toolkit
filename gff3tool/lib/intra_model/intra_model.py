@@ -1,4 +1,4 @@
-#! /usr/bin/env python2.7
+#! /usr/bin/env python3
 
 """
 QC functions for processing multiple features within a model (intra-model) in GFF3 file.

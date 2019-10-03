@@ -1,4 +1,4 @@
-#! /usr/local/bin/python3.6
+#! /usr/local/bin/python3
 import sys
 import logging
 from gff3tool.lib.gff3 import Gff3
