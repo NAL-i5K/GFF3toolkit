@@ -1,9 +1,10 @@
-#! /usr/local/bin/python3
+#! /usr/local/bin/python2.7
 """
 Changelog:
     * v0.0.2
         - Sort the features grouped as 'others' by PositionSort
         - Add comments
+        - Add argument -r to sort seqID does not end with a number
 """
 import sys
 import re
@@ -13,29 +14,53 @@ from gff3tool.bin import version
 
 __version__ = version.__version__
 
-
-def PositionSort(linelist):
+def PositionSort(linelist,reference):
     # the input argument, 'linelist', is a python list collecting all the features you would like to sort by genomic coordinates
     id2line = {}
     id2start = {}
     seq2id = {}
-    for line in linelist:
-        id2line[str(line['line_raw'])] = line
-        id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
-        tmp = re.search('(.+?)(\d+)',line['seqid']) # Truncate the sequence ID, and only keep the sequence ID number
-        try:
-            seqnum = tmp.groups()[1]
-        except AttributeError:
-            print('ERROR  [Missing SeqID] Missing SeqID.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1),line['line_raw']))
-            sys.exit(1)
-        # 'seq2id': a dictionary mapping sequence number to their features
-        if seqnum in seq2id:
-            seq2id[seqnum].append(str(line['line_raw']))
-        else:
-            seq2id[seqnum] = [str(line['line_raw'])]
-    # Sort by sequence ID number, and store them in 'keys'
-    keys = sorted(seq2id, key=lambda i: int(i))
-    newlinelist = []
+    seqorder=[]
+    if reference==True:
+        for seqid in linelist:
+            if seqid['seqid'] not in seqorder:
+                seqorder.append(str(seqid['seqid']))
+            #print seqorder
+
+        for line in linelist:
+            id2line[str(line['line_raw'])] = line
+            id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
+            tmp = re.search('(\S+)',line['seqid'])
+            try:
+                seqnum = tmp.groups()[0]
+
+            except AttributeError:
+                print ('Error')
+                sys.exit(1)
+            # 'seq2id': a dictionary mapping sequence number to their features
+            if seq2id.has_key(seqnum):
+                seq2id[seqnum].append(str(line['line_raw']))
+            else:
+                seq2id[seqnum] = [str(line['line_raw'])]
+        keys=sorted(seq2id, key=seqorder.index)
+    else:
+        for line in linelist:
+            id2line[str(line['line_raw'])] = line
+            id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
+            tmp = re.search('(.+?)(\d+)',line['seqid']) # Truncate the sequence ID, and only keep the sequence ID number
+            try:
+                seqnum = tmp.groups()[1]
+            except AttributeError:
+                print('ERROR [SeqID] SeqID does not end with a number. \n\t\t- Line {0:s}: {1:s} \n Adding argument -r like " gff3_sort -g example_file/example.gff3 -og example-sorted.gff3 -r " can handle this situation.'.format(str(line['line_index']+1),line['line_raw']))
+                sys.exit(1)
+            # 'seq2id': a dictionary mapping sequence number to their features
+            if seq2id.has_key(seqnum):
+                seq2id[seqnum].append(str(line['line_raw']))
+            else:
+                seq2id[seqnum] = [str(line['line_raw'])]
+        # Sort by sequence ID number, and store them in 'keys'
+        keys = sorted(seq2id, key=lambda i: int(i))
+    newlinelist=[]
+
     # Visit every sequence number in the sorted list
     for k in keys:
         ids = seq2id[k] # Collect features having the same sequence ID number
@@ -47,11 +72,11 @@ def PositionSort(linelist):
             except:
                 print('ERROR [Start] Start is not a valid integer.\n\t\t- Line {0:s}: {1:s}'.format(str(id2start[ID][1]+1),ID))
                 sys.exit(1)
-
         id_sorted = sorted(d, key=lambda i: int(d[i])) # Sort the features by their 'start' coordinates
         for i in id_sorted:
             newlinelist.append(id2line[i]) # Collect the sorted features to the result parameter
-    return newlinelist # Return the sorted result
+    # Return the sorted result
+    return newlinelist
 
 def StrandSort(linelist):
     # the input argument, 'linelist', is a python list collecting features with the same strand information and the same type! Please note that linelist has to be single feature type, eg. exon.
@@ -140,7 +165,7 @@ def TypeSort(line_list, sorting_order, reverse=False):
         lineindex = line['start'] if reverse==False else line['end']
         id2line[str(line['line_raw'])] = line
         try:
-            if line['type'] in sorting_order:
+            if sorting_order.has_key(line['type']):
                 id2index[str(line['line_raw'])] = [lineindex, sorting_order[line['type']] if reverse==False else (-sorting_order[line['type']])]
             else:
                 id2index[str(line['line_raw'])] = [lineindex, 99 if reverse==False else -99]
@@ -151,7 +176,7 @@ def TypeSort(line_list, sorting_order, reverse=False):
         line_list_sort.append(id2line[i])
     return line_list_sort
 
-def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None):
+def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None, reference=False):
     logger_null = logging.getLogger(__name__+'null')
     null_handler = logging.NullHandler()
     logger_null.addHandler(null_handler)
@@ -159,7 +184,7 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None):
     gff3 = Gff3(gff_file=gff, logger=logger_null)
 
     if output:
-        report = open(output, 'w')
+        report = open(output, 'wb')
     else:
         report = sys.stdout
 
@@ -171,17 +196,17 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None):
     gff3_linenum_Set = set()
 
     for line in gff3.lines:
-        if line['line_type'] == 'feature':
+       if line['line_type'] == 'feature':
            gff3_linenum_Set.add(line['line_index'])
-        try:
-            if line['line_type'] == 'feature' and 'Parent' not in line['attributes'] and len(line['attributes']) != 0:
-                roots.append(line)
-        except:
-            logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-    # roots = [line for line in gff3.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
+       try:
+           if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent') and len(line['attributes']) != 0:
+               roots.append(line)
+       except:
+           logger.warning('[Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
+    #roots = [line for line in gff3.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
 
     # Sort the root-level features based on the order of the genomic sequences
-    roots_sorted = PositionSort(roots)
+    roots_sorted = PositionSort(roots,reference)
 
     # Write the gff version
     # report.write('##gff-version 3\n')
@@ -213,7 +238,7 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None):
             report.write(root['line_raw'])
             gff3_linenum_Set.discard(root['line_index'])
             children = root['children'] # Collect the second-level features (eg. mRNA, ncRNA, and etc.)
-            children_sorted = PositionSort(children)
+            children_sorted = PositionSort(children,reference)
             otherlines=[]
             for child in children_sorted:
                 ## ID information is stored in child['attributes']['ID']
@@ -223,8 +248,8 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None):
                 grandchildren = child['children'] # Collect third-level features (eg. exon, CDS, and etc.)
                 gchildgroup = {}
                 # Visit every third-level feature, and collect a dictionary of 'type' to 'features'
-                for grandchild in grandchildren:  # Visit each third-level feature
-                    if str(grandchild['type']) in gchildgroup:
+                for grandchild in grandchildren: # Visit each third-level feature
+                    if gchildgroup.has_key(str(grandchild['type'])):
                         gchildgroup[str(grandchild['type'])].append(grandchild)
                     else:
                         gchildgroup[str(grandchild['type'])] = []
@@ -248,7 +273,7 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None):
                     if StrandSort(exons):
                         exons_sorted = StrandSort(exons)
                         for exon in exons_sorted:
-                            if 'Parent' in exon['attributes']:
+                            if exon['attributes'].has_key('Parent'):
                                 if isinstance(exon['attributes']['Parent'], list) and len(exon['attributes']['Parent']) > 1:
                                     gff3_linenum_Set.discard(exon['line_index'])
                                     report.write(TwoParent(child['attributes']['ID'],exon))
@@ -264,7 +289,7 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None):
                     if StrandSort(cdss):
                         cdss_sorted = StrandSort(cdss)
                         for cds in cdss_sorted:
-                            if 'Parent' in cds['attributes']:
+                            if cds['attributes'].has_key('Parent'):
                                 if isinstance(cds['attributes']['Parent'], list) and len(cds['attributes']['Parent']) > 1:
                                     gff3_linenum_Set.discard(cds['line_index'])
                                     report.write(TwoParent(child['attributes']['ID'],cds))
@@ -276,9 +301,9 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None):
                                 report.write(cds['line_raw'])
                 # Sort other features by PositionSort
                 if len(others):
-                    if PositionSort(others):
+                    if PositionSort(others,reference):
                         for other in others:
-                            if 'Parent' in other['attributes']:
+                            if other['attributes'].has_key('Parent'):
                                 if isinstance(other['attributes']['Parent'], list) and len(other['attributes']['Parent']) > 1:
                                     gff3_linenum_Set.discard(other['line_index'])
                                     report.write(TwoParent(child['attributes']['ID'],other))
@@ -292,8 +317,8 @@ def main(gff, output=None, sorting_order=None, isoform_sort=False, logger=None):
             # Sort the features beyond the third-level by PositionSort
             unique = {}
             otherlines_sorted = []
-            if PositionSort(otherlines):
-                otherlines_sorted = PositionSort(otherlines)
+            if PositionSort(otherlines,reference):
+                otherlines_sorted = PositionSort(otherlines,reference)
             for k in otherlines_sorted:
                 gff3_linenum_Set.discard(k['line_index'])
                 unique[k['line_raw']] = 1
@@ -347,7 +372,7 @@ def script_main():
     from textwrap import dedent
     # Help information
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
-    Sort a GFF3 file according to the order of Scaffold, coordinates on a Scaffold, and feature relationship based on sequence ontology.
+    Sort a GFF3 file according to the order of Scaffold (seqID), coordinates on a Scaffold, and feature relationship based on sequence ontology.
 
     Inputs:
     1. GFF3 file: Specify the file name with the -g argument
@@ -367,7 +392,7 @@ def script_main():
     parser.add_argument('-t', '--sort_template', type=str, help='A file that indicates the sorting order of features within a gene model')
     parser.add_argument('-i', '--isoform_sort', action="store_true", help='Sort multi-isoform gene models by feature type (default: False)', default=False)
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-
+    parser.add_argument('-r', '--reference', action="store_true", help='Sort scaffold (seqID) by order of appearance in gff3 file (default is by number)', default=False)
     # Process the required arguments
     test_lv = 1 # debug
     if test_lv == 0:
@@ -403,7 +428,12 @@ def script_main():
             sys.exit(1)
     else:
         sorting_order = None
+
+    if args.reference:
+        args = parser.parse_args()
+
     # Creat GFF3 object
     logger_stderr.info('Reading gff3 file...')
-    main(args.gff_file, output=args.output_gff, isoform_sort=args.isoform_sort, sorting_order=sorting_order, logger=logger_stderr)
+    main(args.gff_file, output=args.output_gff, isoform_sort=args.isoform_sort, sorting_order=sorting_order, logger=logger_stderr, reference=args.reference)
+
 
