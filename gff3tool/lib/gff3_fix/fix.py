@@ -1,4 +1,4 @@
-#! /user/local/bin/python2.7
+#! /user/local/bin/python3
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict

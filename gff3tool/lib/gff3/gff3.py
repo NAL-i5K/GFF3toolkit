@@ -1,4 +1,4 @@
-#! /usr/bin/env python2.7
+#! /usr/bin/env python3
 
 """
 Check a GFF3 file for errors and unwanted features, with an option to correct the errors and output a valid GFF3 file.

@@ -1,4 +1,4 @@
-#! /usr/env/bin python2.7
+#! /usr/env/bin python3
 
 """
 QC functions for processing every single feature in GFF3 file.
