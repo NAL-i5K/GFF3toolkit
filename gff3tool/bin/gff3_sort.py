@@ -1,4 +1,4 @@
-#! /usr/local/bin/python2.7
+#! /usr/local/bin/python3
 """
 Changelog:
     * v0.0.2
