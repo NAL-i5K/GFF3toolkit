@@ -115,7 +115,7 @@ def script_main():
     Merge two gff files of the same genome into one.
 
     Testing enviroment:
-    1. Python 2.7
+    1. Python 3.*
 
     Inputs:
     1. GFF3 file 1: Gff with annotations modified relative to the original gff (e.g. output from the Apollo program), specify the file name with the -g1 argument
