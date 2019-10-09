@@ -1,4 +1,4 @@
-#! /usr/bin/env python2.7
+#! /usr/bin/env python3
 
 """
 Check a GFF3 file for errors and unwanted features, with an option to correct the errors and output a valid GFF3 file.
@@ -18,11 +18,7 @@ try:
 except ImportError:
     from urllib.parse import quote, unquote
 import re
-try:
-    maketrans = ''.maketrans
-except AttributeError:
-    # fallback for Python 2
-    from string import maketrans
+import string
 import logging
 import gff3tool.lib.ERROR as ERROR
 
@@ -40,8 +36,10 @@ ERROR_INFO = ERROR.INFO
 
 IDrequired = ['gene', 'pseudogene', 'mRNA', 'pseudogenic_transcript']
 
-
-COMPLEMENT_TRANS = maketrans('TAGCtagc', 'ATCGATCG')
+try:
+    COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
+except AttributeError:
+    COMPLEMENT_TRANS = str.maketrans('TAGCtagc', 'ATCGATCG')
 def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
 
@@ -73,7 +71,7 @@ def fasta_file_to_dict(fasta_file, id=True, header=False, seq=False):
     """
     fasta_file_f = fasta_file
     if isinstance(fasta_file, str):
-        fasta_file_f = open(fasta_file, 'rb')
+        fasta_file_f = open(fasta_file, 'r')
 
     fasta_dict = OrderedDict()
     keys = ['id', 'header', 'seq']
@@ -250,7 +248,7 @@ class Gff3(object):
         flag = True
         for line in self.lines:
             if 'attributes' in line and 'ID' not in line['attributes'] and line['type'] in IDrequired:
-                logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line %s: %s'.format(str(line['line_index']+1), line['line_raw']))
+                logger.error('[Missing ID] A model needs to have a unique ID, but this feature does not. Please fix it before running the program.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                 check += 1
         if check > 0:
             flag = False
@@ -532,7 +530,7 @@ class Gff3(object):
 
         gff_fp = gff_file
         if isinstance(gff_file, str):
-            gff_fp = open(gff_file, 'rb')
+            gff_fp = open(gff_file, 'r')
 
         lines = []
         current_line_num = 1 # line numbers start at 1
@@ -541,7 +539,6 @@ class Gff3(object):
         unresolved_parents = defaultdict(list)
 
         for line_raw in gff_fp:
-            line_raw = str(line_raw,'utf-8')
             line_data = {
                 'line_index': current_line_num - 1,
                 'line_raw': line_raw,
@@ -687,7 +684,7 @@ class Gff3(object):
             else:
                 # line_type may be a feature or unknown
                 line_data['line_type'] = 'feature'
-                tokens = list(map(str.strip, line_raw.split('\t')))
+                tokens =  list(map(str.strip, line_raw.split('\t')))
                 if len(tokens) != 9:
                     self.add_line_error(line_data, {'message': 'Features should contain 9 fields, got %d: %s' % (len(tokens) - 1, repr(tokens[1:])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0022'})
                 for i, t in enumerate(tokens):
@@ -843,7 +840,7 @@ class Gff3(object):
                                     try:
                                         if value in features and 'attributes' in lines[-1] and lines[-1]['attributes'][tag] != value:
                                             self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'}, log_level=logging.WARNING)
-                                        elif value in features and not 'attributes' in lines[-1]:
+                                        elif value in features and 'attributes' not in lines[-1]:
                                             self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'}, log_level=logging.WARNING)
                                     except:
                                         logger.warning('[Missing ID] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(lines[-1]['line_index']+1), lines[-1]['line_raw']))
@@ -1009,7 +1006,7 @@ class Gff3(object):
     def write(self, gff_file, embed_fasta=None, fasta_char_limit=None):
         gff_fp = gff_file
         if isinstance(gff_file, str):
-            gff_fp = open(gff_file, 'wb')
+            gff_fp = open(gff_file, 'w')
 
         wrote_sequence_region = set()
         # build sequence region data

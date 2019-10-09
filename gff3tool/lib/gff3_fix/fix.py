@@ -1,4 +1,4 @@
-#! /user/local/bin/python2.7
+#! /user/local/bin/python3
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
@@ -187,7 +187,7 @@ def split(gff3, error_list, logger):
                             newID = '{0:s}.s{1:d}'.format(oldID, flag)
                         newparent = copy.deepcopy(root)
                         newparent['attributes']['ID'] = newID
-                        if 'Name' in root['attributes'] and newparent['attributes']['Name'] == newparent['attributes']['ID']:
+                        if 'Name' in newparent['attributes'] and newparent['attributes']['Name'] == newparent['attributes']['ID']:
                             newparent['attributes']['Name'] = newID
                         eofindex += 1
                         newparent['line_index'] = eofindex
@@ -571,7 +571,7 @@ def fix_attributes(gff3, error_list, logger):
 def write(gff3, output_gff, embed_fasta=None, fasta_char_limit=None, logger=None):
     gff_fp = output_gff
     if isinstance(output_gff, str):
-        gff_fp = open(output_gff, 'wb')
+        gff_fp = open(output_gff, 'w')
 
     wrote_sequence_region = set()
     # build sequence region data

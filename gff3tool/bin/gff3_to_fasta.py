@@ -1,13 +1,9 @@
-#! /usr/local/bin/python2.7
+#! /usr/local/bin/python3
+from __future__ import print_function
 import sys
 import re
 import logging
-try:
-    maketrans = ''.maketrans
-except AttributeError:
-    # fallback for Python 2
-    from string import maketrans
-
+import string
 from gff3tool.lib.gff3 import Gff3
 import gff3tool.lib.function4gff as function4gff
 import gff3tool.lib.intra_model as intra_model
@@ -19,9 +15,15 @@ from gff3tool.bin import version
 __version__ = version.__version__
 
 
-COMPLEMENT_TRANS = maketrans('TAGCtagc', 'ATCGATCG')
+try:
+    COMPLEMENT_TRANS = string.maketrans('TAGCtagc', 'ATCGATCG')
+except AttributeError:
+    COMPLEMENT_TRANS = str.maketrans('TAGCtagc', 'ATCGATCG')
+
+
 def complement(seq):
     return seq.translate(COMPLEMENT_TRANS)
+
 
 def get_subseq(gff, line, embedded_fasta=False):
     # it would give positive strand out as default, unless the strand information is given as '-'
@@ -59,7 +61,7 @@ CODON_TABLE = dict(zip(CODONS, AMINO_ACIDS))
 def translator(seq):
     seq = seq.upper().replace('\n', '').replace(' ', '').replace('U', 'T')
     peptide = ''
-    for i in xrange(0, len(seq), 3):
+    for i in range(0, len(seq), 3):
         codon = seq[i: i+3]
         amino_acid = CODON_TABLE.get(codon, '!')
         if amino_acid != '!': # end of seq
@@ -77,26 +79,26 @@ def splicer(gff, ftype, dline, stype, embedded_fasta=False):
             if line['type'] == ftype[0]:
                 u_parents.append(line)
         try:
-            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+            if line['line_type'] == 'feature' and 'Parent' not in line['attributes']:
                 if len(line['attributes']) != 0:
                     roots.append(line)
                 else:
                     print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         except:
             print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-    #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    #roots = [line for line in gff.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
     if stype == "user_defined":
         if len(u_parents) == 0:
             print('WARNING   There is no {0:s} feature in the input gff. The sequence won\'t be generated.'.format(ftype[0]))
         for u_parent in u_parents:
             rid = 'NA'
-            if u_parent['attributes'].has_key('Parent'):
+            if 'Parent' in u_parent['attributes']:
                 rid = ",".join(u_parent['attributes']['Parent'])
             cid = 'NA'
-            if u_parent['attributes'].has_key('ID'):
+            if 'ID' in u_parent['attributes']:
                 cid = u_parent['attributes']['ID']
             cname = cid
-            if u_parent['attributes'].has_key('Name'):
+            if 'Name' in u_parent['attributes']:
                 cname = u_parent['attributes']['Name']
             defline='>{0:s}'.format(cid)
             if dline == 'complete':
@@ -174,19 +176,19 @@ def splicer(gff, ftype, dline, stype, embedded_fasta=False):
 
     else:
         for root in roots:
-            #if ftype[0] == 'CDS' and root['type'] == 'pseudogene': # pseudogene should not contain cds
-                #continue
+            # if ftype[0] == 'CDS' and root['type'] == 'pseudogene': # pseudogene should not contain cds
+                # continue
             rid = 'NA'
-            if root['attributes'].has_key('ID'):
-               rid = root['attributes']['ID']
+            if 'ID' in root['attributes']:
+                rid = root['attributes']['ID']
 
             children = root['children']
             for child in children:
                 cid = 'NA'
-                if child['attributes'].has_key('ID'):
+                if 'ID' in child['attributes']:
                     cid = child['attributes']['ID']
                 cname = cid
-                if child['attributes'].has_key('Name'):
+                if 'Name' in child['attributes']:
                     cname = child['attributes']['Name']
                 defline='>{0:s}'.format(cid)
                 if stype == "pep":
@@ -299,26 +301,26 @@ def extract_start_end(gff, stype, dline, embedded_fasta=False):
     roots = []
     for line in gff.lines:
         try:
-            if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+            if line['line_type'] == 'feature' and 'Parent' not in line['attributes']:
                 if len(line['attributes']) != 0:
                     roots.append(line)
                 else:
                     print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         except:
             print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
-    #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    #roots = [line for line in gff.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
     if stype == 'pre_trans':
         for root in roots:
             rid = 'NA'
-            if root['attributes'].has_key('ID'):
+            if 'ID' in root['attributes']:
                 rid = root['attributes']['ID']
             children = root['children']
             for child in children:
                 cid = 'NA'
-                if child['attributes'].has_key('ID'):
+                if 'ID' in child['attributes']:
                     cid = child['attributes']['ID']
                 cname = cid
-                if child['attributes'].has_key('Name'):
+                if 'Name' in child['attributes']:
                     cname = child['attributes']['Name']
                 defline='>{0:s}'.format(cid)
                 if dline == 'complete':
@@ -331,10 +333,10 @@ def extract_start_end(gff, stype, dline, embedded_fasta=False):
         for root in roots:
             if root['type'] == 'gene' or root['type'] == 'pseudogene':
                 rid = 'NA'
-                if root['attributes'].has_key('ID'):
+                if 'ID' in root['attributes']:
                     rid = root['attributes']['ID']
                 rname = rid
-                if root['attributes'].has_key('Name'):
+                if 'Name' in root['attributes']:
                     rname = root['attributes']['ID']
                 defline='>{0:s}'.format(rid)
                 if dline == 'complete':
@@ -347,10 +349,10 @@ def extract_start_end(gff, stype, dline, embedded_fasta=False):
         for exon in exons:
             try:
                 eid = 'NA'
-                if exon['attributes'].has_key('ID'):
+                if 'ID' in exon['attributes']:
                     eid = exon['attributes']['ID']
                 ename = eid
-                if exon['attributes'].has_key('Name'):
+                if 'Name' in exon['attributes']:
                     ename = exon['attributes']['Name']
                 parents = exon['parents']
                 plist = dict()
@@ -374,10 +376,10 @@ def extract_start_end(gff, stype, dline, embedded_fasta=False):
         for user_defined in user_defineds:
             try:
                 uid = 'NA'
-                if user_defined['attributes'].has_key('ID'):
+                if 'ID' in user_defined['attributes']:
                     uid = user_defined['attributes']['ID']
                 uname = uid
-                if user_defined['attributes'].has_key('Name'):
+                if 'Name' in user_defined['attributes']:
                     uname = user_defined['attributes']['Name']
                 parents = user_defined['parents']
                 plist = dict()
@@ -418,7 +420,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
     elif stype != 'all' and output_prefix:
         logger.info('Specifying prefix of output file name: (%s)...', output_prefix)
         fname = '{0:s}_{1:s}.fa'.format(output_prefix, stype)
-        report_fh = open(fname, 'wb')
+        report_fh = open(fname, 'w')
     else:
         print('[Error] Please specify the prefix of output file name...')
         sys.exit(1)
@@ -485,7 +487,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         seq = extract_start_end(gff, tmp_stype, dline, embedded_fasta)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
-            report_fh = open(fname, 'wb')
+            report_fh = open(fname, 'w')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
                 if len(k)!=0 and len(v)!=0:
@@ -497,7 +499,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         seq = extract_start_end(gff, tmp_stype, dline, embedded_fasta)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
-            report_fh = open(fname, 'wb')
+            report_fh = open(fname, 'w')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
                 if len(k)!=0 and len(v)!=0:
@@ -509,7 +511,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         seq = extract_start_end(gff, tmp_stype, dline, embedded_fasta)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
-            report_fh = open(fname, 'wb')
+            report_fh = open(fname, 'w')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
                 if len(k)!=0 and len(v)!=0:
@@ -522,7 +524,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         seq = splicer(gff, feature_type, dline, stype, embedded_fasta)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
-            report_fh = open(fname, 'wb')
+            report_fh = open(fname, 'w')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
                 if len(k)!=0 and len(v)!=0:
@@ -535,7 +537,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         seq = splicer(gff, feature_type, dline, stype, embedded_fasta)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
-            report_fh = open(fname, 'wb')
+            report_fh = open(fname, 'w')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
                 if len(k)!=0 and len(v)!=0:
@@ -552,7 +554,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
             seq[k] = v
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
-            report_fh = open(fname, 'wb')
+            report_fh = open(fname, 'w')
             logger.info('\t\tPrint out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, tmp_stype))
             for k,v in seq.items():
                 if len(k)!=0 and len(v)!=0:

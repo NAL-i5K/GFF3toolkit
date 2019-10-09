@@ -12,6 +12,12 @@ from codecs import open
 from os import path, remove, mkdir
 import shutil
 import tarfile
+<<<<<<< HEAD
+=======
+from urllib.request import urlretrieve
+
+import platform
+>>>>>>> python3.6
 import sys
 import urllib.request
 import platform
@@ -38,6 +44,7 @@ class CustomBuildCommand(build):
         mkdir(blast_path)
 
         if platform_system == 'Linux':
+<<<<<<< HEAD
             urllib.request.urlretrieve(
                 'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz',
                 blast_file)
@@ -47,6 +54,17 @@ class CustomBuildCommand(build):
                 blast_file)
         elif platform_system == 'Darwin':
             urllib.request.urlretrieve(
+=======
+            urlretrieve(
+                'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz',
+                blast_file)
+        elif platform_system == 'Windows':
+            urlretrieve(
+                'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-win64.tar.gz',
+                blast_file)
+        elif platform_system == 'Darwin':
+            urlretrieve(
+>>>>>>> python3.6
                 'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-universal-macosx.tar.gz',
                 blast_file)
         else:
@@ -147,7 +165,6 @@ setup(
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.6',
     ],
 
     # This field adds keywords for your project which will appear on the
