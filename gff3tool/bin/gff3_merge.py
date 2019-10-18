@@ -146,7 +146,6 @@ def script_main():
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
 
     args = parser.parse_args()
-
     if args.gff_file1:
         logger_stderr.info('Checking Update GFF3 file (%s)...', args.gff_file1)
     elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
