@@ -141,6 +141,7 @@ def read_merge_report(gff3, merge_report):
     with open(merge_report, 'rb') as in_f:
         for line in in_f:
             line = line.strip()
+            line = str(line,'utf-8')
             if line:
                 if not line.startswith('#'):
                     if header_end:
