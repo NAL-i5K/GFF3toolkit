@@ -19,13 +19,6 @@ matrix:
       - coverage run -a ./gff3tool/bin/gff3_merge.py -g1 example_file/new_models_w_replace.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto
       - coverage run -a ./gff3tool/bin/gff3_sort.py -g example_file/example.gff3 -og example-sorted.gff3
       - coverage run -a ./gff3tool/bin/gff3_to_fasta.py -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
-
-#  - os: linux
-#    language: python
-#    python: 3.7
-#    install:
-#      - python setup.py build
-#      - pip install .
   - os: osx
     language: generic
     python: 3.7
