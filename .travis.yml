@@ -8,7 +8,7 @@ matrix:
     install:
       - pip install coveralls coverage codecov
       - python setup.py build
-      -	pip install .
+      - pip install .
     script:
       - coverage run -a ./gff3tool/bin/gff3_QC.py -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
       - coverage run -a ./gff3tool/bin/gff3_fix.py -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
