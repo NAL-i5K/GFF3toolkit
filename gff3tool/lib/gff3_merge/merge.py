@@ -2,7 +2,6 @@
 """
 Replace predicted models with Web Apollo models accoriding to attribute, relace=
 """
-
 import sys
 import re
 import logging

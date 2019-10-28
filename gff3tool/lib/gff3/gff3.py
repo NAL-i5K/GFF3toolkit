@@ -9,8 +9,6 @@ Check if the ##sequence-region matches the FASTA file. (Requires FASTA and ##seq
 Add the ##sequence-region directives if missing. (Requires FASTA)
 Check and correct the phase for CDS features.
 """
-from __future__ import print_function
-
 from collections import defaultdict
 from itertools import groupby
 try:

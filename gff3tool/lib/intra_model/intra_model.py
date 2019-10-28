@@ -3,7 +3,6 @@
 """
 QC functions for processing multiple features within a model (intra-model) in GFF3 file.
 """
-from __future__ import print_function
 import sys
 import re
 import logging
