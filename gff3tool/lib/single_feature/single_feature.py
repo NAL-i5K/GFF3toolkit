@@ -3,7 +3,6 @@
 """
 QC functions for processing every single feature in GFF3 file.
 """
-from __future__ import print_function
 import re
 import logging
 logger = logging.getLogger(__name__)

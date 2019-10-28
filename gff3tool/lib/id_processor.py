@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 from collections import defaultdict
 try:
     from urllib import quote, unquote

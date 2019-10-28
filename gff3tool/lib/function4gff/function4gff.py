@@ -4,7 +4,6 @@
 """
 QC functions for processing multiple features between models (inter-model) in GFF3 file.
 """
-from __future__ import print_function
 import sys
 import re
 import logging
