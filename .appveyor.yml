@@ -5,7 +5,7 @@ image:
 
 environment:
   matrix:
-    - PYTHON: C:\Python27-x64
+    - PYTHON: C:\Python37-x64
 
 
 # scripts that are called at very beginning, before repo cloning
