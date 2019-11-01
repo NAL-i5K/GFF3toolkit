@@ -19,8 +19,8 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
 
     NCRNA = ['rRNA', 'miRNA', 'ncRNA', 'snRNA', 'snoRNA', 'tRNA']
 
-    logger.info('Reading revision file... (%s)'.format(revision_file))
-    flines = open(revision_file, 'rb')
+    logger.info('Reading revision file... ({0:s})'.format(revision_file))
+    flines = open(revision_file, 'r')
     fflag = 0
     revision = {}
     revision_id = {}
@@ -42,7 +42,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
     gff3 = Gff3(gff_file=gff_file, logger=logger_null)
 
     if report_file:
-        logger.info('Writing summary report (%s)...'%(report_file))
+        logger.info('Writing summary report ({0:s})...'.format(report_file))
         report_fh = open(report_file, 'w')
     else:
         logger.info('Writing summary report: replace_tag_report.txt...')
@@ -64,7 +64,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
     match = 0
     for line in gff3.lines:
         if line['type'] in rtype:
-            key = '%s:%s-%s:%s:%s'%(line['seqid'], str(line['start']), str(line['end']), line['strand'], line['type'])
+            key = '{0:s}:{1:s}-{2:s}:{3:s}:{4:s}'.format(line['seqid'], str(line['start']), str(line['end']), line['strand'], line['type'])
             if line['attributes']['ID'] in revision_id:
                 match += 1
                 # if 'replace' not in line['attributes']:
