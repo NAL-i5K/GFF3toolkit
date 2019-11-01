@@ -4,10 +4,11 @@ matrix:
   include:
   - os: linux
     language: python
-    python: 2.7
+    python: 3.7
     install:
-      - pip install .
       - pip install coveralls coverage codecov
+      - pip install .
+
     script:
       - coverage run -a ./gff3tool/bin/gff3_QC.py -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
       - coverage run -a ./gff3tool/bin/gff3_fix.py -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
@@ -21,19 +22,18 @@ matrix:
 
   - os: linux
     language: python
-    python: 2.7
+    python: 3.7
     install:
-      - pip install --no-cache-dir gff3tool
+      - pip3 install --no-cache-dir gff3tool
   - os: osx
     language: generic
+    python: 3.7
     install:
-      - pip2 install .
-  - os: osx
-    language: generic
-    install:
-      - pip2 install --no-cache-dir gff3tool
+      - pip3 install .
+      - pip3 install --no-cache-dir gff3tool
   - os: linux
     language: ruby
+    python: 3.7
     rvm: 2.2
     before_script: gem install awesome_bot
     script: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md # only this instance will check the documents
@@ -53,4 +53,3 @@ after_success:
   - coverage report
   - coveralls
   - codecov
-  

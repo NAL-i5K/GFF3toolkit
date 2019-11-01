@@ -1,4 +1,4 @@
-#! /usr/local/bin/python2.7
+#! /usr/local/bin/python3
 import sys
 import re
 import logging
@@ -23,7 +23,7 @@ def script_main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
 
     Testing environment:
-    1. Python 2.7
+    1. Python 3.*
 
     Input:
     1. Error report: Error report from gff3_QC.py. Specify the file name with the -qc_r or --qc_report argument;

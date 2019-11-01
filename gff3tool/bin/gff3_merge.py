@@ -1,4 +1,4 @@
-#! /usr/local/bin/python2.7
+#! /usr/local/bin/python3
 import sys
 import re
 import logging
@@ -19,24 +19,24 @@ def check_replace(gff, user_defined1=None):
     for line in gff.lines:
         if not user_defined1:
             try:
-                if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent'):
+                if line['line_type'] == 'feature' and 'Parent' not in line['attributes']:
                    roots.append(line)
             except KeyError:
                 print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
         else:
             if line['type'] in u_type:
                 try:
-                    if not line['attributes'].has_key('replace'):
+                    if 'replace' not in line['attributes']:
                         error_lines.append(line)
                 except KeyError:
                     print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
 
-    #roots = [line for line in gff.lines if line['line_type'] == 'feature' and not line['attributes'].has_key('Parent')]
+    #roots = [line for line in gff.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
 
     for root in roots:
         children = root['children']
         for child in children:
-            if not child['attributes'].has_key('replace'):
+            if 'replace' not in child['attributes']:
                 error_lines.append(child)
 
     if len(error_lines):
@@ -115,7 +115,7 @@ def script_main():
     Merge two gff files of the same genome into one.
 
     Testing enviroment:
-    1. Python 2.7
+    1. Python 3.*
 
     Inputs:
     1. GFF3 file 1: Gff with annotations modified relative to the original gff (e.g. output from the Apollo program), specify the file name with the -g1 argument
@@ -146,7 +146,6 @@ def script_main():
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
 
     args = parser.parse_args()
-
     if args.gff_file1:
         logger_stderr.info('Checking Update GFF3 file (%s)...', args.gff_file1)
     elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
@@ -220,9 +219,9 @@ def script_main():
         sys.exit(0)
     if args.report_file:
         logger_stderr.info('Writing validation report (%s)...\n', args.report_file)
-        report_fh = open(args.report_file, 'wb')
+        report_fh = open(args.report_file, 'w')
     else:
-        report_fh = open('merge_report.txt', 'wb')
+        report_fh = open('merge_report.txt', 'w')
 
     if not args.output_gff:
         args.output_gff='merged.gff'

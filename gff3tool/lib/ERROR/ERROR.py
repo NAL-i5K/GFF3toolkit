@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 INFO = {
     'Ema0001': 'Parent feature start and end coordinates exceed those of child features',
     'Ema0002': 'Protein sequence contains internal stop codons',
