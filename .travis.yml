@@ -24,13 +24,13 @@ matrix:
     language: python
     python: 3.7
     install:
-      - pip3 install --no-cache-dir gff3tool
+      - pip3 install --index-url https://test.pypi.org/simple/ gff3tool
   - os: osx
     language: generic
     python: 3.7
     install:
       - pip3 install .
-      - pip3 install --no-cache-dir gff3tool
+      - pip3 install --index-url https://test.pypi.org/simple/ gff3tool
   - os: linux
     language: ruby
     python: 3.7
