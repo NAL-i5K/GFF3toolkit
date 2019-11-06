@@ -1,3 +1,4 @@
+build: off
 image:
     - Visual Studio 2013
     - Visual Studio 2015
@@ -20,11 +21,13 @@ platform: x64
 configuration: Release
 
 install:
+  - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - python -m pip install --upgrade pip
   - pip install wheel
   - cd c:\projects\GFF3toolkit
-  - pip install .
-
-build: off
+  - python setup.py build
+  - python setup.py install
 
 test_script:
   - gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
