@@ -26,7 +26,7 @@ def script_main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=dedent("""\
 
     Testing environment:
-    1. Python 2.7
+    1. Python 3.x
 
     Inputs:
     1. GFF3: Specify the file name with the -g or --gff argument; Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcript to have an ID attribute in column 9.

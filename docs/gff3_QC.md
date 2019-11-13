@@ -7,7 +7,7 @@ gff3_QC.py [-h] [-g GFF] [-f FASTA] [-noncg] [-i] [-n ALLOWED_NUM_OF_N]
 
 ## Testing environment
 
-Python 2.7
+Python 3.x
 
 ## Inputs
 1. GFF3: Specify the file name with the -g or --gff argument. Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcript to have an ID attribute in column 9.

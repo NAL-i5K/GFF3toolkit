@@ -6,7 +6,7 @@ gff3_merge.py [-h] [-g1 GFF_FILE1] [-g2 GFF_FILE2] [-f FASTA] [-u1 USER_DEFINED_
 
 ## Testing environment
 
-1. Python 2.7
+1. Python 3.x
 2. Perl v5.16.3
 
 ## Inputs

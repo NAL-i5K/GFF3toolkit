@@ -6,7 +6,7 @@ gff3_fix.py [-h] [-qc_r QC_REPORT] [-g GFF] [-og OUTPUT_GFF] [-v]
 
 ## Testing environment
 
-Python 2.7
+Python 3.x
 
 ## Inputs
 

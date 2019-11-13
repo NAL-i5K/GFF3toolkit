@@ -24,7 +24,7 @@ Extract sequences from specific regions of genome based on gff file.
 gff3_to_fasta.py [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d DEFLINE] [-o OUTPUT_PREFIX] [-noQC] [-v]
 
 ## Testing enviroment
-1. Python 2.7
+1. Python 3.x
 
 ## Required inputs
 

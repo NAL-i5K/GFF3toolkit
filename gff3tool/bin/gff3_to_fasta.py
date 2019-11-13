@@ -605,7 +605,7 @@ def script_main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description=dedent("""\
     Extract sequences from specific regions of genome based on gff file.
     Testing enviroment:
-    1. Python 2.7
+    1. Python 3.x
 
     Required inputs:
     1. GFF3: specify the file name with the -g argument
