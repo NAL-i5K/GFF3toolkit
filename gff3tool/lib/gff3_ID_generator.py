@@ -227,7 +227,7 @@ def main(in_gff, merge_report, out_merge_report, out_gff, uuid_on, prefix, digit
             root['attributes']['Alias'] = root['attributes']['ID']
         root['attributes']['ID'] = newID['ID']
         children = root['children']
-        alphabets = list(string.ascii_uppercase)
+        alphabets = alphabets_suffix(len(children))
         for child in children:
             for index, parent in enumerate(child['attributes']['Parent']):
                 if parent in ID_dict:
@@ -300,6 +300,14 @@ def main(in_gff, merge_report, out_merge_report, out_gff, uuid_on, prefix, digit
                 out_report.write(out_line+'\n')
 
         out_report.close()
+
+def alphabets_suffix(num):
+    def iter_string():
+        for size in itertools.count(1):
+            for s in itertools.product(string.ascii_uppercase, repeat=size):
+                yield "".join(s)
+    alphabets = list(itertools.islice(iter_string(), num + 1 ))
+    return alphabets
 
 if __name__ == '__main__':
     import argparse
