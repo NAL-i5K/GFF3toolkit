@@ -12,6 +12,7 @@ import subprocess
 from gff3 import Gff3
 import uuid
 import string
+import itertools
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
