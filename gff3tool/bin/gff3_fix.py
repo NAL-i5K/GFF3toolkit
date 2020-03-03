@@ -71,7 +71,6 @@ def script_main():
                     try:
                         lines = line.split("\t")
                         line_num_list = list(map(int,re.findall(r'\d+',lines[0])))
-                        #print('line_num_list=',line_num_list)
                         if lines[1] not in error_dict:
                             error_dict[lines[1]] = [line_num_list]
                         else:
