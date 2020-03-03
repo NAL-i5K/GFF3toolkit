@@ -83,7 +83,6 @@ def script_main():
                                 line_num_dict[line_num][lines[1]] = lines[2]
                     except IndexError:
                         logger_stderr.warning('Failed to recognize - %s', line)
-                #print('error_dict=',error_dict)
 
     except:
         logger_stderr.error('Failed to read QC report file!')

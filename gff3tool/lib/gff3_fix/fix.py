@@ -56,9 +56,6 @@ def delete_model(gff3, error_list, logger):
     Esf0025 : Strand has illegal characters
     Ema0007 : CDS and parent feature on different strands
     """
-    #print('Esf0003 error_list= ',error_list)
-    #a= input()
-    
     # delete the whole model
     for error in error_list:
         for remove_line in error:
