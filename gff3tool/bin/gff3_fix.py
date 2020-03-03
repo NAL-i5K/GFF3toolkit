@@ -70,7 +70,8 @@ def script_main():
                 if line:
                     try:
                         lines = line.split("\t")
-                        line_num_list = map(int,re.findall(r'\d+',lines[0]))
+                        line_num_list = list(map(int,re.findall(r'\d+',lines[0])))
+                        #print('line_num_list=',line_num_list)
                         if lines[1] not in error_dict:
                             error_dict[lines[1]] = [line_num_list]
                         else:
@@ -82,6 +83,7 @@ def script_main():
                                 line_num_dict[line_num][lines[1]] = lines[2]
                     except IndexError:
                         logger_stderr.warning('Failed to recognize - %s', line)
+                #print('error_dict=',error_dict)
 
     except:
         logger_stderr.error('Failed to read QC report file!')
