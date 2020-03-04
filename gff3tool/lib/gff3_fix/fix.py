@@ -419,7 +419,7 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
                             sorted_CDS_list = sorted(CDS_list, key=lambda x: x['start'])
                     if sorted_CDS_list[0]['line_index']+1 in error:
                         if 'Ema0006' in line_num_dict[sorted_CDS_list[0]['line_index']+1]:
-                            phase = map(int,re.findall(r'\d',line_num_dict[sorted_CDS_list[0]['line_index']+1]['Ema0006']))[1]
+                            phase = list(map(int,re.findall(r'\d',line_num_dict[sorted_CDS_list[0]['line_index']+1]['Ema0006']))[1])
                         else:
                             try:
                                 phase = sorted_CDS_list[0]['phase']
@@ -491,7 +491,7 @@ def fix_attributes(gff3, error_list, logger):
     for error in error_list:
         for line_num in error:
             if gff3.lines[line_num-1]['line_status'] != 'removed':
-                tokens = map(str.strip, gff3.lines[line_num-1]['line_raw'].split('\t'))
+                tokens = list(map(str.strip, gff3.lines[line_num-1]['line_raw'].split('\t')))
                 if unescaped_field(tokens[8]):
                     # don't know how to fix this
                     pass
