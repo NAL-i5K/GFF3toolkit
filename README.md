@@ -41,7 +41,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 * `gff3_QC` - Detection of GFF format errors (~50 types of errors).
   * [gff3_QC readme](docs/gff3_QC.md)
-  * [gff3_QC full documentation](docs/Detection-of-GFF3-format-errors.md)
+  * [gff3_QC full documentation](docs/Detection-of-GFF3-format-errors.rst)
   * Quick start:
     `gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt -s statistic.txt`
   * Please refer to [gff3tool/lib/ERROR/ERROR.py](gff3tool/lib/ERROR/ERROR.py) to see the full list of Error codes and the corresponding Error tags.
@@ -50,7 +50,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 * `gff3_fix` - Correct GFF3 errors detected by gff3_QC.py (30 types of errors).
   * [gff3_fix readme](docs/gff3_fix.md)
-  * [gff3_fix full documentation](docs/gff3_fix.py-documentation.md)
+  * [gff3_fix full documentation](docs/gff3_fix.py-documentation.rst)
   * Quick start:
     `gff3_fix -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3`
 

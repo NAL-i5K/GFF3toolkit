@@ -11,9 +11,9 @@ Welcome to GFF3 Toolkit's documentation!
    :caption: Contents:
     
    gff3_QC.md
-   Detection-of-GFF3-format-errors.md
+   Detection-of-GFF3-format-errors.rst
    gff3_fix.md
-   gff3_fix.py-documentation.md
+   gff3_fix.py-documentation.rst
    gff3_merge.md
    Merge-two-GFF3-files.md
    gff3_sort.md
