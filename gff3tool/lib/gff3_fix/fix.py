@@ -272,7 +272,7 @@ def connected_compoents(child_list, pair_list):
         tokens = pair.split(' ')
         nodelist[tokens[0]].add_link(nodelist[tokens[1]])
     nodes=set()
-    for v in nodelist.itervalues():
+    for v in nodelist.values():
         nodes.add(v)
     result=[]
     for components in cc(nodes):
