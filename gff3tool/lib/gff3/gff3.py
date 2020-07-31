@@ -16,6 +16,7 @@ try:
 except ImportError:
     from urllib.parse import quote, unquote
 import re
+import gzip
 import string
 import logging
 import gff3tool.lib.ERROR as ERROR
@@ -69,7 +70,10 @@ def fasta_file_to_dict(fasta_file, id=True, header=False, seq=False):
     """
     fasta_file_f = fasta_file
     if isinstance(fasta_file, str):
-        fasta_file_f = open(fasta_file, 'r')
+        if fasta_file.endswith('.gz'):
+            fasta_file_f = gzip.open(fasta_file, 'rt')  # gzip support
+        else:
+            fasta_file_f = open(fasta_file, 'r')
 
     fasta_dict = OrderedDict()
     keys = ['id', 'header', 'seq']
@@ -528,7 +532,10 @@ class Gff3(object):
 
         gff_fp = gff_file
         if isinstance(gff_file, str):
-            gff_fp = open(gff_file, 'r')
+            if gff_file.endswith('.gz'):
+                gff_fp = gzip.open(gff_file, 'rt')  # gzip support
+            else:
+                gff_fp = open(gff_file, 'r')
 
         lines = []
         current_line_num = 1 # line numbers start at 1

@@ -19,7 +19,11 @@ my %id2owner = ();
 my $line = 0;
 my $typeflag = 0;
 print "Reading the gff file: $gff...\n";
-open FI, "$gff" or die "[Error] Cannot open $gff.";
+if ( $gff =~ /\.gz$/ ){  # gzip support
+    open FI, "<:gzip", $gff or die "[Error] Cannot open $gff.";
+} else {
+    open FI, "$gff" or die "[Error] Cannot open $gff.";
+}
 while (<FI>){
 	$line++;
 	chomp $_;
