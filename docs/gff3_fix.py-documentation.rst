@@ -12,7 +12,9 @@ fix. (Note that in some cases, this means removing the affected gene
 model). The section 'Fix function' describes the methods used to fix the
 error type in question. The section 'Currently no automatic fix
 available' lists the error types which gff3\_fix currently does not
-handle.
+handle. 
+
+Note that the gff3\_fix program requires that all features contain an ID attribute. You can use `lib/gff3_ID_generator.py` to generate IDs if your gff3 file does not have them for every feature.
 
 gff3\_fix
 ---------
