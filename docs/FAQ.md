@@ -1,5 +1,9 @@
 # FAQ
 
+## Q: The gff3_fix program fails with KeyError: 'ID'. 
+
+Note that the gff3_fix program requires that all features contain an ID attribute. You can use lib/gff3_ID_generator.py to generate IDs if your gff3 file does not have them for every feature.
+
 ## Q: When installing, the program fails with following message: `ImportError: No module named wheel.bdist_wheel`.
 
 Since 1.4.2, we use [wheel](https://pythonwheels.com/) to build our python package. This error message means that you don't have [wheel](https://pythonwheels.com/) on your machine. Use `pip install wheel` to install it first.
