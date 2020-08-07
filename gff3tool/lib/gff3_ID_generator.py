@@ -9,7 +9,7 @@ import os
 import re
 import sys
 import subprocess
-from gff3 import Gff3
+from gff3tool.lib.gff3 import Gff3
 import uuid
 import string
 import itertools
