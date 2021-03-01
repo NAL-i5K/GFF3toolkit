@@ -177,7 +177,7 @@ def script_main():
         logger_stderr.info('Checking user defined file1 (%s)...', args.user_defined_file1)
         user_defined1 = []
         try:
-            with open(args.user_defined_file1, "r") as ud:
+            with open(args.user_defined_file1, "rb") as ud:
                 for line in ud:
                     line = line.strip()
                     lines = line.split(" ")
@@ -198,7 +198,7 @@ def script_main():
         logger_stderr.info('Checking user defined file2 (%s)...', args.user_defined_file2)
         user_defined2 = []
         try:
-            with open(args.user_defined_file2, "r") as ud:
+            with open(args.user_defined_file2, "rb") as ud:
                 for line in ud:
                     line = line.strip()
                     lines = line.split(" ")

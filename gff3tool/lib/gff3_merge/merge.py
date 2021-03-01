@@ -239,6 +239,8 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
                                 for tp in gff3M.collect_roots(t):
                                     gid_list.append(tp['attributes']['ID'])
                                 gid = ','.join(gid_list)
+                                print('#'*100+'',gid)
+                                abc = input()
                             if tname not in not_orphan:
                                 tmpid = 'NA'
                         report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\n'.format(ReplaceGroups.mapType2Log[child['attributes']['replace_type']], gid, tid, tname, tmpid))
