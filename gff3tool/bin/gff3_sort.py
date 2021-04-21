@@ -135,7 +135,7 @@ def TwoParent(Child_id,third):
     #the input argument, Child_id is the id of second-level features (eg. mRNA, ncRNA, and etc.) and third is third-level features (eg. exon, CDS, and etc.)
     attributes = third['attributes'].copy()
     attributes['Parent'] = Child_id
-    attributes_line = ";".join("=".join((str(k),str(v))) for k,v in attributes.iteritems())
+    attributes_line = ";".join("=".join((str(k),str(v))) for k,v in attributes.items())
     line_new = third['line_raw'].split('\t')
     line_new[8] = attributes_line + "\n"
     line_update = "\t".join(line_new)
