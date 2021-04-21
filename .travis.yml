@@ -34,7 +34,7 @@ matrix:
   - os: linux
     language: ruby
     python: 3.7
-    rvm: 2.2
+    rvm: 2.4
     before_script: gem install awesome_bot
     script: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md # only this instance will check the documents
 
