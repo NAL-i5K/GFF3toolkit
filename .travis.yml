@@ -4,7 +4,7 @@ matrix:
   include:
   - os: linux
     language: python
-    python: 3.7
+    python: 3.9
     install:
       - pip install coveralls coverage codecov
       - pip install .
@@ -22,18 +22,18 @@ matrix:
 
   - os: linux
     language: python
-    python: 3.7
+    python: 3.9
     install:
       - pip3 install --no-cache-dir gff3tool
   - os: osx
     language: generic
-    python: 3.7
+    python: 3.9
     install:
       - pip3 install .
       - pip3 install --no-cache-dir gff3tool
   - os: linux
     language: ruby
-    python: 3.7
+    python: 3.9
     rvm: 2.4
     before_script: gem install awesome_bot
     script: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md # only this instance will check the documents
