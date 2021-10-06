@@ -3,6 +3,7 @@ sudo: required
 matrix:
   include:
   - os: linux
+    dist: focal
     language: python
     python: 3.9
     install:
@@ -21,6 +22,7 @@ matrix:
       - coverage run -a ./gff3tool/bin/gff3_to_fasta.py -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
 
   - os: linux
+    dist: focal
     language: python
     python: 3.9
     install:
@@ -32,6 +34,7 @@ matrix:
       - pip3 install .
       - pip3 install --no-cache-dir gff3tool
   - os: linux
+    dist: focal
     language: ruby
     python: 3.9
     rvm: 2.4
