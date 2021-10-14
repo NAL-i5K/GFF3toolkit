@@ -59,7 +59,7 @@ def check_redundant_length(gff, rootline):
             flag += 1
 
     if flag > 0:
-        gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+        gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode}, log_level=logging.WARNING)
     if len(result):
         return [result]
 
@@ -94,7 +94,7 @@ def check_internal_stop(gff, rootline):
                 line = s
                 if line['type'] == 'CDS':
                     if not isinstance(line['phase'], int):
-                        #gff.add_line_error(line, {'message': '{0:s} {1:s}, should be 0,1, or 2'.format(ERROR_INFO['Ema0006'], line['phase']), 'error_type': 'PHASE', 'eCode': 'Ema0006'})
+                        #gff.add_line_error(line, {'message': '{0:s} {1:s}, should be 0,1, or 2'.format(ERROR_INFO['Ema0006'], line['phase']), 'error_type': 'PHASE', 'eCode': 'Ema0006'}, log_level=logging.INFO)
                         continue
                         #sys.exit('[Error] No phase informatin!\n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                     try:
@@ -149,7 +149,7 @@ def check_internal_stop(gff, rootline):
 
         if flag > 0:
             result.append(r)
-            gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+            gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode}, log_level=logging.WARNING)
 
     if len(result):
         return result
@@ -191,7 +191,7 @@ def check_incomplete(gff, rootline):
             flag += 1
 
     if flag > 0:
-        gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+        gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode}, log_level=logging.INFO)
 
     if len(result):
         return [result]
@@ -220,7 +220,7 @@ def check_pseudo_child_type(gff, rootline):
                     result['eLines'] = [child]
                     result['eTag'] = ERROR_INFO[eCode]
         if flag > 0:
-            gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+            gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode}, log_level=logging.INFO)
     if len(result):
         return [result]
 
@@ -279,7 +279,7 @@ def check_distinct_isoform(gff, rootline):
         result['eTag'] = '{0:s}: {1:s}'.format(ERROR_INFO[eCode], str(badchild))
 
     if f > 0:
-        gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+        gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode}, log_level=logging.WARNING)
     if len(result):
         return [result]
 
@@ -312,7 +312,7 @@ def check_merged_gene_parent(gff, rootline):
             result['eCode'] = eCode
             result['eTag'] = '{0:s}: Between Line {1:s}'.format(ERROR_INFO[eCode], ', and Line'.join(badchild))
     if f > 0:
-        gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+        gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode}, log_level=logging.WARNING)
     if len(result):
         return [result]
 

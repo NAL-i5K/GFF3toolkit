@@ -65,7 +65,7 @@ def check_pseudogene(gff, line):
             result['eCode'] = eCode
             result['eLines'] = [line]
             result['eTag'] = ERROR_INFO[eCode]
-            gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+            gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode}, log_level=logging.INFO)
     except:
         logger.error('Program dies at Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
     if len(result):
