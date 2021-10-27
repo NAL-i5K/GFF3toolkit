@@ -266,7 +266,7 @@ class Gff3(object):
                             break
                     if not ok:
                         try:
-                            self.add_line_error(line, {'message': '{2:s}: {0:s}: {1:s}'.format(parent_feature[0]['attributes']['ID'], ','.join(['({0:s}, {1:d}, {2:d})'.format(line['seqid'], line['start'], line['end']) for line in parent_feature]), ERROR_INFO['Ema0003']), 'error_type': 'BOUNDS', 'location': 'parent_boundary', 'eCode': 'Ema0003'}, log_level=logging.WARNING)
+                            self.add_line_error(line, {'message': '{2:s}: {0:s}: {1:s}'.format(parent_feature[0]['attributes']['ID'], ','.join(['({0:s}, {1:d}, {2:d})'.format(line['seqid'], line['start'], line['end']) for line in parent_feature]), ERROR_INFO['Ema0003']), 'error_type': 'BOUNDS', 'location': 'parent_boundary', 'eCode': 'Ema0003', 'error_level': 'Warning'}, log_level=logging.WARNING)
                         except:
                             logger.warning('Fail to check the boundary relationship between parent and child features (Ema0003)...\n\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                 else:
@@ -285,12 +285,12 @@ class Gff3(object):
             strand_set = list(set([line['strand'] for line in cds_list]))
             if len(strand_set) != 1:
                 for line in cds_list:
-                    self.add_line_error(line, {'message': 'Inconsistent CDS strand with parent: {0:s}'.format(str(k)), 'error_type': 'STRAND', 'eCode': 'Ema0007'}, log_level=logging.WARNING)
+                    self.add_line_error(line, {'message': 'Inconsistent CDS strand with parent: {0:s}'.format(str(k)), 'error_type': 'STRAND', 'eCode': 'Ema0007', 'error_level': 'Warning'}, log_level=logging.WARNING)
                 continue
             if initial_phase:
                 if len(cds_list) == 1:
                     if cds_list[0]['phase'] != 0:
-                        self.add_line_error(cds_list[0], {'message': '{0:s} {1:d}, should be {2:d}'.format(ERROR_INFO['Ema0006'], cds_list[0]['phase'], 0), 'error_type': 'PHASE', 'eCode': 'Ema0006'}, log_level=logging.INFO)
+                        self.add_line_error(cds_list[0], {'message': '{0:s} {1:d}, should be {2:d}'.format(ERROR_INFO['Ema0006'], cds_list[0]['phase'], 0), 'error_type': 'PHASE', 'eCode': 'Ema0006', 'error_level': 'Info'}, log_level=logging.INFO)
                     if type(cds_list[0]['phase']) != int:
                         logger.warning('[Phase] check_phase failed. \n\t\t- Line {0:s}: {1:s}'.format(str(cds_list[0]['line_index']+1), cds_list[0]['line_raw']))
                     continue
@@ -314,7 +314,7 @@ class Gff3(object):
             for line in sorted_cds_list:
                 if line['phase'] != phase:
                     try:
-                        self.add_line_error(line, {'message': 'Wrong phase {0:d}, should be {1:d}'.format(line['phase'], phase), 'error_type': 'PHASE', 'eCode': 'Ema0006'}, log_level=logging.INFO)
+                        self.add_line_error(line, {'message': 'Wrong phase {0:d}, should be {1:d}'.format(line['phase'], phase), 'error_type': 'PHASE', 'eCode': 'Ema0006', 'error_level': 'Info'}, log_level=logging.INFO)
                     except:
                         logger.warning('[Phase] check_phase failed. \n\t\t- Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
                 try:
@@ -420,7 +420,7 @@ class Gff3(object):
                         n_segments = [(m.start(), m.end() - m.start()) for m in n_segments_finditer(self.fasta_embedded[seqid]['seq'], line_data['start'] - 1, line_data['end'])]
                         n_segments_str = ['(%d, %d)' % (m[0], m[1]) for m in n_segments]
                         error_lines.add(line_data['line_index'])
-                        self.add_line_error(line_data, {'message': 'Found %d Ns in %s feature of length %d using the embedded ##FASTA, consists of %d segment (start, length): %s' % (n_count, line_data['type'], line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_embedded', 'eCode': 'Esf0009'}, log_level=logging.INFO)
+                        self.add_line_error(line_data, {'message': 'Found %d Ns in %s feature of length %d using the embedded ##FASTA, consists of %d segment (start, length): %s' % (n_count, line_data['type'], line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_embedded', 'eCode': 'Esf0009', 'error_level': 'Info'}, log_level=logging.INFO)
 
         elif fasta_embedded:
             self.logger.debug('Embedded ##FASTA not found in GFF3')
@@ -448,7 +448,7 @@ class Gff3(object):
                             n_segments = [(m.start(), m.end() - m.start()) for m in n_segments_finditer(self.fasta_external[seqid]['seq'], line_data['start'] - 1, line_data['end'])]
                             n_segments_str = ['(%d, %d)' % (m[0], m[1]) for m in n_segments]
                             error_lines.add(line_data['line_index'])
-                            self.add_line_error(line_data, {'message': 'Found %d Ns in %s feature of length %d using the external FASTA, consists of %d segment (start, length): %s' % (n_count, line_data['type'], line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_external', 'eCode': 'Esf0012'}, log_level=logging.INFO)
+                            self.add_line_error(line_data, {'message': 'Found %d Ns in %s feature of length %d using the external FASTA, consists of %d segment (start, length): %s' % (n_count, line_data['type'], line_data['end'] - line_data['start'], len(n_segments), ', '.join(n_segments_str)), 'error_type': 'N_COUNT', 'n_segments': n_segments, 'location': 'fasta_external', 'eCode': 'Esf0012', 'error_level': 'Info'}, log_level=logging.INFO)
                     except:
                         logger.warning('Sequence ID {0:s} not found in FASTA file.'.format(seqid))
         elif fasta_external:
@@ -617,7 +617,7 @@ class Gff3(object):
                         try:
                             line_data['version'] = int(tokens[0])
                             if line_data['version'] != 3:
-                                self.add_line_error(line_data, {'message': 'Version is not "3": "%s"' % tokens[0], 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0019'}, log_level=logging.INFO)
+                                self.add_line_error(line_data, {'message': 'Version is not "3": "%s"' % tokens[0], 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0019', 'error_level': 'Info'}, log_level=logging.INFO)
                         except ValueError:
                             self.add_line_error(line_data, {'message': 'Version is not a valid integer: "%s"' % tokens[0], 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0020'})
                             line_data['version'] = tokens[0]
@@ -681,7 +681,7 @@ class Gff3(object):
                         except IndexError:
                             pass
                 else:
-                    self.add_line_error(line_data, {'message': 'Unknown directive', 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0021'}, log_level=logging.INFO)
+                    self.add_line_error(line_data, {'message': 'Unknown directive', 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0021', 'error_level': 'Info'}, log_level=logging.INFO)
                     tokens = line_strip.split()
                     line_data['directive'] = tokens[0]
             elif line_strip.startswith('#'):
@@ -751,7 +751,7 @@ class Gff3(object):
                     # Note that attribute names are case sensitive. "Parent" is not the same as "parent".
                     # All attributes that begin with an uppercase letter are reserved for later use. Attributes that begin with a lowercase letter can be used freely by applications.
                     if unescaped_field(tokens[8]):
-                        self.add_line_error(line_data, {'message': 'Attributes must escape the percent (%) sign and any control characters', 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0028'}, log_level=logging.INFO)
+                        self.add_line_error(line_data, {'message': 'Attributes must escape the percent (%) sign and any control characters', 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0028', 'error_level': 'Info'}, log_level=logging.INFO)
                     attribute_tokens = tuple(tuple(t for t in a.split('=')) for a in tokens[8].split(';') if a)
                     line_data['attributes'] = {}
                     if len(attribute_tokens) == 1 and len(attribute_tokens[0]) == 1 and attribute_tokens[0][0] == '.':
@@ -772,7 +772,7 @@ class Gff3(object):
                                 self.add_line_error(line_data, {'message': '%s: "%s"' % (ERROR_INFO['Esf0032'], tag), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0032'})
                             if tag in multi_value_attributes: # set(['replace', 'Parent', 'Alias', 'Note', 'Dbxref', 'Ontology_term'])
                                 if value.find(', ') >= 0 or value.find(' ,') >= 0:
-                                    self.add_line_error(line_data, {'message': 'Found ", " in %s attribute, possible unescaped ",": "%s"' % (tag, value), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0033'}, log_level=logging.INFO)
+                                    self.add_line_error(line_data, {'message': 'Found ", " in %s attribute, possible unescaped ",": "%s"' % (tag, value), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0033', 'error_level': 'Info'}, log_level=logging.INFO)
                                 # In addition to Parent, the Alias, Note, Dbxref and Ontology_term attributes can have multiple values.
                                 if tag in line_data['attributes']: # if this tag has been seen before
                                     if tag == 'Note': # don't check for duplicate notes
@@ -784,7 +784,7 @@ class Gff3(object):
                                 # check for duplicate values
                                 if tag != 'Note' and len(line_data['attributes'][tag]) != len(set(line_data['attributes'][tag])):
                                     count_values = [(len(list(group)), key) for key, group in groupby(sorted(line_data['attributes'][tag]))]
-                                    self.add_line_error(line_data, {'message': '%s %s: %s' % (tag, ERROR_INFO['Esf0034'],', '.join(['(%d, %s)' % (c, v) for c, v in count_values if c > 1])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0034'}, log_level=logging.INFO)
+                                    self.add_line_error(line_data, {'message': '%s %s: %s' % (tag, ERROR_INFO['Esf0034'],', '.join(['(%d, %s)' % (c, v) for c, v in count_values if c > 1])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0034', 'error_level': 'Info'}, log_level=logging.INFO)
                                     # remove duplicate
                                     line_data['attributes'][tag] = list(set(line_data['attributes'][tag]))
 
@@ -796,11 +796,11 @@ class Gff3(object):
                                                 # no need to check if line_data in ld['children'], because it is impossible, each ld maps to only one feature_id, so the ld we get are all different
                                                 ld['children'].append(line_data)
                                         except KeyError: # features[id]
-                                            self.add_line_error(line_data, {'message': '%s attribute has unresolved forward reference: %s' % (tag, feature_id), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0035'}, log_level=logging.INFO)
+                                            self.add_line_error(line_data, {'message': '%s attribute has unresolved forward reference: %s' % (tag, feature_id), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0035', 'error_level': 'Info'}, log_level=logging.INFO)
                                             unresolved_parents[feature_id].append(line_data)
                             elif tag == 'Target':
                                 if value.find(',') >= 0:
-                                    self.add_line_error(line_data, {'message': 'Value of %s attribute contains unescaped ",": "%s"' % (tag, value), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0036'}, log_level=logging.INFO)
+                                    self.add_line_error(line_data, {'message': 'Value of %s attribute contains unescaped ",": "%s"' % (tag, value), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0036', 'error_level': 'Info'}, log_level=logging.INFO)
                                 target_tokens = value.split(' ')
                                 if len(target_tokens) < 3 or len(target_tokens) > 4:
                                     self.add_line_error(line_data, {'message': 'Target attribute should have 3 or 4 values, got %d: %s' % (len(target_tokens), repr(tokens)), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0037'})
@@ -844,9 +844,9 @@ class Gff3(object):
                                     # check for duplicate ID in non-adjacent lines
                                     try:
                                         if value in features and 'attributes' in lines[-1] and lines[-1]['attributes'][tag] != value:
-                                            self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'})
+                                            self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003', 'error_level': 'Error'})
                                         elif value in features and 'attributes' not in lines[-1]:
-                                            self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003'})
+                                            self.add_line_error(line_data, {'message': '%s: "%s" in non-adjacent lines: %s' % (ERROR_INFO['Emr0003'], value, ','.join([str(f['line_index'] + 1) for f in features[value]])), 'error_type': 'FORMAT', 'location': '', 'eCode': 'Emr0003', 'error_level': 'Error'})
                                     except:
                                         logger.warning('[Missing ID] Program failed. \n\t\t- Line {0:s}: {1:s}'.format(str(lines[-1]['line_index']+1), lines[-1]['line_raw']))
 

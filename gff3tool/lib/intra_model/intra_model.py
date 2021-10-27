@@ -56,6 +56,7 @@ def check_redundant_length(gff, rootline):
             for child in children:
                 result['eLines'].append(child)
             result['eTag'] = ERROR_INFO[eCode]
+            result['error_level'] = "Warning"
             flag += 1
 
     if flag > 0:
@@ -145,6 +146,7 @@ def check_internal_stop(gff, rootline):
             r['eLines']=list()
             r['eLines'].append(child)
             r['eTag'] = '{0:s} at bp {1:s}'.format(ERROR_INFO[eCode], ', and '.join(bp))
+            r['error_level'] ="Warning"
             flag += 1
 
         if flag > 0:
@@ -188,6 +190,7 @@ def check_incomplete(gff, rootline):
             result['eLines']=list()
             result['eLines'].append(rootline)
             result['eTag'] = ERROR_INFO[eCode]
+            result['error_level'] = "Info"
             flag += 1
 
     if flag > 0:
@@ -219,6 +222,7 @@ def check_pseudo_child_type(gff, rootline):
                     result['eCode'] = eCode
                     result['eLines'] = [child]
                     result['eTag'] = ERROR_INFO[eCode]
+                    result['error_level'] = "Info"
         if flag > 0:
             gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode}, log_level=logging.INFO)
     if len(result):
@@ -277,6 +281,7 @@ def check_distinct_isoform(gff, rootline):
         result['line_num'] = ['Line {0:s}'.format(str(rootline['line_index'] + 1))]
         result['eCode'] = eCode
         result['eTag'] = '{0:s}: {1:s}'.format(ERROR_INFO[eCode], str(badchild))
+        result['error_level'] = "Warning"
 
     if f > 0:
         gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode}, log_level=logging.WARNING)
@@ -311,6 +316,7 @@ def check_merged_gene_parent(gff, rootline):
             result['line_num'] = ['Line {0:s}'.format(str(rootline['line_index'] + 1))]
             result['eCode'] = eCode
             result['eTag'] = '{0:s}: Between Line {1:s}'.format(ERROR_INFO[eCode], ', and Line'.join(badchild))
+            result['error_level'] = "Warning"
     if f > 0:
         gff.add_line_error(rootline, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode}, log_level=logging.WARNING)
     if len(result):

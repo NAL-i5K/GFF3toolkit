@@ -69,6 +69,7 @@ def check_duplicate(gff, linelist):
             result['eCode'] = eCode
             result['eLines'] = [pair['source'], pair['target']]
             result['eTag'] = 'Duplicate transcripts found between {0:s} and {1:s}'.format(pair['source']['attributes']['ID'], pair['target']['attributes']['ID'])
+            result['error_level'] = "Warning"
             eSet.append(result)
             gff.add_line_error(pair['source'], {'message': 'Duplicate transcripts found between {0:s} and {1:s}'.format(pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode}, log_level=logging.WARNING)
             gff.add_line_error(pair['target'], {'message': 'Duplicate transcripts found between {0:s} and {1:s}'.format(pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode}, log_level=logging.WARNING)
@@ -110,6 +111,7 @@ def check_incorrectly_split_genes(gff, gff_file, fasta_file, logger):
         result['eCode'] = eCode
         result['eLines'] = [pair['source'], pair['target']]
         result['eTag'] = ERROR_INFO[eCode]
+        result['error_level'] = "Warning"
         eSet.append(result)
         gff.add_line_error(pair['source'], {'message': '{0:s} between {1:s} and {2:s}'.format(ERROR_INFO[eCode], pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode}, log_level=logging.WARNING)
         gff.add_line_error(pair['target'], {'message': '{0:s} between {1:s} and {2:s}'.format(ERROR_INFO[eCode], pair['source']['attributes']['ID'], pair['target']['attributes']['ID']), 'error_type': 'INTER_MODEL', 'eCode': eCode}, log_level=logging.WARNING)
