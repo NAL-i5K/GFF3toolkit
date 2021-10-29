@@ -131,11 +131,11 @@ def script_main():
     #statistic_file
     error_counts = dict()
     ERROR_INFO=ERROR.INFO
-    statistic_fh.write('Error_code\tNumber_of_problematic_models\tError_tag\n')
+    statistic_fh.write('Error_code\tNumber_of_problematic_models\tError_level\tError_tag\n')
     for s in sorted(error_set, key=lambda x: sorted(x.keys())):
         if s['eCode'] not in error_counts:
-            error_counts[s['eCode']]= {'count':0,'etag':ERROR_INFO[s['eCode']]}
+            error_counts[s['eCode']]= {'count':0, 'error_level':s['error_level'],'etag':ERROR_INFO[s['eCode']]}
         error_counts[s['eCode']]['count'] += 1   
     for a in error_counts:
-        statistic_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(a),str(error_counts[a]['count']),str(error_counts[a]['etag'])))
+        statistic_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\n'.format(str(a),str(error_counts[a]['count']), str(error_counts[a]['error_level']),str(error_counts[a]['etag'])))
 
