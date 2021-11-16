@@ -92,4 +92,4 @@ def script_main():
         logger_stderr.error('Failed to read GFF3 file!')
         sys.exit(1)
 
-    gff3_fix.fix.main(gff3=gff3, output_gff=args.output_gff, error_dict=error_dict, line_num_dict=line_num_dict, logger=logger_null)
+    gff3_fix.fix.main(gff3=gff3, output_gff=args.output_gff, error_dict=error_dict, line_num_dict=line_num_dict, logger=logger_stderr)
