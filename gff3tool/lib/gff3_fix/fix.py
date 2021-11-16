@@ -400,42 +400,45 @@ def fix_phase(gff3, error_list, line_num_dict, logger):
     for error in error_list:
         for line_num in error:
             if gff3.lines[line_num-1]['line_status'] != 'removed':
-                for root in gff3.collect_roots(gff3.lines[line_num-1]):
+                if len(gff3.lines[line_num-1]['parents'][0]) == 1:
+                    parent = gff3.lines[line_num-1]['parents'][0][0]
                     CDS_list = []
                     CDS_set = set()
-                    if root['type'] != 'CDS':
-                        root['phase'] = '.'
-                    for child in gff3.collect_descendants(root):
+                    for child in gff3.collect_descendants(parent):
                         if child['type'] == 'CDS':
                             if child['line_raw'] not in CDS_set:
                                 CDS_list.append(child)
                                 CDS_set.add(child['line_raw'])
                         else:
                             gff3.lines[child['line_index']]['phase'] = '.'
-                    if len(CDS_list) != 0:
-                        if CDS_list[0]['strand'] == '-':
-                            sorted_CDS_list = sorted(CDS_list, key=lambda x: x['end'], reverse=True)
-                        elif CDS_list[0]['strand'] == '+':
-                            sorted_CDS_list = sorted(CDS_list, key=lambda x: x['start'])
-                    if sorted_CDS_list[0]['line_index']+1 in error:
-                        if 'Ema0006' in line_num_dict[sorted_CDS_list[0]['line_index']+1]:
-                            phase = list(map(int,re.findall(r'\d',line_num_dict[sorted_CDS_list[0]['line_index']+1]['Ema0006']))[1])
-                        else:
-                            try:
-                                phase = sorted_CDS_list[0]['phase']
-                                if phase not in valid_phase:
-                                    phase = 0
-                            except ValueError:
-                                phase = 0
-                        gff3.lines[sorted_CDS_list[0]['line_index']]['phase'] = phase
-
+                else:
+                    logger.warning('CDS has more than one parent - Line %s' % str(line_num))
+                    
+                if len(CDS_list) != 0:
+                    if CDS_list[0]['strand'] == '-':
+                        sorted_CDS_list = sorted(CDS_list, key=lambda x: x['end'], reverse=True)
+                    elif CDS_list[0]['strand'] == '+':
+                        sorted_CDS_list = sorted(CDS_list, key=lambda x: x['start'])
+                if [sorted_CDS_list[0]['line_index']+1] in error_list:
+                    if 'Ema0006' in line_num_dict[sorted_CDS_list[0]['line_index']+1]:
+                        phase = list(map(int,re.findall(r'\d',line_num_dict[sorted_CDS_list[0]['line_index']+1]['Ema0006']))[1])
                     else:
-                        phase = sorted_CDS_list[0]['phase']
-                    for CDS in sorted_CDS_list:
-                        if CDS['phase'] != phase:
-                            gff3.lines[CDS['line_index']]['phase'] = phase
+                        try:
+                            phase = sorted_CDS_list[0]['phase']
+                            if phase not in valid_phase:
+                                phase = 0
+                        except ValueError:
+                            phase = 0
+                    gff3.lines[sorted_CDS_list[0]['line_index']]['phase'] = phase
+                else:
+                    phase = sorted_CDS_list[0]['phase']
+                for CDS in sorted_CDS_list:
+                    if CDS['phase'] != phase:
+                        gff3.lines[CDS['line_index']]['phase'] = phase
+                    try:
                         phase = (3 - ((CDS['end'] - CDS['start'] + 1 - phase) % 3)) % 3
-
+                    except TypeError:
+                        logger.warning('Fail to calculate phase - Line %s' % str(CDS['line_index']+1))  # phase = .
 
 
 
