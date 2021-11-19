@@ -121,17 +121,21 @@ def script_main():
     else:
         logger_stderr.info('Print QC statistic report at {0:s}'.format('statistic.txt'))
         statistic_fh = open('statistic.txt', 'w')
-    report_fh.write('Line_num\tError_code\tError_tag\n')
+    report_fh.write('Line_num\tError_code\tError_level\tError_tag\n')
+    
     for e in sorted(error_set, key=lambda x: sorted(x.keys())):
         tag = '[{0:s}]'.format(e['eTag'])
-        report_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(e['line_num']), str(e['eCode']), str(tag)))
+        if 'error_level' not in e:
+            e['error_level'] = "Not defined"
+        report_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\n'.format(str(e['line_num']), str(e['eCode']), str(e['error_level']), str(tag)))
     #statistic_file
     error_counts = dict()
     ERROR_INFO=ERROR.INFO
-    statistic_fh.write('Error_code\tNumber_of_problematic_models\tError_tag\n')
+    statistic_fh.write('Error_code\tNumber_of_problematic_models\tError_level\tError_tag\n')
     for s in sorted(error_set, key=lambda x: sorted(x.keys())):
         if s['eCode'] not in error_counts:
-            error_counts[s['eCode']]= {'count':0,'etag':ERROR_INFO[s['eCode']]}
+            error_counts[s['eCode']]= {'count':0, 'error_level':s['error_level'],'etag':ERROR_INFO[s['eCode']]}
         error_counts[s['eCode']]['count'] += 1   
     for a in error_counts:
-        statistic_fh.write('{0:s}\t{1:s}\t{2:s}\n'.format(str(a),str(error_counts[a]['count']),str(error_counts[a]['etag'])))
+        statistic_fh.write('{0:s}\t{1:s}\t{2:s}\t{3:s}\n'.format(str(a),str(error_counts[a]['count']), str(error_counts[a]['error_level']),str(error_counts[a]['etag'])))
+

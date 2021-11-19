@@ -65,7 +65,8 @@ def check_pseudogene(gff, line):
             result['eCode'] = eCode
             result['eLines'] = [line]
             result['eTag'] = ERROR_INFO[eCode]
-            gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
+            result['error_level'] = "Info"
+            gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode}, log_level=logging.INFO)
     except:
         logger.error('Program dies at Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))
     if len(result):
@@ -83,6 +84,7 @@ def check_strand(gff, line):
             result['eCode'] = eCode
             result['eLines'] = [line]
             result['eTag'] = '{0:s}: legal chacracter, "{1:s}", found at the strand field'.format(ERROR_INFO[eCode], line['strand'])
+            result['error_level'] = "Error"
             gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
         else:
             result['ID'] = [line['attributes']['ID']]
@@ -90,6 +92,7 @@ def check_strand(gff, line):
             result['eCode'] = eCode
             result['eLines'] = [line]
             result['eTag'] = '{0:s}: illegal chacracter, "{1:s}" found at the strand field'.format(ERROR_INFO[eCode], line['strand'])
+            result['error_level'] = "Error"
             gff.add_line_error(line, {'message': ERROR_INFO[eCode], 'error_type': 'FEATURE_TYPE', 'eCode': eCode})
     except:
         logger.error('Program dies at Line {0:s}: {1:s}'.format(str(line['line_index']+1), line['line_raw']))

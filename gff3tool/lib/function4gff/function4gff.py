@@ -115,6 +115,10 @@ def extract_internal_detected_errors(gff):
                 result['eLines'] = [line]
                 result['eTag'] = e['message']
                 #print('{0:s}\t{1:s}\t[{2:s}]'.format(result['ID'], result['eCode'], result['eTag']))
+                if 'error_level' not in e:
+                    result['error_level'] = "Error"
+                else:
+                    result['error_level'] = e['error_level']
                 eSet.append(result)
         except:
             logger.error(line['line_raw'])
