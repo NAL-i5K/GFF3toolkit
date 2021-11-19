@@ -17,12 +17,13 @@ Python 3.x
 1. Error report for the input GFF3 file
     * Line_num: Line numbers of the found problematic models in the input GFF3 file.
     * Error_code: Error codes for the found problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
-        * Error_level: Severity levels of the error codes. Three levels were defined: Error(definitely violating the specification), Warning(probably violating the specification), and Info(might be worth checking).
-        * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
+    * Error_level: Severity levels of the error codes. Three levels were defined: Error (violates the [GFF3 specification](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md)), Warning (might violate the [GFF3 specification](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md)), and Info (likely not an error, but worth checking).
+    * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
 2. Statistic report for the output files
     * Error_code: Error codes for the found problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
     * Number of problematic models: Calculate the type and number of error_code.
-        * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
+    * Error_level: Severity levels of the error codes. Three levels were defined: Error (violates the [GFF3 specification](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md)), Warning (might violate the [GFF3 specification](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md)), and Info (likely not an error, but worth checking).
+    * Error_tag: Detail of the found errors for the problematic models. Please refer to lib/ERROR/ERROR.py to see the full list of Error_code and the corresponding Error_tag.
 
 ## Quick start
 `gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o test -s statistic.txt`
