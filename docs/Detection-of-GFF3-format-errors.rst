@@ -32,7 +32,7 @@ View the `gff3\_QC.py readme <gff3_QC.md>`__ for instructions on how to
 run the program.
 
 Intra-model: Multiple features within a model (Ema)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The error category 'Intra-model' collects formatting errors that can be
 found by jointly considering multiple features within a gene model, such
@@ -62,7 +62,7 @@ an 'Error\_Code' starting with 'Ema'.
 +---------------+---------------+-----------------------------------------------------------------------------------------+----------------------------+
 
 Inter-model: Multiple features across models (Emr)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The error category 'Inter-model' collects formatting errors that can be
 found by comparing multiple gene models. Errors in this category are
@@ -79,7 +79,7 @@ given an 'Error\_Code' starting with 'Emr'.
 +---------------+---------------+----------------------------------+----------------------------+
 
 Single feature (Esf)
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 The error category 'Single Feature' collects formatting errors that can
 be found by searching the GFF3 file line by line. Errors in this
