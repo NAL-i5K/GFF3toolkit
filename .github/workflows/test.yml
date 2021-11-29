@@ -34,7 +34,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           coverage report
-          coveralls
+          coveralls --service=github
           codecov
   
   build2:
