@@ -55,7 +55,7 @@ jobs:
   build3:
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        os: ['ubuntu-latest', 'macos-latest']
     needs: build
     runs-on: ${{ matrix.os }}
     
