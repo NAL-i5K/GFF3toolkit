@@ -55,7 +55,7 @@ jobs:
   build3:
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'macos-latest']
+        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
     needs: build
     runs-on: ${{ matrix.os }}
     
@@ -71,7 +71,6 @@ jobs:
           pip install coveralls coverage codecov wheel
           pip install --no-cache-dir gff3tool
           pip install .
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: script
         run: |
           gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
