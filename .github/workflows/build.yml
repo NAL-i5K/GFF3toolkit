@@ -3,7 +3,7 @@ name: Test
 on: [push]
 
 jobs:
-  build:
+  build1-Calculating-coverage:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,7 +37,7 @@ jobs:
           coveralls --service=github
           codecov
   
-  build2:
+  build2-Checking-links:
     runs-on: ubuntu-latest
 
     steps:
@@ -52,11 +52,10 @@ jobs:
       - name: Checking links
         run: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md
           
-  build3:
+  build3-Testing-functions:
     strategy:
       matrix:
         os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
-    needs: build
     runs-on: ${{ matrix.os }}
     
     steps:
