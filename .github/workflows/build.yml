@@ -1,0 +1,84 @@
+name: Test
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install coveralls coverage codecov wheel
+          pip install .
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Test with coverage
+        run: |
+          coverage run -a ./gff3tool/bin/gff3_QC.py -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
+          coverage run -a ./gff3tool/bin/gff3_fix.py -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
+          coverage run -a ./gff3tool/bin/gff3_merge.py -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt
+          coverage run -a ./gff3tool/bin/gff3_merge.py -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u1 example_file/u1.txt -u2 example_file/u2.txt -r merged_report.txt
+          coverage run -a ./gff3tool/bin/gff3_merge.py -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u1 example_file/u1.txt -r merged_report.txt
+          coverage run -a ./gff3tool/bin/gff3_merge.py -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u2 example_file/u2.txt -r merged_report.txt
+          coverage run -a ./gff3tool/bin/gff3_merge.py -g1 example_file/new_models_w_replace.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto
+          coverage run -a ./gff3tool/bin/gff3_sort.py -g example_file/example.gff3 -og example-sorted.gff3
+          coverage run -a ./gff3tool/bin/gff3_to_fasta.py -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
+      - name: after success
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          coverage report
+          coveralls --service=github
+          codecov
+  
+  build2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.0"
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - name: Install dependencies
+        run: gem install awesome_bot
+      - name: Checking links
+        run: awesome_bot --allow-redirect --allow-dupe README.md docs/*.md
+          
+  build3:
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+    needs: build
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install wheel
+          pip install --no-cache-dir gff3tool
+          pip install .
+      - name: script
+        run: |
+          gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
+          gff3_fix -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
+          gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt
+          gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u1 example_file/u1.txt -u2 example_file/u2.txt -r merged_report.txt
+          gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u1 example_file/u1.txt -r merged_report.txt
+          gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u2 example_file/u2.txt -r merged_report.txt
+          gff3_merge -g1 example_file/new_models_w_replace.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto
+          gff3_sort -g example_file/example.gff3 -og example-sorted.gff3
+          gff3_to_fasta -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
