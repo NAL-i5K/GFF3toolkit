@@ -1,6 +1,6 @@
 # GFF3toolkit - Python programs for processing GFF3 files
 
-[![Build Status](https://travis-ci.org/NAL-i5K/GFF3toolkit.svg?branch=master)](https://travis-ci.org/NAL-i5K/GFF3toolkit)
+![example workflow](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml/badge.svg)
 [![Build status](https://ci.appveyor.com/api/projects/status/0do5uwu5je0gag1u/branch/master?svg=true)](https://ci.appveyor.com/project/hsiaoyi0504/gff3toolkit/branch/master)
 [![PyPI version](https://badge.fury.io/py/gff3tool.svg)](https://badge.fury.io/py/gff3tool)
 [![Documentation Status](https://readthedocs.org/projects/gff3toolkit/badge/?version=latest)](https://gff3toolkit.readthedocs.io/en/latest/?badge=latest)
