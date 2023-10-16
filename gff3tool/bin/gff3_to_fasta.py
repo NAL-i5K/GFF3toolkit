@@ -191,10 +191,11 @@ def splicer(gff, ftype, dline, stype, embedded_fasta=False):
                     cname = child['attributes']['Name']
                 defline='>{0:s}'.format(cid)
                 if stype == "pep":
-                    if 'protein_id' in child['attributes']:
-                        cid = child['attributes']['protein_id']
-                    else:     
-                        cid = re.sub(r'(.+-)(R)([a-zA-Z]+)', r'\1P\3', cid)
+                    for grandchild in child['children']: #first try to get the CDS protein_id
+                        if 'protein_id' in grandchild['attributes']:
+                            cid = grandchild['attributes']['protein_id']
+
+                    cid = re.sub(r'(.+-)(R)([a-zA-Z]+)', r'\1P\3', cid)#otherwise, if it has the -R[A-Z] format then modify that to -P[A-Z]
                     defline = '>{0:s}'.format(cid)
                 elif ftype[0] == 'CDS':
                     defline='>{0:s}-CDS'.format(cid)
