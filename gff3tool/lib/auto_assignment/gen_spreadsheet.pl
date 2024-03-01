@@ -18,9 +18,9 @@ while (<FI>){
 	$_ =~ s/\R//g;
 	my @t = split("\t", $_);
 	if (defined $hit{$t[2]}){
-		$hit{$t[2]} .= ",$t[5]";
+		$hit{$t[2]} .= ",$t[3]";
 	}else{
-		$hit{$t[2]} = $t[5];
+		$hit{$t[2]} = $t[3];
 	}
 }
 close FI;
@@ -33,9 +33,9 @@ while (<FI>){
 	$_ =~ s/\R//g;
 	my @t = split("\t", $_);
 	if (defined $hit2{$t[2]}){
-		$hit2{$t[2]} .= ",$t[5]";
+		$hit2{$t[2]} .= ",$t[3]";
 	}else{
-		$hit2{$t[2]} = $t[5];
+		$hit2{$t[2]} = $t[3];
 	}
 }
 close FI;
