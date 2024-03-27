@@ -81,31 +81,31 @@ while ( my $line = <$GFF> ){
 	my $parent="NA";
 	my $replace = "nothing entered yet";
 	foreach my $element (@col9){
-	    if ( $element =~ /ID=(.*)/ ){
+	    if ( $element =~ /^ID=(.*)/ ){
 		$id = $1;
 	    }
-	    elsif ( $element =~ /owner=(.*)/ ){
+	    elsif ( $element =~ /^owner=(.*)/ ){
 		$owner = $1;
 	    }
-	    elsif ( $element =~ /Name=(.*)/ ){
+	    elsif ( $element =~ /^Name=(.*)/ ){
 		$name = $1;
 	    }
-            elsif ( $element =~ /symbol=(.*)/ ){
+            elsif ( $element =~ /^symbol=(.*)/ ){
                 $symbol = $1;
             }
-            elsif ( $element =~ /date_last_modified=(.*)/ ){
+            elsif ( $element =~ /^date_last_modified=(.*)/ ){
                 $mod_date = $1;
             }
-            elsif ( $element =~ /Note=(.*)/ ){
+            elsif ( $element =~ /^Note=(.*)/ ){
                 $comments = $1;
             }
-	    elsif ( $element =~ /status=(.*)/ ){
+	    elsif ( $element =~ /^status=(.*)/ ){
 		$status = $1;
 	    }
-	    elsif ( $element =~ /Parent=(.*)/ ){
+	    elsif ( $element =~ /^Parent=(.*)/ ){
 		$parent = $1;
 	    }
-            elsif ( $element =~ /replace=(.*)/ ){
+            elsif ( $element =~ /^replace=(.*)/ ){
                 $replace = $1;
             }
 	}
