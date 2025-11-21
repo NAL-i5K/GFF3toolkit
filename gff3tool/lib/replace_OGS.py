@@ -480,7 +480,11 @@ class Groups(object):
         # roots = [line for line in Mgff.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
         mapName2ID = {}
         tmp  = re.search('(.+?)(\d+)',roots[0]['attributes']['ID'])
-        idprefix = tmp.groups()[0]
+        idprefix = 'tmpprefix'
+        try:
+            idprefix = tmp.groups()[0]
+        except:
+            pass
         maxIDnumber = 0
         digitlen = 0
         id2name={}

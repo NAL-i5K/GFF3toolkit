@@ -112,12 +112,12 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     out1 = os.path.join(tmpdir, 'gff1')
     if user_defined1 is None:
         logger.info('\tExtract CDS sequences...')
-        gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
+        gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='cds', dline='simple', qc=False, output_prefix=out1, logger=logger_null)
         logger.info('\tExtract premature transcript sequences...')
-        gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='pre_trans', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
+        gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='pre_trans', dline='simple', qc=False, output_prefix=out1, logger=logger_null)
         if len(transcripts) > 0:
             logger.info('\tExtract transcript sequences...')
-            gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='trans', dline='complete', qc=False, output_prefix=out1, logger=logger_null)
+            gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='trans', dline='simple', qc=False, output_prefix=out1, logger=logger_null)
     else:
         logger.info('\tExtract user_defined_file1 sequences...')
         user_defined_out1 = '{0:s}_{1:s}'.format(out1, 'cds.fa')
@@ -126,7 +126,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
         parent_type = set()
         with open(user_defined_out1, "w") as outfile:
             for lines in user_defined1:
-                gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='user_defined', user_defined=lines, dline='complete', qc=False, output_prefix=out1, logger=logger_null)
+                gff3_to_fasta.main(gff_file=gff1, fasta_file=fasta, stype='user_defined', user_defined=lines, dline='simple', qc=False, output_prefix=out1, logger=logger_null)
                 with open(user_defined_tmp, 'r') as fd:
                     shutil.copyfileobj(fd, outfile)
                 parent_type.add(lines[0])
@@ -144,12 +144,12 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
     out2 = os.path.join(tmpdir, 'gff2')
     if user_defined2 is None:
         logger.info('\tExtract CDS sequences...')
-        gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='cds', dline='complete', qc=False, output_prefix=out2, logger=logger_null)
+        gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='cds', dline='simple', qc=False, output_prefix=out2, logger=logger_null)
         logger.info('\tExtract premature transcript sequences...')
-        gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='pre_trans', dline='complete', qc=False, output_prefix=out2, logger=logger_null)
+        gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='pre_trans', dline='simple', qc=False, output_prefix=out2, logger=logger_null)
         if len(transcripts) > 0:
             logger.info('\tExtract transcript sequences...')
-            gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='trans', dline='complete', qc=False, output_prefix=out2, logger=logger_null)
+            gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='trans', dline='simple', qc=False, output_prefix=out2, logger=logger_null)
     else:
         logger.info('\tExtract user_defined_file2 sequences...')
         user_defined_out2 = '{0:s}_{1:s}'.format(out2, 'cds.fa')
@@ -158,7 +158,7 @@ def main(gff1, gff2, fasta, outdir, scode, logger, all_assign=False, user_define
         parent_type = set()
         with open(user_defined_out2, "w") as outfile:
             for lines in user_defined2:
-                gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='user_defined', user_defined=lines, dline='complete', qc=False, output_prefix=out2, logger=logger_null)
+                gff3_to_fasta.main(gff_file=gff2, fasta_file=fasta, stype='user_defined', user_defined=lines, dline='simple', qc=False, output_prefix=out2, logger=logger_null)
                 with open(user_defined_tmp, 'r') as fd:
                     shutil.copyfileobj(fd, outfile)
                 parent_type.add(lines[0])
