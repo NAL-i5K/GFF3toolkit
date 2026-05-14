@@ -145,6 +145,67 @@ class TestMergeMain(unittest.TestCase):
         report_output = report.getvalue()
         self.assertIn("# Number of WA loci", report_output)
         self.assertIn("Change_log", report_output)
+        self.assertIn("OTHER", report_output)
+
+    def test_multi_ref_path_records_multi_ref_transcript_count(self):
+        wa_root, wa_child = self._make_root_with_child("geneM", child_status="active", child_replace=["T1"])
+        wa_gff = FakeGff([wa_root, wa_child])
+
+        ref_tx1 = {
+            "line_type": "feature",
+            "type": "mRNA",
+            "line_status": "active",
+            "line_raw": "raw-ref-tx1",
+            "attributes": {"ID": "ref_tx1", "Name": "ref_tx1"},
+            "children": [],
+            "parents": [],
+        }
+        ref_tx2 = {
+            "line_type": "feature",
+            "type": "mRNA",
+            "line_status": "active",
+            "line_raw": "raw-ref-tx2",
+            "attributes": {"ID": "ref_tx2", "Name": "ref_tx2"},
+            "children": [],
+            "parents": [],
+        }
+        ref_root = {
+            "line_type": "feature",
+            "type": "gene",
+            "attributes": {"ID": "ref_gene"},
+            "children": [ref_tx1, ref_tx2],
+        }
+        ref_tx1["parents"] = [[ref_root]]
+        ref_tx2["parents"] = [[ref_root]]
+        other_gff = FakeGff([ref_root, ref_tx1, ref_tx2])
+
+        class GroupsWithTagMap(FakeGroups):
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+                self.mapName2ID["T1"] = "ref_tx1"
+
+        def fake_gff_factory(gff_file=None, logger=None):
+            if gff_file == "WA_sorted.gff":
+                return wa_gff
+            if gff_file == "other_sorted.gff":
+                return other_gff
+            raise AssertionError(f"Unexpected gff file: {gff_file}")
+
+        report = io.StringIO()
+        with mock.patch.object(merge.gff3_sort, "main", autospec=True), \
+            mock.patch.object(merge.replace_OGS, "Groups", GroupsWithTagMap), \
+            mock.patch.object(merge, "Gff3", side_effect=fake_gff_factory), \
+            mock.patch.object(merge, "remove_files_from_list", autospec=True):
+            merge.main(
+                gff_file1="wa.gff3",
+                gff_file2="other.gff3",
+                output_gff="final.gff3",
+                report_fh=report,
+            )
+
+        report_output = report.getvalue()
+        self.assertIn("ok", report_output)
+        self.assertIn("# Number of transcripts with multi-ref replacement: 1", report_output)
 
 
 if __name__ == "__main__":
