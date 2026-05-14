@@ -10,6 +10,7 @@ from __future__ import annotations
 import subprocess
 import sys
 import shutil
+import sysconfig
 from pathlib import Path
 
 
@@ -18,16 +19,33 @@ PYTHON_DIR = Path(sys.executable).parent
 
 
 def assert_blast_available() -> None:
-	required_bins = [
-		ROOT / "gff3tool" / "lib" / "ncbi-blast+" / "bin" / "makeblastdb",
-		ROOT / "gff3tool" / "lib" / "ncbi-blast+" / "bin" / "blastn",
+	blast_roots = [ROOT / "gff3tool" / "lib" / "ncbi-blast+" / "bin"]
+	purelib = Path(sysconfig.get_paths().get("purelib", ""))
+	if purelib:
+		blast_roots.append(purelib / "gff3tool" / "lib" / "ncbi-blast+" / "bin")
+
+	binary_variants = [
+		("makeblastdb", "makeblastdb.exe"),
+		("blastn", "blastn.exe"),
 	]
-	missing = [bin_path for bin_path in required_bins if not bin_path.exists()]
-	if missing:
-		missing_str = ", ".join(str(path.relative_to(ROOT)) for path in missing)
+
+	missing_labels: list[str] = []
+	for variants in binary_variants:
+		found = False
+		for root in blast_roots:
+			if any((root / name).exists() for name in variants):
+				found = True
+				break
+		if not found:
+			missing_labels.append("/".join(variants))
+
+	if missing_labels:
+		paths_str = ", ".join(str(path) for path in blast_roots)
+		bins_str = ", ".join(missing_labels)
 		raise AssertionError(
 			"Missing bundled BLAST executables required by gff3_QC smoke test: "
-			f"{missing_str}. Install with `python -m pip install .` before running tests.py."
+			f"{bins_str}. Looked in: {paths_str}. "
+			"Install with `python -m pip install .` before running tests.py."
 		)
 
 
