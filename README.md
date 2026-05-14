@@ -3,9 +3,7 @@
 [![build](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml/badge.svg)](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/NAL-i5K/GFF3toolkit/graph/badge.svg)](https://codecov.io/gh/NAL-i5K/GFF3toolkit)
 [![PyPI version](https://badge.fury.io/py/gff3tool.svg)](https://badge.fury.io/py/gff3tool)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gff3tool)](https://pypi.org/project/gff3tool/)
 [![License: Public Domain](https://img.shields.io/badge/license-Public%20Domain-blue.svg)](https://github.com/NAL-i5K/GFF3toolkit/blob/master/LICENSE.md)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/gff3tool)](https://pypi.org/project/gff3tool/)
 [![GitHub release](https://img.shields.io/github/v/release/NAL-i5K/GFF3toolkit)](https://github.com/NAL-i5K/GFF3toolkit/releases)
 [![Documentation Status](https://readthedocs.org/projects/gff3toolkit/badge/?version=latest)](https://gff3toolkit.readthedocs.io/en/latest/?badge=latest)
 
