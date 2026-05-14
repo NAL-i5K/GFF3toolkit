@@ -1,0 +1,7 @@
+[run]
+source =
+    gff3tool
+
+[report]
+show_missing = True
+skip_covered = False
