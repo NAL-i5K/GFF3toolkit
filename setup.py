@@ -23,6 +23,7 @@ from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 
 
 here = path.abspath(path.dirname(__file__))
+BLAST_VERSION = '2.17.0'
 
 
 class bdist_wheel(_bdist_wheel):
@@ -39,19 +40,20 @@ class CustomBuildCommand(build):
         blast_path = path.join(here, 'gff3tool', 'lib', 'ncbi-blast+')
         blast_file = path.join(blast_path, 'blast.tgz')
 
-        mkdir(blast_path)
+        if not path.exists(blast_path):
+            mkdir(blast_path)
 
         if platform_system == 'Linux':
             urlretrieve(
-                'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz',
+                'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/{0:s}/ncbi-blast-{0:s}+-x64-linux.tar.gz'.format(BLAST_VERSION),
                 blast_file)
         elif platform_system == 'Windows':
             urlretrieve(
-                'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-win64.tar.gz',
+                'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/{0:s}/ncbi-blast-{0:s}+-x64-win64.tar.gz'.format(BLAST_VERSION),
                 blast_file)
         elif platform_system == 'Darwin':
             urlretrieve(
-                'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-universal-macosx.tar.gz',
+                'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/{0:s}/ncbi-blast-{0:s}+-universal-macosx.tar.gz'.format(BLAST_VERSION),
                 blast_file)
         else:
             sys.error(
@@ -62,7 +64,7 @@ class CustomBuildCommand(build):
         tar.extractall(blast_path)
         tar.close()
 
-        extract_path = path.join(blast_path, 'ncbi-blast-2.2.31+')
+        extract_path = path.join(blast_path, 'ncbi-blast-{0:s}+'.format(BLAST_VERSION))
         shutil.move(path.join(extract_path, 'bin'), blast_path)
         if path.exists(blast_file):
             remove(blast_file)
