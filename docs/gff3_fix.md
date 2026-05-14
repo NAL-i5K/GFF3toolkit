@@ -2,11 +2,11 @@
 
 ## Usage 
 
-gff3_fix.py [-h] [-qc_r QC_REPORT] [-g GFF] [-og OUTPUT_GFF] [-v]
+gff3_fix [-h] [-qc_r QC_REPORT] [-g GFF] [-og OUTPUT_GFF] [-v]
 
 ## Testing environment
 
-Python 3.x
+Python 3.9+
 
 ## Inputs
 
@@ -36,4 +36,4 @@ Python 3.x
 
 ## More information
 
-- [gff3_fix.py full documentation](gff3_fix.py-documentation.md)
+- [gff3_fix full documentation](gff3_fix.py-documentation.rst)

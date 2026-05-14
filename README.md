@@ -16,7 +16,6 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 ## Prerequisite
 
 * Python 3.9+
-  * [wheel](https://pythonwheels.com/) (should have been installed for most python distributions, if you don't have, use `pip install wheel` to install it.)
 * Perl
 
 ## Installation
@@ -76,7 +75,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 ### Generate biological sequences from a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
-* bin/gff3_to_fasta.py - extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file
+* `gff3_to_fasta` - extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file
   * [gff3_to_fasta readme](docs/gff3_to_fasta.md)
   * Quick start:
     `gff3_to_fasta -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences`
@@ -90,7 +89,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 * [gff3tool/lib/gff3](gff3tool/lib/gff3)/
   * Basic data structure used for nesting the information of genome annotations in GFF3 format.
-* [gff3tool/lib/gff3_to_fasta](gff3tool/lib/gff3_to_fasta)/
+* [gff3tool/bin/gff3_to_fasta.py](gff3tool/bin/gff3_to_fasta.py)
   * Extract specific sequences from genome sequences according to the GFF3 file.
 * [gff3tool/lib/ERROR](gff3tool/lib/ERROR)/
   * Contains the full list of Error codes and the corresponding Error tag
