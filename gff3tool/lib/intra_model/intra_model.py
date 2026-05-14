@@ -130,7 +130,7 @@ def check_internal_stop(gff, rootline):
             #print(s['start'], s['end'], s['phase'])
             count += 1
         aa = gff3_to_fasta.translator(tmpseq)
-        stop = [m.start() for m in re.finditer('\*', aa)]
+        stop = [m.start() for m in re.finditer(r'\*', aa)]
         bp = list()
         for i in stop:
             if i < len(aa)-1:

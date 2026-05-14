@@ -14,8 +14,48 @@ class DummyGFF:
     def remove(self, model):
         self.removed.append(model)
 
+    def collect_descendants(self, line):
+        descendants = []
+        for child in line.get("children", []):
+            descendants.append(child)
+            descendants.extend(self.collect_descendants(child))
+        return descendants
+
 
 class TestIdProcessor(unittest.TestCase):
+    def _build_nested_model(self, root_id="LOC0001"):
+        utr = {
+            "type": "UTR",
+            "attributes": {"ID": "utr1", "Parent": [f"{root_id}-RA-exon"], "Name": "utr1"},
+            "parents": [],
+            "children": [],
+            "line_index": 2,
+        }
+        exon = {
+            "type": "exon",
+            "attributes": {"ID": f"{root_id}-RA-exon", "Parent": [f"{root_id}-RA"], "Name": f"{root_id}-RA-exon"},
+            "parents": [],
+            "children": [utr],
+            "line_index": 1,
+        }
+        transcript = {
+            "type": "mRNA",
+            "attributes": {"ID": f"{root_id}-RA", "Parent": [root_id], "Name": f"{root_id}-RA"},
+            "parents": [],
+            "children": [exon],
+            "line_index": 0,
+        }
+        root = {
+            "type": "gene",
+            "attributes": {"ID": root_id, "Name": root_id},
+            "children": [transcript],
+            "line_index": 0,
+        }
+        transcript["parents"] = [[root]]
+        exon["parents"] = [[transcript]]
+        utr["parents"] = [[exon]]
+        return root
+
     def test_idgenerator_zero_pads_and_increments(self):
         result = id_processor.idgenerator("GENE", 9, 4)
         self.assertEqual(result["ID"], "GENE0010")
@@ -159,6 +199,47 @@ class TestIdProcessor(unittest.TestCase):
         self.assertEqual(cds["attributes"]["transcript_id"], "LOC0001-RA")
         self.assertEqual(cds["attributes"]["protein_id"], "LOC0001-PA")
         self.assertEqual(cds["attributes"]["product"], "product name")
+
+    def test_new_model_threads_nested_descendants_into_new_graph(self):
+        oldmodel = self._build_nested_model("LOC0001")
+        gff = DummyGFF()
+
+        with mock.patch.object(id_processor.string, "uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", create=True), \
+            mock.patch("builtins.print"):
+            id_processor.newModel(oldmodel, "LOC0002", gff)
+
+        self.assertIn("LOC0002", gff.features)
+        new_root = gff.features["LOC0002"][0]
+        self.assertEqual(new_root["attributes"]["ID"], "LOC0002")
+        self.assertEqual(len(new_root["children"]), 1)
+        self.assertEqual(new_root["children"][0]["attributes"]["Parent"], ["LOC0002"])
+        generated_utr = [line for line in gff.lines if line.get("type") == "UTR" and "LOC0002" in line["attributes"].get("ID", "")]
+        self.assertTrue(generated_utr)
+
+    def test_general_new_model_uses_eof_index_when_id_already_exists(self):
+        oldmodel = self._build_nested_model("LOC0003")
+        gff = DummyGFF(line_count=2)
+        gff.features["LOC0003"].append({"attributes": {"ID": "LOC0003"}})
+
+        with mock.patch("builtins.print"):
+            id_processor.general_newModel(oldmodel, gff)
+
+        new_root = gff.lines[2]
+        self.assertEqual(new_root["attributes"]["ID"], 2)
+        self.assertIn(2, gff.features)
+        self.assertTrue(new_root["children"])
+
+    def test_new_nreplace_model_replaces_old_model_and_removes_original(self):
+        oldmodel = self._build_nested_model("LOC0007")
+        gff = DummyGFF()
+
+        with mock.patch.object(id_processor.string, "uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", create=True), \
+            mock.patch("builtins.print"):
+            id_processor.newNreplaceModel(oldmodel, "LOC0008", gff)
+
+        self.assertIn(oldmodel, gff.removed)
+        self.assertIn("LOC0008", gff.features)
+        self.assertEqual(gff.features["LOC0008"][0]["attributes"]["ID"], "LOC0008")
 
 
 if __name__ == "__main__":

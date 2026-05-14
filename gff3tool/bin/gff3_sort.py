@@ -29,7 +29,7 @@ def PositionSort(linelist,reference):
         for line in linelist:
             id2line[str(line['line_raw'])] = line
             id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
-            tmp = re.search('(\S+)',line['seqid'])
+            tmp = re.search(r'(\S+)',line['seqid'])
             try:
                 seqnum = tmp.groups()[0]
 
@@ -46,7 +46,7 @@ def PositionSort(linelist,reference):
         for line in linelist:
             id2line[str(line['line_raw'])] = line
             id2start[str(line['line_raw'])] = (line['start'],line['line_index'])
-            tmp = re.search('(.+?)(\d+)',line['seqid']) # Truncate the sequence ID, and only keep the sequence ID number
+            tmp = re.search(r'(.+?)(\d+)',line['seqid']) # Truncate the sequence ID, and only keep the sequence ID number
             try:
                 seqnum = tmp.groups()[1]
             except AttributeError:

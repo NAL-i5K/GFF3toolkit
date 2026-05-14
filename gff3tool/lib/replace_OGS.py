@@ -37,7 +37,7 @@ def featureSort(linelist, reverse=False):
             id2index[str(line['line_raw'])] = [lineindex, FEATURECODE[line['type']] if reverse==False else (-FEATURECODE[line['type']])]
         else:
             id2index[str(line['line_raw'])] = [lineindex, 99 if reverse==False else -99]
-        tmp = re.search('(.+?)(\d+)',line['seqid'])
+        tmp = re.search(r'(.+?)(\d+)',line['seqid'])
         seqnum = tmp.groups()[1]
         if seqnum in seq2id:
             seq2id[seqnum].append(str(line['line_raw']))
@@ -97,7 +97,7 @@ def merge(gff, line, line2, oID):
         nameflag = 0
         if name_field[0] in line['attributes']:
             nameflag += 1
-            line['attributes'][name_field[0]] = re.sub('\s+$', '', line['attributes'][name_field[0]])
+            line['attributes'][name_field[0]] = re.sub(r'\s+$', '', line['attributes'][name_field[0]])
             if line['attributes']['ID'] == line['attributes'][name_field[0]]:
                 vector.append({0:'NA'})
             else:
@@ -107,7 +107,7 @@ def merge(gff, line, line2, oID):
 
         for f in fields:
             if f in line['attributes']:
-                line['attributes'][f] = re.sub('\s+$', '', str(line['attributes'][f]))
+                line['attributes'][f] = re.sub(r'\s+$', '', str(line['attributes'][f]))
                 vector.append({1:line['attributes'][f]})
             else:
                 vector.append({0:'NA'})
@@ -479,7 +479,7 @@ class Groups(object):
                             unique.add(root['line_raw'])
         # roots = [line for line in Mgff.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
         mapName2ID = {}
-        tmp  = re.search('(.+?)(\d+)',roots[0]['attributes']['ID'])
+        tmp  = re.search(r'(.+?)(\d+)',roots[0]['attributes']['ID'])
         idprefix = tmp.groups()[0]
         maxIDnumber = 0
         digitlen = 0

@@ -76,9 +76,9 @@ def check_strand(gff, line):
     eCode = 'Esf0003'
     result = dict()
     try:
-        if line['strand'] is '+' or line['strand'] is '-':
+        if line['strand'] == '+' or line['strand'] == '-':
             pass
-        elif line['strand'] is '.' or line['strand'] is '?':
+        elif line['strand'] == '.' or line['strand'] == '?':
             result['ID'] = [line['attributes']['ID']]
             result['line_num'] = ['Line {0:s}'.format(str(line['line_index'] + 1))]
             result['eCode'] = eCode

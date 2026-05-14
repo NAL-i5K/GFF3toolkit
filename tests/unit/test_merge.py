@@ -207,6 +207,128 @@ class TestMergeMain(unittest.TestCase):
         self.assertIn("ok", report_output)
         self.assertIn("# Number of transcripts with multi-ref replacement: 1", report_output)
 
+    def test_warning_emitted_for_multiple_replace_tags_in_isoforms(self):
+        root, child1 = self._make_root_with_child("geneWarn", child_status="active", child_replace=["A"])
+        _, child2 = self._make_root_with_child("geneWarn", child_status="active", child_replace=["B"])
+        child1["attributes"]["replace_type"] = "other"
+        child2["attributes"]["replace_type"] = "other"
+        root["children"] = [child1, child2]
+        wa_gff = FakeGff([root, child1, child2])
+
+        ref_child = {
+            "line_type": "feature",
+            "type": "mRNA",
+            "line_status": "active",
+            "line_raw": "raw-ref-child",
+            "attributes": {"ID": "ref-child", "Name": "ref-child"},
+            "children": [],
+            "parents": [],
+        }
+        ref_root = {
+            "line_type": "feature",
+            "type": "gene",
+            "attributes": {"ID": "ref-root"},
+            "children": [ref_child],
+        }
+        ref_child["parents"] = [[ref_root]]
+        other_gff = FakeGff([ref_root, ref_child])
+
+        def fake_gff_factory(gff_file=None, logger=None):
+            if gff_file == "WA_sorted.gff":
+                return wa_gff
+            if gff_file == "other_sorted.gff":
+                return other_gff
+            raise AssertionError(f"Unexpected gff file: {gff_file}")
+
+        class GroupsWithWarningMap(FakeGroups):
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+                self.mapName2ID["A"] = "ref-child"
+                self.mapName2ID["B"] = "ref-child"
+
+        report = io.StringIO()
+        with mock.patch.object(merge.gff3_sort, "main", autospec=True), \
+            mock.patch.object(merge.replace_OGS, "Groups", GroupsWithWarningMap), \
+            mock.patch.object(merge, "Gff3", side_effect=fake_gff_factory), \
+            mock.patch.object(merge, "remove_files_from_list", autospec=True):
+            merge.main(
+                gff_file1="wa.gff3",
+                gff_file2="other.gff3",
+                output_gff="final.gff3",
+                report_fh=report,
+            )
+
+        report_output = report.getvalue()
+        self.assertIn("multiple replace tags in multiple isoforms", report_output)
+        self.assertIn("# Number of transcripts with other replacement: 2", report_output)
+
+    def test_delete_with_non_na_replace_logs_delete_and_clears_tag(self):
+        wa_root, wa_child = self._make_root_with_child("geneA", child_status="active", child_replace=["NA"])
+        wa_gff = FakeGff([wa_root, wa_child])
+
+        ref_tx = {
+            "line_type": "feature",
+            "type": "mRNA",
+            "line_status": "active",
+            "line_raw": "raw-ref-tx",
+            "attributes": {"ID": "refTX", "Name": "refTX"},
+            "children": [],
+            "parents": [],
+        }
+        ref_root = {
+            "line_type": "feature",
+            "type": "gene",
+            "attributes": {"ID": "refGene"},
+            "children": [ref_tx],
+        }
+        ref_tx["parents"] = [[ref_root]]
+
+        del_child = {
+            "line_type": "feature",
+            "type": "mRNA",
+            "line_status": "removed",
+            "line_raw": "raw-del-child",
+            "attributes": {"ID": "delTX", "status": "Delete", "replace": ["TAGDEL"]},
+            "children": [],
+            "parents": [],
+        }
+        del_root = {
+            "line_type": "feature",
+            "type": "gene",
+            "attributes": {"ID": "delGene"},
+            "children": [del_child],
+        }
+        del_child["parents"] = [[del_root]]
+
+        other_gff = FakeGff([ref_root, ref_tx, del_root, del_child])
+
+        class GroupsWithDeleteMap(FakeGroups):
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+                self.mapName2ID["TAGDEL"] = "refTX"
+
+        def fake_gff_factory(gff_file=None, logger=None):
+            if gff_file == "WA_sorted.gff":
+                return wa_gff
+            if gff_file == "other_sorted.gff":
+                return other_gff
+            raise AssertionError(f"Unexpected gff file: {gff_file}")
+
+        report = io.StringIO()
+        with mock.patch.object(merge.gff3_sort, "main", autospec=True), \
+            mock.patch.object(merge.replace_OGS, "Groups", GroupsWithDeleteMap), \
+            mock.patch.object(merge, "Gff3", side_effect=fake_gff_factory), \
+            mock.patch.object(merge, "remove_files_from_list", autospec=True):
+            merge.main(
+                gff_file1="wa.gff3",
+                gff_file2="other.gff3",
+                output_gff="final.gff3",
+                report_fh=report,
+            )
+
+        self.assertIn("DELETE", report.getvalue())
+        self.assertNotIn("replace", del_child["attributes"])
+
 
 if __name__ == "__main__":
     unittest.main()

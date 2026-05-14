@@ -126,7 +126,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
     for line in roots:
         if 'replace' in line['attributes'] and 'children' in line:
             for index in range(len(line['attributes']['replace'])):
-                line['attributes']['replace'][index] = re.sub('\s+', '', line['attributes']['replace'][index])
+                line['attributes']['replace'][index] = re.sub(r'\s+', '', line['attributes']['replace'][index])
             if user_defined1 is None:
                 children = line['children']
             else:
@@ -150,7 +150,7 @@ def main(gff_file, revision_file, output_gff, report_file=None, user_defined1=No
                     f+=1
 
                 for index in range(len(child['attributes']['replace'])):
-                    child['attributes']['replace'][index] = re.sub('\s+', '', child['attributes']['replace'][index])
+                    child['attributes']['replace'][index] = re.sub(r'\s+', '', child['attributes']['replace'][index])
 
                 if f == 0:
                     #print('\nReplace tags found at both gene and mRNA level:{0:s}; {1:s}'.format(line['attributes']['replace'], child['attributes']['replace']))

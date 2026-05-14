@@ -73,7 +73,7 @@ def featureSort(linelist, reverse=False):
             id2index[str(line['line_raw'])] = [lineindex, FEATURECODE[line['type']] if reverse==False else (-FEATURECODE[line['type']])]
         else:
             id2index[str(line['line_raw'])] = [lineindex, 99 if reverse==False else -99]
-        tmp = re.search('(.+?)(\d+)',line['seqid'])
+        tmp = re.search(r'(.+?)(\d+)',line['seqid'])
         try:
             seqnum = tmp.groups()[1]
         except AttributeError:
