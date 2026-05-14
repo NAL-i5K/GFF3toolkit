@@ -9,11 +9,32 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import shutil
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
-BIN_DIR = Path(sys.executable).parent
+PYTHON_DIR = Path(sys.executable).parent
+
+
+def resolve_command(cmd_name: str) -> str:
+	if sys.platform.startswith("win"):
+		candidates = [
+			PYTHON_DIR / "Scripts" / f"{cmd_name}.exe",
+			PYTHON_DIR / f"{cmd_name}.exe",
+		]
+	else:
+		candidates = [PYTHON_DIR / cmd_name]
+
+	for candidate in candidates:
+		if candidate.exists():
+			return str(candidate)
+
+	from_path = shutil.which(cmd_name)
+	if from_path:
+		return from_path
+
+	return str(candidates[0])
 
 
 def remove_if_exists(path: Path) -> None:
@@ -35,11 +56,7 @@ def assert_non_empty(path: Path) -> None:
 
 
 def run_command(name: str, args: list[str], expected_files: list[Path]) -> None:
-	cmd_name = args[0]
-	cmd_path = BIN_DIR / cmd_name
-	if sys.platform.startswith("win"):
-		cmd_path = cmd_path.with_suffix(".exe")
-	cmd = [str(cmd_path), *args[1:]]
+	cmd = [resolve_command(args[0]), *args[1:]]
 
 	print(f"[RUN] {name}: {' '.join(cmd)}")
 	result = subprocess.run(cmd, cwd=ROOT)
