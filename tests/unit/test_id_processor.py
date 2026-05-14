@@ -1,4 +1,6 @@
 import unittest
+from collections import defaultdict
+from unittest import mock
 
 from gff3tool.lib import id_processor
 
@@ -6,6 +8,11 @@ from gff3tool.lib import id_processor
 class DummyGFF:
     def __init__(self, line_count=0):
         self.lines = [{} for _ in range(line_count)]
+        self.features = defaultdict(list)
+        self.removed = []
+
+    def remove(self, model):
+        self.removed.append(model)
 
 
 class TestIdProcessor(unittest.TestCase):
@@ -57,6 +64,101 @@ class TestIdProcessor(unittest.TestCase):
         self.assertEqual(nchild["attributes"]["ID"], "LOC0002-RA")
         self.assertEqual(nchild["attributes"]["Name"], "LOC0002-RA")
         self.assertEqual(nchild["children"], [])
+
+    def test_idprocessing_removes_models_marked_removed(self):
+        root = {
+            "line_type": "feature",
+            "attributes": {"ID": "LOC0001"},
+            "children": [],
+        }
+        removed_model = {
+            "line_type": "feature",
+            "attributes": {"ID": "LOC0002", "modified_track": "removed"},
+            "children": [],
+        }
+        gff = DummyGFF()
+        gff.lines = [root, removed_model]
+
+        id_processor.IDprocessing(gff)
+
+        self.assertEqual(gff.removed, [removed_model])
+        self.assertNotIn("modified_track", removed_model["attributes"])
+
+    def test_idprocessing_calls_newnreplace_for_merge_track(self):
+        child = {"attributes": {"ID": "LOC0003-RA"}, "children": []}
+        model = {
+            "line_type": "feature",
+            "attributes": {"ID": "LOC0003", "modified_track": "geneA_s1_geneB_s2"},
+            "children": [child],
+        }
+        root = {
+            "line_type": "feature",
+            "attributes": {"ID": "LOC0001"},
+            "children": [child],
+        }
+        gff = DummyGFF()
+        gff.lines = [root, model]
+
+        with mock.patch.object(id_processor, "idgenerator", return_value={"ID": "LOC0004", "maxnum": 4}) as gen_mock, \
+            mock.patch.object(id_processor, "newNreplaceModel", autospec=True) as replace_mock:
+            id_processor.IDprocessing(gff)
+
+        gen_mock.assert_called_once_with("LOC", 3, 4)
+        replace_mock.assert_called_once_with(model, "LOC0004", gff)
+
+    def test_idprocessing_calls_newnreplace_for_split_track(self):
+        child = {"attributes": {"ID": "LOC0005-RA"}, "children": []}
+        model = {
+            "line_type": "feature",
+            "attributes": {"ID": "LOC0005", "modified_track": "geneX.s1"},
+            "children": [child],
+        }
+        root = {
+            "line_type": "feature",
+            "attributes": {"ID": "LOC0001"},
+            "children": [child],
+        }
+        gff = DummyGFF()
+        gff.lines = [root, model]
+
+        with mock.patch.object(id_processor, "idgenerator", return_value={"ID": "LOC0006", "maxnum": 6}) as gen_mock, \
+            mock.patch.object(id_processor, "newNreplaceModel", autospec=True) as replace_mock:
+            id_processor.IDprocessing(gff)
+
+        gen_mock.assert_called_once_with("LOC", 5, 4)
+        replace_mock.assert_called_once_with(model, "LOC0006", gff)
+
+    def test_ncbi_naming_system_assigns_root_child_and_cds_attributes(self):
+        cds = {
+            "line_type": "feature",
+            "type": "CDS",
+            "attributes": {"ID": "LOC0001-RA-CDS"},
+            "children": [],
+        }
+        mrna = {
+            "line_type": "feature",
+            "type": "mRNA",
+            "attributes": {"ID": "LOC0001-RA", "Parent": ["LOC0001"], "Name": "product name"},
+            "children": [cds],
+        }
+        cds["attributes"]["Parent"] = ["LOC0001-RA"]
+        root = {
+            "line_type": "feature",
+            "type": "gene",
+            "attributes": {"ID": "LOC0001"},
+            "children": [mrna],
+        }
+        gff = DummyGFF()
+        gff.lines = [root, mrna, cds]
+
+        id_processor.ncbiNamingSystem(gff, "TAG")
+
+        self.assertEqual(root["attributes"]["locus_tag"], "TAG_LOC0001")
+        self.assertEqual(mrna["attributes"]["transcript_id"], "LOC0001-RA")
+        self.assertEqual(mrna["attributes"]["protein_id"], "LOC0001-PA")
+        self.assertEqual(cds["attributes"]["transcript_id"], "LOC0001-RA")
+        self.assertEqual(cds["attributes"]["protein_id"], "LOC0001-PA")
+        self.assertEqual(cds["attributes"]["product"], "product name")
 
 
 if __name__ == "__main__":
