@@ -80,6 +80,35 @@ class TestFunction4Gff(unittest.TestCase):
         sorted_raw = [line["line_raw"] for line in sorted_lines]
         self.assertEqual(sorted_raw, ["gene_chr2", "mrna_chr2", "gene_chr10"])
 
+    def test_feature_sort_keeps_non_numeric_seqids(self):
+        lines = [
+            {
+                "seqid": "chrX",
+                "start": 5,
+                "end": 10,
+                "type": "gene",
+                "line_raw": "gene_chrX",
+            },
+            {
+                "seqid": "chr2",
+                "start": 5,
+                "end": 10,
+                "type": "gene",
+                "line_raw": "gene_chr2",
+            },
+            {
+                "seqid": "scaffoldA",
+                "start": 5,
+                "end": 10,
+                "type": "gene",
+                "line_raw": "gene_scaffoldA",
+            },
+        ]
+
+        sorted_lines = function4gff.featureSort(lines)
+        sorted_raw = [line["line_raw"] for line in sorted_lines]
+        self.assertEqual(sorted_raw, ["gene_chr2", "gene_chrX", "gene_scaffoldA"])
+
     def test_extract_internal_detected_errors_collects_error_metadata(self):
         line_with_id = {
             "line_index": 9,

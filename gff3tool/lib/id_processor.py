@@ -121,12 +121,12 @@ def newModel(oldmodel, newid, gff):
         # generate new mRNA ID when merging multiple isoforms
         name_add_flag = 0
         if nchild['attributes']['ID'] in childids:
-            newalphabet = string.uppercase[(maxindex+1)]
+            newalphabet = string.ascii_uppercase[(maxindex+1)]
             nchild['attributes']['ID'] = re.sub('(.)$',newalphabet,nchild['attributes']['ID'])
             name_add_flag += 1
         else:
             t = re.search('(.)$', nchild['attributes']['ID'])
-            newindex = string.uppercase.index(t.groups()[0])
+            newindex = string.ascii_uppercase.index(t.groups()[0])
             if newindex > maxindex:
                 maxindex = newindex
             childids[nchild['attributes']['ID']] = 0
@@ -300,13 +300,13 @@ def newNreplaceModel(oldmodel, newid, gff):
         # generate new mRNA ID when merging multiple isoforms
         name_add_flag = 0
         if nchild['attributes']['ID'] in childids:
-            newalphabet = string.uppercase[(maxindex+1)]
+            newalphabet = string.ascii_uppercase[(maxindex+1)]
             nchild['attributes']['ID'] = re.sub('(.)$',newalphabet,nchild['attributes']['ID'])
             name_add_flag += 1
         else:
             print('id_processor.py: {0:s}'.format(nchild['attributes']['ID']))
             t = re.search('(.)$', nchild['attributes']['ID'])
-            newindex = string.uppercase.index(t.groups()[0])
+            newindex = string.ascii_uppercase.index(t.groups()[0])
             if newindex > maxindex:
                 maxindex = newindex
             childids[nchild['attributes']['ID']] = 0

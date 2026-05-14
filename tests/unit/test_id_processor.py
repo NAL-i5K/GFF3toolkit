@@ -204,8 +204,7 @@ class TestIdProcessor(unittest.TestCase):
         oldmodel = self._build_nested_model("LOC0001")
         gff = DummyGFF()
 
-        with mock.patch.object(id_processor.string, "uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", create=True), \
-            mock.patch("builtins.print"):
+        with mock.patch("builtins.print"):
             id_processor.newModel(oldmodel, "LOC0002", gff)
 
         self.assertIn("LOC0002", gff.features)
@@ -233,8 +232,7 @@ class TestIdProcessor(unittest.TestCase):
         oldmodel = self._build_nested_model("LOC0007")
         gff = DummyGFF()
 
-        with mock.patch.object(id_processor.string, "uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", create=True), \
-            mock.patch("builtins.print"):
+        with mock.patch("builtins.print"):
             id_processor.newNreplaceModel(oldmodel, "LOC0008", gff)
 
         self.assertIn(oldmodel, gff.removed)

@@ -17,6 +17,20 @@ ROOT = Path(__file__).resolve().parent
 PYTHON_DIR = Path(sys.executable).parent
 
 
+def assert_blast_available() -> None:
+	required_bins = [
+		ROOT / "gff3tool" / "lib" / "ncbi-blast+" / "bin" / "makeblastdb",
+		ROOT / "gff3tool" / "lib" / "ncbi-blast+" / "bin" / "blastn",
+	]
+	missing = [bin_path for bin_path in required_bins if not bin_path.exists()]
+	if missing:
+		missing_str = ", ".join(str(path.relative_to(ROOT)) for path in missing)
+		raise AssertionError(
+			"Missing bundled BLAST executables required by gff3_QC smoke test: "
+			f"{missing_str}. Install with `python -m pip install .` before running tests.py."
+		)
+
+
 def resolve_command(cmd_name: str) -> str:
 	if sys.platform.startswith("win"):
 		candidates = [
@@ -68,6 +82,8 @@ def run_command(name: str, args: list[str], expected_files: list[Path]) -> None:
 
 
 def main() -> int:
+	assert_blast_available()
+
 	# Clean outputs that this script validates.
 	for path in [
 		ROOT / "error.txt",
