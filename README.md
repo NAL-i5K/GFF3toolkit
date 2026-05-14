@@ -1,8 +1,14 @@
 # GFF3toolkit - Python programs for processing GFF3 files
 
-![example workflow](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml/badge.svg)
-[![Build status](https://ci.appveyor.com/api/projects/status/0do5uwu5je0gag1u/branch/master?svg=true)](https://ci.appveyor.com/project/hsiaoyi0504/gff3toolkit/branch/master)
+[![build](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml/badge.svg)](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/NAL-i5K/GFF3toolkit/graph/badge.svg)](https://codecov.io/gh/NAL-i5K/GFF3toolkit)
 [![PyPI version](https://badge.fury.io/py/gff3tool.svg)](https://badge.fury.io/py/gff3tool)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gff3tool)](https://pypi.org/project/gff3tool/)
+[![License](https://img.shields.io/github/license/NAL-i5K/GFF3toolkit)](https://github.com/NAL-i5K/GFF3toolkit/blob/master/LICENSE.md)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/gff3tool)](https://pypi.org/project/gff3tool/)
+[![GitHub release](https://img.shields.io/github/v/release/NAL-i5K/GFF3toolkit)](https://github.com/NAL-i5K/GFF3toolkit/releases)
+[![GitHub issues](https://img.shields.io/github/issues/NAL-i5K/GFF3toolkit)](https://github.com/NAL-i5K/GFF3toolkit/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/NAL-i5K/GFF3toolkit)](https://github.com/NAL-i5K/GFF3toolkit/pulls)
 [![Documentation Status](https://readthedocs.org/projects/gff3toolkit/badge/?version=latest)](https://gff3toolkit.readthedocs.io/en/latest/?badge=latest)
 
 ## Background
