@@ -161,6 +161,9 @@ setup(
     # Note that this is a string of words separated by whitespace, not a list.
     keywords='gff3 gff bioinformatics ',  # Optional
 
+    # Explicitly declare supported runtime versions for installers and tools.
+    python_requires='>=3.9',
+
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
     #
