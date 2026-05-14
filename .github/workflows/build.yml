@@ -1,23 +1,26 @@
 name: build
 
-on: [push]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   build1-Calculating-coverage:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install coveralls coverage codecov wheel
-          pip install .
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install coveralls coverage codecov wheel
+          python -m pip install .
+          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
       - name: Test with coverage
         run: |
           coverage run -a ./gff3tool/bin/gff3_QC.py -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
@@ -41,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -54,30 +57,21 @@ jobs:
           
   build3-Testing-functions:
     strategy:
+      fail-fast: false
       matrix:
         os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
     runs-on: ${{ matrix.os }}
     
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install wheel
-          pip install --no-cache-dir gff3tool
-          pip install .
-      - name: script
-        run: |
-          gff3_QC -g example_file/example.gff3 -f example_file/reference.fa -o error.txt
-          gff3_fix -qc_r error.txt -g example_file/example.gff3 -og corrected.gff3
-          gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt
-          gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u1 example_file/u1.txt -u2 example_file/u2.txt -r merged_report.txt
-          gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u1 example_file/u1.txt -r merged_report.txt
-          gff3_merge -g1 example_file/new_models.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -u2 example_file/u2.txt -r merged_report.txt
-          gff3_merge -g1 example_file/new_models_w_replace.gff3 -g2 example_file/reference.gff3 -f example_file/reference.fa -og merged.gff -r merged_report.txt -noAuto
-          gff3_sort -g example_file/example.gff3 -og example-sorted.gff3
-          gff3_to_fasta -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences
+          python -m pip install wheel
+          python -m pip install .
+      - name: Run smoke tests
+        run: python tests.py
