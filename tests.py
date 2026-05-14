@@ -87,6 +87,25 @@ def assert_non_empty(path: Path) -> None:
 		raise AssertionError(f"Output file is empty: {path}")
 
 
+def assert_file_contains(path: Path, snippet: str) -> None:
+	content = path.read_text(encoding="utf-8", errors="replace")
+	if snippet not in content:
+		raise AssertionError(f"Expected '{snippet}' in {path}, but it was not found")
+
+
+def assert_file_contains_any(path: Path, snippets: list[str]) -> None:
+	content = path.read_text(encoding="utf-8", errors="replace")
+	if not any(snippet in content for snippet in snippets):
+		joined = ", ".join(repr(snippet) for snippet in snippets)
+		raise AssertionError(f"Expected one of {joined} in {path}, but none were found")
+
+
+def assert_fasta_has_header(path: Path) -> None:
+	content = path.read_text(encoding="utf-8", errors="replace")
+	if not any(line.startswith(">") for line in content.splitlines()):
+		raise AssertionError(f"Expected at least one FASTA header in {path}")
+
+
 def run_command(name: str, args: list[str], expected_files: list[Path]) -> None:
 	cmd = [resolve_command(args[0]), *args[1:]]
 
@@ -273,6 +292,14 @@ def main() -> int:
 	try:
 		for name, args, expected_files in checks:
 			run_command(name, args, expected_files)
+			if name == "gff3_QC":
+				assert_file_contains_any(ROOT / "error.txt", ["Line ", "Error", "Ema", "Esf"])
+			elif name == "gff3_merge default":
+				assert_file_contains(ROOT / "merged_report.txt", "# Number of WA loci")
+				assert_file_contains(ROOT / "merged_report.txt", "Change_log")
+			elif name == "gff3_to_fasta":
+				for fasta_path in expected_files:
+					assert_fasta_has_header(fasta_path)
 	except Exception as exc:  # noqa: BLE001
 		print(f"[FAIL] {exc}", file=sys.stderr)
 		return 1
