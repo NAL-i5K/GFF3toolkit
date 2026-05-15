@@ -34,7 +34,7 @@ jobs:
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          coverage report -m
+          coverage report --fail-under=22 -m
           coveralls --service=github
           codecov
   
