@@ -589,7 +589,7 @@ class Groups(object):
             children = parent_line['children']
             maxindex = 0
             for child in children:
-                newalphabet = string.uppercase[maxindex]
+                newalphabet = string.ascii_uppercase[maxindex]
                 newid = tpid + '-R' + newalphabet
                 child['attributes']['Parent'] = [tpid]
                 self.replaceIDName(child, newid)

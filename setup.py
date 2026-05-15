@@ -1,7 +1,10 @@
 """Compatibility setup.py that keeps custom BLAST bundling hooks."""
 
 from setuptools import setup, find_packages
-from distutils.command.build import build
+try:
+    from setuptools.command.build import build
+except ImportError:
+    from setuptools._distutils.command.build import build
 from os import path, remove, mkdir
 import platform
 import shutil
