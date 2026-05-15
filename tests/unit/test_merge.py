@@ -48,7 +48,7 @@ class FakeGff:
         self.written_output = None
 
     def collect_roots(self, line):
-        return [line]
+        return line.get("roots", [line])
 
     def collect_descendants(self, line):
         return line.get("children", [])
@@ -328,6 +328,135 @@ class TestMergeMain(unittest.TestCase):
 
         self.assertIn("DELETE", report.getvalue())
         self.assertNotIn("replace", del_child["attributes"])
+
+    def test_main_handles_user_defined_parentless_reference_transcript(self):
+        wa_tx = {
+            "line_type": "feature",
+            "type": "mRNA",
+            "line_status": "active",
+            "line_raw": "wa-tx",
+            "line_index": 1,
+            "attributes": {"ID": "wa_tx", "replace": ["TAG1"]},
+            "parents": [],
+            "children": [],
+        }
+        wa_root = {
+            "line_type": "feature",
+            "type": "gene",
+            "line_raw": "wa-root",
+            "line_index": 0,
+            "attributes": {"ID": "wa_gene"},
+            "children": [wa_tx],
+        }
+        wa_tx["roots"] = [wa_root]
+        wa_gff = FakeGff([wa_root, wa_tx])
+
+        ref_tx = {
+            "line_type": "feature",
+            "type": "mRNA",
+            "line_status": "active",
+            "line_raw": "ref-tx",
+            "line_index": 0,
+            "attributes": {"ID": "ref_tx", "Name": "ref_tx"},
+            "parents": [],
+            "children": [],
+        }
+        other_gff = FakeGff([ref_tx])
+
+        class GroupsWithParentlessRef(FakeGroups):
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+                self.mapName2ID["TAG1"] = "ref_tx"
+
+        def fake_gff_factory(gff_file=None, logger=None):
+            if gff_file == "WA_sorted.gff":
+                return wa_gff
+            if gff_file == "other_sorted.gff":
+                return other_gff
+            raise AssertionError(f"Unexpected gff file: {gff_file}")
+
+        report = io.StringIO()
+        with mock.patch.object(merge.gff3_sort, "main", autospec=True), \
+            mock.patch.object(merge.replace_OGS, "Groups", GroupsWithParentlessRef), \
+            mock.patch.object(merge, "Gff3", side_effect=fake_gff_factory), \
+            mock.patch.object(merge, "remove_files_from_list", autospec=True):
+            merge.main(
+                gff_file1="wa.gff3",
+                gff_file2="other.gff3",
+                output_gff="final.gff3",
+                report_fh=report,
+                user_defined1=[["mRNA"]],
+                user_defined2=[["mRNA"]],
+            )
+
+        self.assertEqual(other_gff.written_output, "final.gff3")
+        self.assertIn("# Number of WA transcripts: 1", report.getvalue())
+
+    def test_main_logs_na_tmpid_for_orphan_reference_mapping(self):
+        wa_root, wa_child = self._make_root_with_child("waGene", child_status="active", child_replace=["TAG_USED"])
+        wa_gff = FakeGff([wa_root, wa_child])
+
+        ref_target = {
+            "line_type": "feature",
+            "type": "mRNA",
+            "line_status": "active",
+            "line_raw": "ref-target",
+            "attributes": {"ID": "refTarget", "Name": "refTarget"},
+            "children": [],
+            "parents": [],
+        }
+        ref_root = {
+            "line_type": "feature",
+            "type": "gene",
+            "attributes": {"ID": "refRoot"},
+            "children": [ref_target],
+        }
+        ref_target["parents"] = [[ref_root]]
+
+        orphan_child = {
+            "line_type": "feature",
+            "type": "mRNA",
+            "line_status": "active",
+            "line_raw": "orphan-child",
+            "attributes": {"ID": "orphanChild", "Name": "orphanChild", "replace_type": "other"},
+            "children": [],
+            "parents": [],
+        }
+        orphan_root = {
+            "line_type": "feature",
+            "type": "gene",
+            "attributes": {"ID": "orphanRoot", "replace": ["ORPHAN"]},
+            "children": [orphan_child],
+        }
+        orphan_child["parents"] = [[orphan_root]]
+        other_gff = FakeGff([ref_root, ref_target, orphan_root, orphan_child])
+
+        class GroupsWithOrphanMap(FakeGroups):
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+                self.mapName2ID["TAG_USED"] = "refTarget"
+                self.mapName2ID["ORPHAN"] = "orphanChild"
+
+        def fake_gff_factory(gff_file=None, logger=None):
+            if gff_file == "WA_sorted.gff":
+                return wa_gff
+            if gff_file == "other_sorted.gff":
+                return other_gff
+            raise AssertionError(f"Unexpected gff file: {gff_file}")
+
+        report = io.StringIO()
+        with mock.patch.object(merge.gff3_sort, "main", autospec=True), \
+            mock.patch.object(merge.replace_OGS, "Groups", GroupsWithOrphanMap), \
+            mock.patch.object(merge, "Gff3", side_effect=fake_gff_factory), \
+            mock.patch.object(merge, "remove_files_from_list", autospec=True):
+            merge.main(
+                gff_file1="wa.gff3",
+                gff_file2="other.gff3",
+                output_gff="final.gff3",
+                report_fh=report,
+            )
+
+        self.assertIn("OTHER\torphanRoot\torphanChild\torphanChild\tNA", report.getvalue())
 
 
 if __name__ == "__main__":
