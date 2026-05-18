@@ -108,6 +108,8 @@ def assert_fasta_has_header(path: Path) -> None:
 
 def run_command(name: str, args: list[str], expected_files: list[Path]) -> None:
 	cmd = [resolve_command(args[0]), *args[1:]]
+	for output_path in expected_files:
+		remove_if_exists(output_path)
 
 	print(f"[RUN] {name}: {' '.join(cmd)}")
 	result = subprocess.run(cmd, cwd=ROOT)

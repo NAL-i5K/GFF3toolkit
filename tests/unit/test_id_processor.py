@@ -224,8 +224,8 @@ class TestIdProcessor(unittest.TestCase):
             id_processor.general_newModel(oldmodel, gff)
 
         new_root = gff.lines[2]
-        self.assertEqual(new_root["attributes"]["ID"], 2)
-        self.assertIn(2, gff.features)
+        self.assertEqual(new_root["attributes"]["ID"], "2")
+        self.assertIn("2", gff.features)
         self.assertTrue(new_root["children"])
 
     def test_new_nreplace_model_replaces_old_model_and_removes_original(self):

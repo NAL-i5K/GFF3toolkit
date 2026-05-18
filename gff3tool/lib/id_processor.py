@@ -193,7 +193,7 @@ def general_newModel(oldmodel, gff):
     newid = oldmodel['attributes']['ID']
     if newid in gff.features.keys():
         eofindex = len(gff.lines)
-        newid = eofindex
+        newid = str(eofindex)
     newmodel = newParentModel(oldmodel, newid, gff)
     gff.features[newid].append(newmodel)
     gff.lines.append(newmodel)

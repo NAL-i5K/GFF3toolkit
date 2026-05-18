@@ -4,7 +4,8 @@
 - Date: 2026-05-15
 - Branch: chore/version-updates-followup
 - Latest commit before this note: 6862a83
-- Goal completed: Python 3.14 compatibility reassessment with runtime and packaging checks.
+- Goal completed locally: Python 3.14 compatibility reassessment with runtime and packaging checks.
+- Note: several follow-up review items remained open after this validation.
 
 ## What Was Validated Under Python 3.14
 Environment used:
@@ -40,6 +41,7 @@ Commands run:
 ### 3) setup.py uses private setuptools fallback path
 - setup.py imports setuptools._distutils.command.build in fallback path.
 - This works now, but it is a private path and has upgrade fragility risk.
+- The BLAST bundle step also needs to be idempotent and safe against archive path traversal.
 
 ### 4) Smoke test caveat
 - tests.py requires bundled BLAST executables to be available.
@@ -55,6 +57,7 @@ Commands run:
 1. Update pyproject.toml license metadata to remove setuptools-deprecated forms.
 2. Consider removing private setuptools._distutils fallback usage in setup.py.
 3. Keep tests.py BLAST preflight behavior, but ensure local instructions clearly explain BLAST artifact requirements.
+4. Resolve the remaining review comments in the workflow, docs, setup, and tests before treating the branch as finished.
 
 ## Fast Resume Checklist
 1. Confirm branch: chore/version-updates-followup

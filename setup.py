@@ -40,8 +40,12 @@ def bundle_blast(project_root, version):
 
     blast_path = path.join(project_root, 'gff3tool', 'lib', 'ncbi-blast+')
     blast_file = path.join(blast_path, 'blast.tgz')
+    blast_bin_path = path.join(blast_path, 'bin')
     download_url = 'https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/{0:s}/{1:s}'.format(
         version, archive_name)
+
+    if path.exists(blast_bin_path):
+        return
 
     if not path.exists(blast_path):
         mkdir(blast_path)
@@ -49,8 +53,10 @@ def bundle_blast(project_root, version):
     urlretrieve(download_url, blast_file)
 
     tar = tarfile.open(blast_file, 'r:gz')
-    tar.extractall(blast_path)
-    tar.close()
+    try:
+        _safe_extract_tar(tar, blast_path)
+    finally:
+        tar.close()
 
     extract_path = path.join(blast_path, 'ncbi-blast-{0:s}+'.format(version))
     shutil.move(path.join(extract_path, 'bin'), blast_path)
@@ -59,6 +65,26 @@ def bundle_blast(project_root, version):
         remove(blast_file)
     if path.exists(extract_path):
         shutil.rmtree(extract_path)
+
+
+def _safe_extract_tar(archive, destination):
+    destination_root = path.realpath(destination)
+    if not destination_root.endswith(path.sep):
+        destination_root = destination_root + path.sep
+
+    safe_members = []
+    for member in archive.getmembers():
+        if path.isabs(member.name):
+            raise RuntimeError('Refusing to extract absolute tar member: {0:s}'.format(member.name))
+        if member.issym() or member.islnk():
+            raise RuntimeError('Refusing to extract linked tar member: {0:s}'.format(member.name))
+
+        member_path = path.realpath(path.join(destination, member.name))
+        if not member_path.startswith(destination_root):
+            raise RuntimeError('Refusing to extract outside destination: {0:s}'.format(member.name))
+        safe_members.append(member)
+
+    archive.extractall(destination, members=safe_members)
 
 
 class bdist_wheel(_bdist_wheel):
