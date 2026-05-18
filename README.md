@@ -1,8 +1,10 @@
 # GFF3toolkit - Python programs for processing GFF3 files
 
-![example workflow](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml/badge.svg)
-[![Build status](https://ci.appveyor.com/api/projects/status/0do5uwu5je0gag1u/branch/master?svg=true)](https://ci.appveyor.com/project/hsiaoyi0504/gff3toolkit/branch/master)
+[![build](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml/badge.svg)](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/NAL-i5K/GFF3toolkit/graph/badge.svg)](https://codecov.io/gh/NAL-i5K/GFF3toolkit)
 [![PyPI version](https://badge.fury.io/py/gff3tool.svg)](https://badge.fury.io/py/gff3tool)
+[![License: Public Domain](https://img.shields.io/badge/license-Public%20Domain-blue.svg)](https://github.com/NAL-i5K/GFF3toolkit/blob/master/LICENSE.md)
+[![GitHub release](https://img.shields.io/github/v/release/NAL-i5K/GFF3toolkit)](https://github.com/NAL-i5K/GFF3toolkit/releases)
 [![Documentation Status](https://readthedocs.org/projects/gff3toolkit/badge/?version=latest)](https://gff3toolkit.readthedocs.io/en/latest/?badge=latest)
 
 ## Background
@@ -13,19 +15,19 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 ## Prerequisite
 
-* Python 3.x
-  * [wheel](https://pythonwheels.com/) (should have been installed for most python distributions, if you don't have, use `pip install wheel` to install it.)
+* Python 3.9+ (minimum supported runtime)
+  * CI coverage currently validates both Python 3.9 and Python 3.14.
 * Perl
 
 ## Installation
 
 ### Stable release on PyPI
 
-`pip install gff3tool`
+`python -m pip install gff3tool`
 
 ### Latest version
 
-`pip install git+https://github.com/NAL-i5K/GFF3toolkit.git`
+`python -m pip install git+https://github.com/NAL-i5K/GFF3toolkit.git`
 
 ## Current Functions
 
@@ -74,7 +76,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 ### Generate biological sequences from a GFF3 file ([back](#gff3toolkit---python-programs-for-processing-gff3-files))
 
-* bin/gff3_to_fasta.py - extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file
+* `gff3_to_fasta` - extract biological sequences (such as spliced transcripts, cds, or peptides) from specific regions of genome based on a GFF3 file
   * [gff3_to_fasta readme](docs/gff3_to_fasta.md)
   * Quick start:
     `gff3_to_fasta -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences`
@@ -88,7 +90,7 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 * [gff3tool/lib/gff3](gff3tool/lib/gff3)/
   * Basic data structure used for nesting the information of genome annotations in GFF3 format.
-* [gff3tool/lib/gff3_to_fasta](gff3tool/lib/gff3_to_fasta)/
+* [gff3tool/bin/gff3_to_fasta.py](gff3tool/bin/gff3_to_fasta.py)
   * Extract specific sequences from genome sequences according to the GFF3 file.
 * [gff3tool/lib/ERROR](gff3tool/lib/ERROR)/
   * Contains the full list of Error codes and the corresponding Error tag

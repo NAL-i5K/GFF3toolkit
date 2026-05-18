@@ -1,10 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# Configuration file for the Sphinx documentation builder.
-#
-# This file does only contain a selection of the most common options. For a
-# full list see the documentation:
-# http://www.sphinx-doc.org/en/master/config
+"""Sphinx configuration for GFF3toolkit documentation."""
 
 # -- Path setup --------------------------------------------------------------
 
@@ -12,10 +6,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
+import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-from recommonmark.parser import CommonMarkParser
 
 # -- Project information -----------------------------------------------------
 
@@ -39,7 +32,12 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'myst_parser',
 ]
+
+# Enable automatic anchor generation so markdown heading links like
+# [Section](#section-name) resolve during strict builds.
+myst_heading_anchors = 6
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -48,10 +46,9 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = ['.rst', '.md']
-
-source_parsers = {
-    '.md': CommonMarkParser,
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
 }
 
 # The master toctree document.
@@ -62,12 +59,21 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = [
+    '_build',
+    'Thumbs.db',
+    '.DS_Store',
+    # Keep these markdown files for GitHub readability but avoid duplicate
+    # Sphinx docnames where .rst versions exist.
+    'Detection-of-GFF3-format-errors.md',
+    'gff3_fix.py-documentation.md',
+    'ERROR_TAG_Location.md',
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -89,7 +95,10 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+if os.path.isdir('_static'):
+    html_static_path = ['_static']
+else:
+    html_static_path = []
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.

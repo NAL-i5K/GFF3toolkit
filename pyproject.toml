@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gff3tool"
+description = "Python programs for processing GFF3 files"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "LicenseRef-Public-Domain"
+license-files = ["LICENSE.md"]
+authors = [
+	{ name = "NAL i5k workspace", email = "i5k@ars.usda.gov" }
+]
+keywords = ["gff3", "gff", "bioinformatics"]
+classifiers = [
+	"Development Status :: 5 - Production/Stable",
+	"Operating System :: POSIX :: Linux",
+	"Operating System :: Microsoft :: Windows",
+	"Operating System :: MacOS :: MacOS X",
+	"Intended Audience :: Science/Research",
+	"Topic :: Scientific/Engineering :: Bio-Informatics",
+	"Programming Language :: Python :: 3",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/NAL-i5K/GFF3toolkit"
+"Bug Reports" = "https://github.com/NAL-i5K/GFF3toolkit/issues"
+Source = "https://github.com/NAL-i5K/GFF3toolkit"
+
+[project.scripts]
+gff3_fix = "gff3tool.bin.gff3_fix:script_main"
+gff3_merge = "gff3tool.bin.gff3_merge:script_main"
+gff3_QC = "gff3tool.bin.gff3_QC:script_main"
+gff3_sort = "gff3tool.bin.gff3_sort:script_main"
+gff3_to_fasta = "gff3tool.bin.gff3_to_fasta:script_main"
+
+[tool.setuptools.dynamic]
+version = { attr = "gff3tool.bin.version.__version__" }
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = ["contrib", "docs", "tests", "tests.*"]

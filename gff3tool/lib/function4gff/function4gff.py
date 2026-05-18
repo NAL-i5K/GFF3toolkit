@@ -73,16 +73,16 @@ def featureSort(linelist, reverse=False):
             id2index[str(line['line_raw'])] = [lineindex, FEATURECODE[line['type']] if reverse==False else (-FEATURECODE[line['type']])]
         else:
             id2index[str(line['line_raw'])] = [lineindex, 99 if reverse==False else -99]
-        tmp = re.search('(.+?)(\d+)',line['seqid'])
-        try:
-            seqnum = tmp.groups()[1]
-        except AttributeError:
-            continue
-        if seqnum in seq2id:
-            seq2id[seqnum].append(str(line['line_raw']))
+        tmp = re.search(r'(.+?)(\d+)',line['seqid'])
+        if tmp:
+            seqkey = ('num', int(tmp.groups()[1]))
         else:
-            seq2id[seqnum] = [str(line['line_raw'])]
-    keys = sorted(seq2id, key=lambda i: int(i))
+            seqkey = ('text', line['seqid'])
+        if seqkey in seq2id:
+            seq2id[seqkey].append(str(line['line_raw']))
+        else:
+            seq2id[seqkey] = [str(line['line_raw'])]
+    keys = sorted(seq2id, key=lambda i: (0, i[1]) if i[0] == 'num' else (1, str(i[1])))
     newlinelist = []
     for k in keys:
         ids = seq2id[k]

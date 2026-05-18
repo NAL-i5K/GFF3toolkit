@@ -30,10 +30,10 @@ def idgenerator(prefix, lastnumber, digitlen):
     return(result)
 
 def simpleIDreplace(model, newid):
-    tmp  = re.search('(.+?)(\d+)',newid)
+    tmp  = re.search(r'(.+?)(\d+)',newid)
     newidnumber = tmp.groups()[1]
     if 'ID' in model['attributes']:
-        tmp  = re.search('(.+?)(\d+)(.*)',model['attributes']['ID'])
+        tmp  = re.search(r'(.+?)(\d+)(.*)',model['attributes']['ID'])
         prefix, _, suffix = tmp.groups()[0], tmp.groups()[1], tmp.groups()[2]
         renamedID = prefix + newidnumber + suffix
         model['attributes']['ID'] = renamedID
@@ -121,12 +121,12 @@ def newModel(oldmodel, newid, gff):
         # generate new mRNA ID when merging multiple isoforms
         name_add_flag = 0
         if nchild['attributes']['ID'] in childids:
-            newalphabet = string.uppercase[(maxindex+1)]
+            newalphabet = string.ascii_uppercase[(maxindex+1)]
             nchild['attributes']['ID'] = re.sub('(.)$',newalphabet,nchild['attributes']['ID'])
             name_add_flag += 1
         else:
             t = re.search('(.)$', nchild['attributes']['ID'])
-            newindex = string.uppercase.index(t.groups()[0])
+            newindex = string.ascii_uppercase.index(t.groups()[0])
             if newindex > maxindex:
                 maxindex = newindex
             childids[nchild['attributes']['ID']] = 0
@@ -141,7 +141,7 @@ def newModel(oldmodel, newid, gff):
             ngchild = newChildModel(ogchild, nchild['attributes']['ID'], gff)
             # make child exons and CDSs to have IDs cositent with their parent
             if name_add_flag > 0 and not re.search(nchild['attributes']['ID'], ngchild['attributes']['ID']):
-                tmp = re.search('(\w+)(\d+)-R(.)(.*)', ngchild['attributes']['ID'])
+                tmp = re.search(r'(\w+)(\d+)-R(.)(.*)', ngchild['attributes']['ID'])
                 idchange = nchild['attributes']['ID'] + tmp.groups()[3]
                 ngchild['attributes']['ID'] = idchange
             ngchild['parents'].append(gff.features[nchild['attributes']['ID']])
@@ -183,7 +183,7 @@ def newModel(oldmodel, newid, gff):
                     parent['children'].append(newk)
 
     oldid = oldmodel['attributes']['ID']
-    if re.search('\.s', oldid):
+    if re.search(r'\.s', oldid):
         return
 
 def general_newModel(oldmodel, gff):
@@ -193,7 +193,7 @@ def general_newModel(oldmodel, gff):
     newid = oldmodel['attributes']['ID']
     if newid in gff.features.keys():
         eofindex = len(gff.lines)
-        newid = eofindex
+        newid = str(eofindex)
     newmodel = newParentModel(oldmodel, newid, gff)
     gff.features[newid].append(newmodel)
     gff.lines.append(newmodel)
@@ -277,7 +277,7 @@ def general_newModel(oldmodel, gff):
                     parent['children'].append(newk)
 
     oldid = oldmodel['attributes']['ID']
-    if re.search('\.s', oldid):
+    if re.search(r'\.s', oldid):
         return
 
 
@@ -300,13 +300,13 @@ def newNreplaceModel(oldmodel, newid, gff):
         # generate new mRNA ID when merging multiple isoforms
         name_add_flag = 0
         if nchild['attributes']['ID'] in childids:
-            newalphabet = string.uppercase[(maxindex+1)]
+            newalphabet = string.ascii_uppercase[(maxindex+1)]
             nchild['attributes']['ID'] = re.sub('(.)$',newalphabet,nchild['attributes']['ID'])
             name_add_flag += 1
         else:
             print('id_processor.py: {0:s}'.format(nchild['attributes']['ID']))
             t = re.search('(.)$', nchild['attributes']['ID'])
-            newindex = string.uppercase.index(t.groups()[0])
+            newindex = string.ascii_uppercase.index(t.groups()[0])
             if newindex > maxindex:
                 maxindex = newindex
             childids[nchild['attributes']['ID']] = 0
@@ -320,7 +320,7 @@ def newNreplaceModel(oldmodel, newid, gff):
             ngchild = newChildModel(ogchild, nchild['attributes']['ID'], gff)
             # make child exons and CDSs to have IDs cositent with their parent
             if name_add_flag > 0 and not re.search(nchild['attributes']['ID'], ngchild['attributes']['ID']):
-                tmp = re.search('(\w+)(\d+)-R(.)(.*)', ngchild['attributes']['ID'])
+                tmp = re.search(r'(\w+)(\d+)-R(.)(.*)', ngchild['attributes']['ID'])
                 idchange = nchild['attributes']['ID'] + tmp.groups()[3]
                 ngchild['attributes']['ID'] = idchange
             ngchild['parents'].append(gff.features[nchild['attributes']['ID']])
@@ -336,21 +336,21 @@ def newNreplaceModel(oldmodel, newid, gff):
 
     oldid = oldmodel['attributes']['ID']
     gff.remove(oldmodel)
-    if re.search('\.s', oldid):
+    if re.search(r'\.s', oldid):
         return
     print('{0:s}\t{1:s}\t{2:s}'.format('', 'removed', oldid))
 
 
 def IDprocessing(gff):
     roots = [line for line in gff.lines if line['line_type']=='feature' and 'Parent' not in line['attributes']]
-    tmp  = re.search('(.+?)(\d+)',roots[0]['attributes']['ID'])
+    tmp  = re.search(r'(.+?)(\d+)',roots[0]['attributes']['ID'])
     idprefix = tmp.groups()[0]
     maxIDnumber = 0
     digitlen = 0
     for root in roots:
         rootid = root['attributes']['ID']
         if re.search(idprefix, rootid):
-            tmp = re.search('(.+?)(\d+)',rootid)
+            tmp = re.search(r'(.+?)(\d+)',rootid)
             IDnumber = tmp.groups()[1]
             digitlen = len(IDnumber)
             if int(IDnumber) > maxIDnumber:
@@ -375,21 +375,21 @@ def IDprocessing(gff):
             if re.search('_', track):
                 tokens = track.split('_')
                 for i in range(len(tokens)):
-                    if re.search('\.s', tokens[i]):
-                        tmp = re.search('(.+?)\.(s\d+)$', tokens[i])
+                    if re.search(r'\.s', tokens[i]):
+                        tmp = re.search(r'(.+?)\.(s\d+)$', tokens[i])
                         tokens[i] = tmp.groups()[0]+'('+tmp.groups()[1]+')'
                 line = ', '.join(tokens)
                 newID = idgenerator(idprefix, maxIDnumber, digitlen)
                 maxIDnumber = newID['maxnum']
                 newNreplaceModel(model, newID['ID'], gff)
                 print('{0:s}\t{1:s}\t{2:s}'.format(newID['ID'], 'merged from', line))
-            elif re.search('\.s', track):
+            elif re.search(r'\.s', track):
                 children = model['children']
                 childlist = []
                 for child in children:
                     childlist.append(child['attributes']['ID'])
                 childids = ', '.join(childlist)
-                tmp = re.search('(.+?)\.(s\d+)$', track)
+                tmp = re.search(r'(.+?)\.(s\d+)$', track)
                 track = tmp.groups()[0]+'('+tmp.groups()[1]+':'+childids+')'
                 newID = idgenerator(idprefix, maxIDnumber, digitlen)
                 maxIDnumber = newID['maxnum']

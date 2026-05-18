@@ -2,12 +2,12 @@
 
 ## Usage 
 
-gff3_QC.py [-h] [-g GFF] [-f FASTA] [-noncg] [-i] [-n ALLOWED_NUM_OF_N]   
+gff3_QC [-h] [-g GFF] [-f FASTA] [-noncg] [-i] [-n ALLOWED_NUM_OF_N]   
 [-t [CHECK_N_FEATURE_TYPES [CHECK_N_FEATURE_TYPES ...]]] [-o OUTPUT] [-v] [-s STATISTIC]
 
 ## Testing environment
 
-Python 3.x
+Python 3.9+
 
 ## Inputs
 1. GFF3: Specify the file name with the -g or --gff argument. Please note that this program requires gene/pseudogene and mRNA/pseudogenic_transcript to have an ID attribute in column 9.
@@ -56,4 +56,4 @@ or
     - show program's version number and exit
 
 ## More information
-- [gff3_QC.py full documentation](Detection-of-GFF3-format-errors.md)
+- [gff3_QC full documentation](Detection-of-GFF3-format-errors.rst)
