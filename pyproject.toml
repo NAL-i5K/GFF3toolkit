@@ -7,7 +7,8 @@ name = "gff3tool"
 description = "Python programs for processing GFF3 files"
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "Public Domain" }
+license = "LicenseRef-Public-Domain"
+license-files = ["LICENSE.md"]
 authors = [
 	{ name = "NAL i5k workspace", email = "i5k@ars.usda.gov" }
 ]
@@ -19,7 +20,6 @@ classifiers = [
 	"Operating System :: MacOS :: MacOS X",
 	"Intended Audience :: Science/Research",
 	"Topic :: Scientific/Engineering :: Bio-Informatics",
-	"License :: Public Domain",
 	"Programming Language :: Python :: 3",
 ]
 dynamic = ["version"]

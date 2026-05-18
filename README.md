@@ -15,18 +15,19 @@ The [GFF3 format](https://github.com/The-Sequence-Ontology/Specifications/blob/m
 
 ## Prerequisite
 
-* Python 3.9+
+* Python 3.9+ (minimum supported runtime)
+  * CI coverage currently validates both Python 3.9 and Python 3.14.
 * Perl
 
 ## Installation
 
 ### Stable release on PyPI
 
-`pip install gff3tool`
+`python -m pip install gff3tool`
 
 ### Latest version
 
-`pip install git+https://github.com/NAL-i5K/GFF3toolkit.git`
+`python -m pip install git+https://github.com/NAL-i5K/GFF3toolkit.git`
 
 ## Current Functions
 

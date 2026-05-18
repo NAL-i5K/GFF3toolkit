@@ -68,7 +68,6 @@ exclude_patterns = [
     '_build',
     'Thumbs.db',
     '.DS_Store',
-    'HANDOFF.md',
     # Keep these markdown files for GitHub readability but avoid duplicate
     # Sphinx docnames where .rst versions exist.
     'Detection-of-GFF3-format-errors.md',
