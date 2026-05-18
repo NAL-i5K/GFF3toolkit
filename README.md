@@ -1,7 +1,7 @@
 # GFF3toolkit - Python programs for processing GFF3 files
 
-[![build](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml/badge.svg)](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml)
-[![codecov](https://codecov.io/gh/NAL-i5K/GFF3toolkit/graph/badge.svg)](https://codecov.io/gh/NAL-i5K/GFF3toolkit)
+[![build](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml/badge.svg?branch=master&event=push)](https://github.com/NAL-i5K/GFF3toolkit/actions/workflows/build.yml?query=branch%3Amaster)
+[![codecov](https://codecov.io/gh/NAL-i5K/GFF3toolkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/NAL-i5K/GFF3toolkit/tree/master)
 [![PyPI version](https://badge.fury.io/py/gff3tool.svg)](https://badge.fury.io/py/gff3tool)
 [![License: Public Domain](https://img.shields.io/badge/license-Public%20Domain-blue.svg)](https://github.com/NAL-i5K/GFF3toolkit/blob/master/LICENSE.md)
 [![GitHub release](https://img.shields.io/github/v/release/NAL-i5K/GFF3toolkit)](https://github.com/NAL-i5K/GFF3toolkit/releases)
