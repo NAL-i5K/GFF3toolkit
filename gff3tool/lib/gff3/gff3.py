@@ -598,7 +598,7 @@ class Gff3(object):
                             except ValueError:
                                 all_good = False
                                 self.add_line_error(line_data, {'message': 'End is not a valid integer: "%s"' % tokens[2], 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0017'})
-                                line_data['start'] = tokens[2]
+                                line_data['end'] = tokens[2]
                             # if all_good then both start and end are int, so we can check if start is not less than or equal to end
                             if all_good and line_data['start'] > line_data['end']:
                                 self.add_line_error(line_data, {'message': 'Start is not less than or equal to end', 'error_type': 'FORMAT', 'location': '', 'eCode': 'Esf0018'})

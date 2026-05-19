@@ -121,6 +121,113 @@ class TestGff3Core(unittest.TestCase):
         self.assertIn("Esf0011", ecodes)
         self.assertIn("Esf0012", ecodes)
 
+    def test_parse_sequence_region_invalid_end_keeps_start_value(self):
+        content = "##gff-version 3\n##sequence-region chr1 1 bad\n"
+        parser = gff3.Gff3(gff_file=io.StringIO(content))
+
+        line = parser.lines[1]
+        self.assertEqual(line["directive"], "##sequence-region")
+        self.assertEqual(line["start"], 1)
+        self.assertEqual(line["end"], "bad")
+        self.assertTrue(any(e["eCode"] == "Esf0017" for e in line["line_errors"]))
+
+    def test_descendants_and_ancestors_graph_helpers(self):
+        parser = gff3.Gff3()
+        root = {"line_index": 0, "children": [], "parents": [], "line_type": "feature"}
+        child = {"line_index": 1, "children": [], "parents": [[root]], "line_type": "feature"}
+        grandchild = {"line_index": 2, "children": [], "parents": [[child]], "line_type": "feature"}
+        root["children"] = [child]
+        child["children"] = [grandchild]
+        parser.lines = [root, child, grandchild]
+
+        self.assertEqual([ld["line_index"] for ld in parser.descendants(root)], [1, 2])
+        self.assertEqual([ld["line_index"] for ld in parser.ancestors(grandchild)], [1, 0])
+
+    def test_adopt_moves_children_to_new_parent(self):
+        parser = gff3.Gff3()
+        old_parent = {
+            "line_index": 0,
+            "attributes": {"ID": "old"},
+            "children": [],
+            "parents": [],
+            "line_type": "feature",
+        }
+        new_parent = {
+            "line_index": 1,
+            "attributes": {"ID": "new"},
+            "children": [],
+            "parents": [],
+            "line_type": "feature",
+        }
+        child = {
+            "line_index": 2,
+            "attributes": {"ID": "c1", "Parent": ["old"]},
+            "children": [],
+            "parents": [[old_parent]],
+            "line_type": "feature",
+        }
+        old_parent["children"] = [child]
+        parser.lines = [old_parent, new_parent, child]
+        parser.features = {"old": [old_parent], "new": [new_parent], "c1": [child]}
+
+        moved = parser.adopt("old", "new")
+
+        self.assertEqual([c["line_index"] for c in moved], [2])
+        self.assertEqual(old_parent["children"], [])
+        self.assertEqual(new_parent["children"], [child])
+        self.assertEqual(child["attributes"]["Parent"], ["new"])
+
+    def test_remove_marks_roots_and_descendants(self):
+        parser = gff3.Gff3()
+        root = {
+            "line_index": 0,
+            "children": [],
+            "parents": [],
+            "line_type": "feature",
+            "line_status": "normal",
+            "attributes": {"ID": "gene1"},
+        }
+        child = {
+            "line_index": 1,
+            "children": [],
+            "parents": [[root]],
+            "line_type": "feature",
+            "line_status": "normal",
+            "attributes": {"ID": "tx1"},
+        }
+        root["children"] = [child]
+        parser.lines = [root, child]
+
+        parser.remove(child)
+
+        self.assertEqual(root["line_status"], "removed")
+        self.assertEqual(child["line_status"], "removed")
+
+    def test_type_tree_builds_parent_child_types(self):
+        parser = gff3.Gff3()
+        root = {
+            "line_index": 0,
+            "line_type": "feature",
+            "type": "gene",
+            "parents": [],
+            "children": [],
+        }
+        child = {
+            "line_index": 1,
+            "line_type": "feature",
+            "type": "mRNA",
+            "parents": [[root]],
+            "children": [],
+        }
+        root["children"] = [child]
+        parser.lines = [root, child]
+
+        tree = parser.type_tree()
+
+        self.assertEqual(len(tree), 1)
+        self.assertEqual(tree[0].value, "gene")
+        self.assertEqual(sorted(c.value for c in tree[0].children), ["mRNA"])
+
     def test_sequence_supports_fasta_dict_reference_shape(self):
         parser = gff3.Gff3()
         parser.lines = [
