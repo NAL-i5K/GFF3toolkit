@@ -214,5 +214,96 @@ class TestGff3ToFastaMain(unittest.TestCase):
         self.assertEqual(splicer_mock.call_args_list[2].args[1], ["CDS"])
 
 
+class _MiniGff:
+    def __init__(self, lines, fasta_external=None, fasta_embedded=None):
+        self.lines = lines
+        self.fasta_external = fasta_external or {}
+        self.fasta_embedded = fasta_embedded or {}
+
+
+class TestGff3ToFastaHelpers(unittest.TestCase):
+    def test_complement_and_translator_handle_expected_inputs(self):
+        self.assertEqual(gff3_to_fasta.complement("ATGC"), "TACG")
+        self.assertEqual(gff3_to_fasta.translator("AUGGCCUAA"), "MA*")
+        self.assertEqual(gff3_to_fasta.translator("NNNXXX"), "X")
+
+    def test_get_subseq_reads_external_and_reverse_complements(self):
+        gff = _MiniGff(
+            lines=[],
+            fasta_external={"chr1": {"seq": "AACCGGTT"}},
+            fasta_embedded={"chr1": {"seq": "TTTTTTTT"}},
+        )
+        line = {
+            "seqid": "chr1",
+            "start": 2,
+            "end": 5,
+            "strand": "-",
+            "type": "exon",
+            "line_index": 0,
+            "line_raw": "x",
+        }
+
+        seq = gff3_to_fasta.get_subseq(gff, line, embedded_fasta=False)
+        self.assertEqual(seq, "CGGT")
+
+    def test_get_subseq_can_read_embedded_fasta(self):
+        gff = _MiniGff(
+            lines=[],
+            fasta_external={"chr1": {"seq": "AAAAAAAA"}},
+            fasta_embedded={"chr1": {"seq": "AACCGGTT"}},
+        )
+        line = {
+            "seqid": "chr1",
+            "start": 1,
+            "end": 4,
+            "strand": "+",
+            "type": "gene",
+            "line_index": 0,
+            "line_raw": "x",
+        }
+
+        seq = gff3_to_fasta.get_subseq(gff, line, embedded_fasta=True)
+        self.assertEqual(seq, "AACC")
+
+    def test_extract_start_end_for_gene_and_exon_types(self):
+        parent = {"attributes": {"ID": "tx1"}}
+        root_gene = {
+            "line_type": "feature",
+            "attributes": {"ID": "gene1", "Name": "gene1"},
+            "line_index": 0,
+            "line_raw": "gene",
+            "type": "gene",
+            "seqid": "chr1",
+            "start": 1,
+            "end": 4,
+            "strand": "+",
+            "children": [],
+            "parents": [],
+        }
+        exon = {
+            "line_type": "feature",
+            "attributes": {"ID": "ex1", "Name": "ex1"},
+            "line_index": 1,
+            "line_raw": "exon",
+            "type": "exon",
+            "seqid": "chr1",
+            "start": 5,
+            "end": 8,
+            "strand": "+",
+            "children": [],
+            "parents": [[parent]],
+        }
+        gff = _MiniGff(
+            lines=[root_gene, exon],
+            fasta_external={"chr1": {"seq": "AAAACCCC"}},
+        )
+
+        gene_seq = gff3_to_fasta.extract_start_end(gff, "gene", "simple", embedded_fasta=False)
+        exon_seq = gff3_to_fasta.extract_start_end(gff, "exon", "simple", embedded_fasta=False)
+
+        self.assertEqual(gene_seq, {">gene1": "AAAA"})
+        self.assertEqual(exon_seq, {">ex1": "CCCC"})
+
+
 if __name__ == "__main__":
     unittest.main()
