@@ -1,4 +1,6 @@
+import io
 import unittest
+from collections import defaultdict
 from unittest import mock
 
 from gff3tool.lib.gff3_fix import fix
@@ -13,7 +15,26 @@ class FakeGff:
         return self._descendants.get(id(parent), [])
 
 
+class FakeWritableGff(FakeGff):
+    def __init__(self, lines, features=None, fasta_external=None, fasta_embedded=None):
+        super().__init__(lines)
+        self.features = features or defaultdict(list)
+        self.fasta_external = fasta_external or {}
+        self.fasta_embedded = fasta_embedded or {}
+
+    def descendants(self, root):
+        return root.get("children", [])
+
+
 class TestGff3FixEngine(unittest.TestCase):
+    def test_fasta_dict_to_file_respects_line_limit(self):
+        fasta = {"chr1": {"header": ">chr1", "seq": "AACCGGTT"}}
+        out = io.StringIO()
+
+        fix.fasta_dict_to_file(fasta, out, line_char_limit=4)
+
+        self.assertEqual(out.getvalue(), ">chr1\nAACC\nGGTT\n")
+
     def test_fix_attributes_normalizes_and_filters_values(self):
         line = {
             "line_status": "normal",
@@ -91,6 +112,83 @@ class TestGff3FixEngine(unittest.TestCase):
         self.assertEqual(gff.lines[0]["directive"], "##gff-version")
         self.assertEqual(gff.lines[1]["line_index"], 1)
         self.assertEqual(gff.lines[2]["line_index"], 2)
+
+    def test_remove_directive_marks_lines_unknown(self):
+        lines = [
+            {"line_type": "directive"},
+            {"line_type": "directive"},
+        ]
+        gff = FakeGff(lines)
+
+        fix.remove_directive(gff3=gff, error_list=[[1, 2]], logger=mock.Mock())
+
+        self.assertEqual(gff.lines[0]["line_type"], "unknown")
+        self.assertEqual(gff.lines[1]["line_type"], "unknown")
+
+    def test_fix_boundary_updates_parent_and_transcript_ranges(self):
+        root = {
+            "children": [],
+            "start": 1,
+            "end": 2,
+        }
+        child = {
+            "children": [
+                {"start": 10, "end": 11},
+                {"start": 20, "end": 21},
+            ],
+            "start": 0,
+            "end": 0,
+        }
+        root["children"] = [child]
+
+        gff = FakeGff(lines=[])
+        gff.collect_roots = mock.Mock(return_value=[root])
+
+        fix.fix_boundary(gff3=gff, line=child, logger=mock.Mock())
+
+        self.assertEqual(child["start"], 10)
+        self.assertEqual(child["end"], 21)
+        self.assertEqual(root["start"], 10)
+        self.assertEqual(root["end"], 21)
+
+    def test_write_outputs_sequence_region_features_and_fasta(self):
+        root = {
+            "line_index": 0,
+            "line_status": "normal",
+            "line_type": "feature",
+            "line_raw": "",
+            "parents": [],
+            "children": [],
+            "seqid": "chr1",
+            "source": "src",
+            "type": "gene",
+            "start": 1,
+            "end": 4,
+            "score": ".",
+            "strand": "+",
+            "phase": ".",
+            "attributes": {"ID": "gene1", "Name": "gene1"},
+        }
+        features = defaultdict(list)
+        features["gene1"].append(root)
+        gff = FakeWritableGff(
+            lines=[root],
+            features=features,
+            fasta_external={"chr1": {"header": ">chr1", "seq": "AACCGG"}},
+        )
+        out = io.StringIO()
+
+        fix.write(gff3=gff, output_gff=out, embed_fasta=None, fasta_char_limit=3, logger=mock.Mock())
+        value = out.getvalue()
+
+        self.assertIn("##sequence-region chr1 1 6\n", value)
+        self.assertTrue(
+            "chr1\tsrc\tgene\t1\t4\t.\t+\t.\tID=gene1;Name=gene1\n" in value
+            or "chr1\tsrc\tgene\t1\t4\t.\t+\t.\tName=gene1;ID=gene1\n" in value
+        )
+        self.assertIn("###\n", value)
+        self.assertIn("##FASTA\n", value)
+        self.assertIn(">chr1\nAAC\nCGG\n", value)
 
     def test_main_dispatches_to_expected_fixers(self):
         gff = object()
