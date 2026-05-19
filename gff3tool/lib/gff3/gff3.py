@@ -1112,7 +1112,10 @@ class Gff3(object):
         ld = self.lines[line_index]
         if ld['line_type'] != 'feature':
             return None
-        seq = reference[ld['seqid']][ld['start']-1:ld['end']]
+        reference_seq = reference[ld['seqid']]
+        if isinstance(reference_seq, dict):
+            reference_seq = reference_seq['seq']
+        seq = reference_seq[ld['start']-1:ld['end']]
         if ld['strand'] == '-':
             seq = complement(seq[::-1])
         return seq

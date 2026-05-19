@@ -121,6 +121,40 @@ class TestGff3Core(unittest.TestCase):
         self.assertIn("Esf0011", ecodes)
         self.assertIn("Esf0012", ecodes)
 
+    def test_sequence_supports_fasta_dict_reference_shape(self):
+        parser = gff3.Gff3()
+        parser.lines = [
+            {
+                "line_index": 0,
+                "line_type": "feature",
+                "seqid": "chr1",
+                "start": 2,
+                "end": 5,
+                "strand": "+",
+            }
+        ]
+
+        seq = parser.sequence(0, reference={"chr1": {"seq": "AACCGGTT"}})
+
+        self.assertEqual(seq, "ACCG")
+
+    def test_sequence_keeps_backward_compat_for_plain_string_reference(self):
+        parser = gff3.Gff3()
+        parser.lines = [
+            {
+                "line_index": 0,
+                "line_type": "feature",
+                "seqid": "chr1",
+                "start": 1,
+                "end": 4,
+                "strand": "-",
+            }
+        ]
+
+        seq = parser.sequence(0, reference={"chr1": "AACCGGTT"})
+
+        self.assertEqual(seq, "GGTT")
+
 
 if __name__ == "__main__":
     unittest.main()
