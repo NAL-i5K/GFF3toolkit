@@ -47,11 +47,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           coverage report --fail-under=22 -m
+          coverage xml -o coverage.xml
           coveralls --service=github
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
         with:
-          files: .coverage
+          files: coverage.xml
           use_oidc: true
           fail_ci_if_error: false
           verbose: true
