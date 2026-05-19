@@ -66,3 +66,88 @@ Each new entry should include an explicit date and time stamp.
    - .venv-assess/bin/python -W default tests.py
    - .venv-assess/bin/python -W default -m build
 3. Address pyproject.toml license deprecation warnings.
+
+## 2026-05-18 19:05 UTC - Post-merge stabilization on master (badges, CI, Codecov, RTD)
+
+### Snapshot
+- Branch: master
+- HEAD commit: e624cad
+- Goal: stabilize post-PR-145 status indicators (GitHub badge, Codecov badge/ingestion, RTD integration) and remove CI warnings blocking confidence.
+
+### What Was Completed Today
+1. PR #145 merged and verified on master
+   - Merge commit: 8465de5
+2. README badge targeting adjusted to explicit master endpoints
+   - Commit: f4c5fb2
+3. Coverage upload path moved from legacy codecov CLI to Codecov GitHub Action
+   - Initial migration: 46ce9d9
+4. CI failure in coverage job fixed after migration
+   - Symptom: "Codecov: Failed to properly create commit" in build1
+   - Mitigation: made Codecov upload non-blocking and kept coverage summary gate
+   - Commit: e038beb
+5. Node 20 deprecation annotation removed from Codecov path
+   - Upgrade: codecov/codecov-action v5 -> v6 (node24 support)
+   - Commit: e624cad
+
+### Current Status
+1. GitHub Actions workflow
+   - Latest run after e038beb was green with only warning/notice annotations.
+   - Node20 warning source identified as dependency path behind Codecov action; workflow now uses v6 to resolve this.
+2. Codecov branch page
+   - Previously stale at commit c83f854 with 16.19% coverage.
+   - Root issue appears to be ingestion lag/upload acceptance, not test execution failure on master.
+3. Read the Docs integration
+   - RTD incoming webhook rejects deliveries without secret (HTTP 400).
+   - Requires RTD/GitHub webhook secret configuration update outside repo code.
+
+### Why Coverage Looked "Too Low"
+- The 16.19% figure reflected stale Codecov branch context and/or runs where full CLI smoke path contribution was not reflected in uploaded data.
+- Local unit-only run reproduces low percentage profile; full workflow runs exercise more paths, but Codecov must ingest latest commit for badge/report to update.
+
+### Open Items (High Priority Tomorrow)
+1. Confirm latest Codecov ingestion for master
+   - Verify Codecov "Source: latest commit" advances beyond c83f854 to e624cad (or newer).
+2. If still stale, configure authenticated upload
+   - Add repository/org CODECOV_TOKEN secret and optionally set fail_ci_if_error back to true after confirmation.
+3. Fix RTD webhook secret
+   - Recreate or update GitHub webhook from RTD integration page with secret configured.
+4. Verify badges after backend refresh
+   - GitHub build badge, Codecov badge, RTD badge all reflect current state.
+
+### Fast Resume Checklist (Tomorrow)
+1. Check latest CI run status for commit e624cad on master.
+2. Open Codecov master tree page and verify source commit moved forward.
+3. If not moved:
+   - add CODECOV_TOKEN secret in GitHub settings,
+   - re-run workflow_dispatch,
+   - inspect Codecov upload step logs.
+4. In RTD project admin, repair webhook secret and send a test delivery from GitHub.
+5. Recheck README badge outputs on the repository homepage.
+
+### Environment Notes
+- Local venv used for validation: .venv-assess (Python 3.14.4).
+- Working tree contains one untracked file at handoff time: tmp_cds.fa (not committed).
+
+## 2026-05-19 13:56 UTC - Priority 0 complete, Priority 1 executed and verified
+
+### Snapshot
+- Branch: master
+- New commit: 6d49334
+- Objective: complete Priority 0 checks, execute Priority 1 remediation, and re-verify Codecov ingestion.
+
+### What Was Done
+1. Re-verified Priority 0 baseline
+   - GitHub Actions run #57 on commit 45ac920 completed successfully.
+   - Codecov web tree remained stale even though commit rows were appearing.
+2. Executed Priority 1 remediation
+   - Updated `.github/workflows/build.yml` to generate `coverage.xml` in build1.
+   - Switched Codecov upload input from `.coverage` to `coverage.xml`.
+   - Commit: `6d49334` (pushed to master).
+3. Re-verified after Priority 1
+   - Run #58 (head `6d49334`) completed successfully.
+   - Codecov commit endpoint for `6d49334` shows `state: complete` and parsed totals.
+   - Codecov branch API for `master` now reports head commit `6d49334` with 34.19% coverage.
+
+### Notes
+- The public Codecov branch web tree page may lag or cache stale values briefly.
+- API endpoints reflected the corrected, current state before the tree page visually refreshed.
