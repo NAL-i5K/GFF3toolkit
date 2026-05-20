@@ -19,7 +19,6 @@ Welcome to GFF3 Toolkit's documentation!
    gff3_sort.md
    gff3_to_fasta.md
    FAQ.md
-   HANDOFF.md
 
 
 Indices and tables
