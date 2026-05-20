@@ -131,6 +131,223 @@ class TestGff3Core(unittest.TestCase):
         self.assertEqual(line["end"], "bad")
         self.assertTrue(any(e["eCode"] == "Esf0017" for e in line["line_errors"]))
 
+    def test_parse_duplicate_gff_version_reports_first_line_requirement_error(self):
+        content = "##gff-version 3\n##gff-version 3\n"
+        parser = gff3.Gff3(gff_file=io.StringIO(content))
+
+        second = parser.lines[1]
+        self.assertEqual(second["directive"], "##gff-version")
+        self.assertTrue(any(e["eCode"] == "Esf0014" for e in second["line_errors"]))
+
+    def test_parse_unknown_directive_is_recorded(self):
+        content = "##gff-version 3\n##unknown-directive value\n"
+        parser = gff3.Gff3(gff_file=io.StringIO(content))
+
+        unknown = parser.lines[1]
+        self.assertEqual(unknown["directive"], "##unknown-directive")
+        self.assertTrue(any(e["eCode"] == "Esf0021" for e in unknown["line_errors"]))
+
+    def test_parse_reports_missing_gff_version_on_first_line(self):
+        content = "chr1\tsrc\tgene\t1\t10\t.\t+\t.\tID=gene1\n"
+        parser = gff3.Gff3(gff_file=io.StringIO(content))
+
+        first = parser.lines[0]
+        self.assertTrue(any(e["eCode"] == "Esf0014" for e in first["line_errors"]))
+
+    def test_parse_reports_non_integer_gff_version(self):
+        content = "##gff-version three\n"
+        parser = gff3.Gff3(gff_file=io.StringIO(content))
+
+        line = parser.lines[0]
+        self.assertEqual(line["directive"], "##gff-version")
+        self.assertTrue(any(e["eCode"] == "Esf0020" for e in line["line_errors"]))
+
+    def test_parse_reports_leading_whitespace_in_line(self):
+        content = "##gff-version 3\n chr1\tsrc\tgene\t1\t10\t.\t+\t.\tID=gene1\n"
+        parser = gff3.Gff3(gff_file=io.StringIO(content))
+
+        line = parser.lines[1]
+        self.assertTrue(any(e["eCode"] == "Esf0013" for e in line["line_errors"]))
+
+    def test_parse_reports_duplicate_non_adjacent_id(self):
+        content = (
+            "##gff-version 3\n"
+            "chr1\tsrc\tgene\t1\t10\t.\t+\t.\tID=gene1\n"
+            "# break adjacency\n"
+            "chr1\tsrc\tgene\t20\t30\t.\t+\t.\tID=gene1\n"
+        )
+        parser = gff3.Gff3(gff_file=io.StringIO(content))
+
+        second_gene = parser.lines[3]
+        self.assertTrue(any(e["eCode"] == "Emr0003" for e in second_gene["line_errors"]))
+
+    def test_parse_reports_invalid_target_end_and_is_circular_value(self):
+        content = (
+            "##gff-version 3\n"
+            "chr1\tsrc\tmatch\t1\t9\t.\t+\t.\tID=m1;Target=t1 1 x +;Is_circular=false\n"
+        )
+        parser = gff3.Gff3(gff_file=io.StringIO(content))
+
+        line = parser.lines[1]
+        ecodes = {e["eCode"] for e in line["line_errors"]}
+        self.assertIn("Esf0038", ecodes)
+        self.assertIn("Esf0040", ecodes)
+
+    def test_parse_reports_unknown_reserved_uppercase_attribute(self):
+        content = "##gff-version 3\nchr1\tsrc\tgene\t1\t10\t.\t+\t.\tID=gene1;Foo=bar\n"
+        parser = gff3.Gff3(gff_file=io.StringIO(content))
+
+        line = parser.lines[1]
+        self.assertTrue(any(e["eCode"] == "Esf0041" for e in line["line_errors"]))
+
+    def test_check_phase_flags_inconsistent_cds_strands(self):
+        parser = gff3.Gff3()
+        parser.lines = [
+            {
+                "line_type": "feature",
+                "type": "CDS",
+                "line_index": 0,
+                "line_raw": "cds1",
+                "attributes": {"Parent": ["tx1"]},
+                "strand": "+",
+                "start": 1,
+                "end": 6,
+                "phase": 0,
+                "line_errors": [],
+            },
+            {
+                "line_type": "feature",
+                "type": "CDS",
+                "line_index": 1,
+                "line_raw": "cds2",
+                "attributes": {"Parent": ["tx1"]},
+                "strand": "-",
+                "start": 10,
+                "end": 15,
+                "phase": 0,
+                "line_errors": [],
+            },
+        ]
+
+        parser.check_phase(initial_phase=False)
+
+        self.assertTrue(any(e["eCode"] == "Ema0007" for e in parser.lines[0]["line_errors"]))
+        self.assertTrue(any(e["eCode"] == "Ema0007" for e in parser.lines[1]["line_errors"]))
+
+    def test_check_phase_initial_phase_requires_zero_for_single_cds(self):
+        parser = gff3.Gff3()
+        parser.lines = [
+            {
+                "line_type": "feature",
+                "type": "CDS",
+                "line_index": 0,
+                "line_raw": "cds1",
+                "attributes": {"Parent": ["tx1"]},
+                "strand": "+",
+                "start": 1,
+                "end": 6,
+                "phase": 2,
+                "line_errors": [],
+            }
+        ]
+
+        parser.check_phase(initial_phase=True)
+
+        self.assertTrue(any(e["eCode"] == "Ema0006" for e in parser.lines[0]["line_errors"]))
+
+    def test_check_reference_sequence_region_reports_missing_seqid(self):
+        parser = gff3.Gff3()
+        parser.lines = [
+            {
+                "line_type": "directive",
+                "directive": "##sequence-region",
+                "seqid": "chr1",
+                "start": 1,
+                "end": 10,
+                "line_errors": [],
+            },
+            {
+                "line_type": "feature",
+                "line_index": 1,
+                "line_raw": "chr2\tsrc\tCDS",
+                "directive": "",
+                "seqid": "chr2",
+                "start": 1,
+                "end": 5,
+                "type": "CDS",
+                "line_errors": [],
+            },
+        ]
+
+        errors = parser.check_reference(sequence_region=True, check_n=False)
+
+        self.assertIn(1, errors)
+        self.assertTrue(any(e["eCode"] == "Esf0004" for e in parser.lines[1]["line_errors"]))
+
+    def test_check_reference_embedded_fasta_reports_bounds_and_n_count(self):
+        parser = gff3.Gff3()
+        parser.fasta_embedded = {"chr1": {"seq": "AANN"}}
+        parser.lines = [
+            {
+                "line_type": "feature",
+                "line_index": 0,
+                "line_raw": "chr1\tsrc\tCDS",
+                "directive": "",
+                "seqid": "chr1",
+                "start": 1,
+                "end": 6,
+                "type": "CDS",
+                "line_errors": [],
+            }
+        ]
+
+        errors = parser.check_reference(fasta_embedded=True, allowed_num_of_n=0)
+
+        self.assertIn(0, errors)
+        ecodes = {e["eCode"] for e in parser.lines[0]["line_errors"]}
+        self.assertIn("Esf0008", ecodes)
+        self.assertIn("Esf0009", ecodes)
+
+    def test_check_parent_boundary_fails_when_required_feature_id_missing(self):
+        parser = gff3.Gff3()
+        parser.lines = [
+            {
+                "line_index": 0,
+                "line_raw": "chr1\tsrc\tgene\t1\t10\t.\t+\t.\t.",
+                "line_type": "feature",
+                "type": "gene",
+                "attributes": {},
+                "parents": [],
+                "children": [],
+            }
+        ]
+
+        ok = parser.check_parent_boundary()
+
+        self.assertFalse(ok)
+
+    def test_parse_parent_attribute_deduplicates_values(self):
+        content = (
+            "##gff-version 3\n"
+            "chr1\tsrc\tgene\t1\t100\t.\t+\t.\tID=gene1\n"
+            "chr1\tsrc\tmRNA\t1\t100\t.\t+\t.\tID=tx1;Parent=gene1,gene1\n"
+        )
+        parser = gff3.Gff3(gff_file=io.StringIO(content))
+
+        mrna = parser.lines[2]
+        self.assertEqual(set(mrna["attributes"]["Parent"]), {"gene1"})
+        self.assertTrue(any(e["eCode"] == "Esf0034" for e in mrna["line_errors"]))
+
+    def test_parse_cds_requires_phase_when_phase_is_dot(self):
+        content = (
+            "##gff-version 3\n"
+            "chr1\tsrc\tCDS\t1\t9\t.\t+\t.\tID=cds1\n"
+        )
+        parser = gff3.Gff3(gff_file=io.StringIO(content))
+
+        cds = parser.lines[1]
+        self.assertTrue(any(e["eCode"] == "Esf0027" for e in cds["line_errors"]))
+
     def test_descendants_and_ancestors_graph_helpers(self):
         parser = gff3.Gff3()
         root = {"line_index": 0, "children": [], "parents": [], "line_type": "feature"}
@@ -261,6 +478,72 @@ class TestGff3Core(unittest.TestCase):
         seq = parser.sequence(0, reference={"chr1": "AACCGGTT"})
 
         self.assertEqual(seq, "GGTT")
+
+    def test_sequence_returns_none_for_non_feature_line(self):
+        parser = gff3.Gff3()
+        parser.lines = [{"line_index": 0, "line_type": "directive", "directive": "##gff-version"}]
+
+        seq = parser.sequence(0, reference={"chr1": "AACCGGTT"})
+
+        self.assertIsNone(seq)
+
+    def test_overlap_true_and_false_cases(self):
+        parser = gff3.Gff3()
+        a = {"seqid": "chr1", "start": 1, "end": 10}
+        b = {"seqid": "chr1", "start": 8, "end": 12}
+        c = {"seqid": "chr2", "start": 8, "end": 12}
+
+        self.assertTrue(parser.overlap(a, b))
+        self.assertFalse(parser.overlap(a, c))
+
+    def test_write_skips_removed_features(self):
+        parser = gff3.Gff3()
+        root = {
+            "line_index": 0,
+            "line_type": "feature",
+            "line_status": "normal",
+            "line_raw": "",
+            "seqid": "chr1",
+            "source": "src",
+            "type": "gene",
+            "start": 1,
+            "end": 4,
+            "score": ".",
+            "strand": "+",
+            "phase": ".",
+            "attributes": {"ID": "gene1"},
+            "parents": [],
+            "children": [],
+        }
+        child_removed = {
+            "line_index": 1,
+            "line_type": "feature",
+            "line_status": "removed",
+            "line_raw": "",
+            "seqid": "chr1",
+            "source": "src",
+            "type": "mRNA",
+            "start": 1,
+            "end": 4,
+            "score": ".",
+            "strand": "+",
+            "phase": ".",
+            "attributes": {"ID": "tx1", "Parent": ["gene1"]},
+            "parents": [[root]],
+            "children": [],
+        }
+        root["children"] = [child_removed]
+        parser.lines = [root, child_removed]
+        parser.features = {"gene1": [root], "tx1": [child_removed]}
+        parser.fasta_external = {"chr1": {"header": ">chr1", "seq": "AACC"}}
+        out = io.StringIO()
+
+        parser.write(out, embed_fasta=False)
+
+        value = out.getvalue()
+        self.assertIn("##sequence-region chr1 1 4\n", value)
+        self.assertIn("ID=gene1", value)
+        self.assertNotIn("ID=tx1", value)
 
 
 if __name__ == "__main__":

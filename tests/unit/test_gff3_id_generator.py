@@ -2,6 +2,7 @@ import io
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 from gff3tool.lib import gff3_ID_generator
 
@@ -67,7 +68,7 @@ class TestGff3IdGeneratorUtilities(unittest.TestCase):
             'start': 1,
             'end': 10,
             'score': '.',
-            'strand': '+',
+            'strand': '+', 'line_raw': 'raw',
             'phase': '.',
             'attributes': {
                 'ID': 'gene1',
@@ -91,7 +92,7 @@ class TestGff3IdGeneratorUtilities(unittest.TestCase):
             'start': 1,
             'end': 20,
             'score': '.',
-            'strand': '+',
+            'strand': '+', 'line_raw': 'raw',
             'phase': '.',
             'attributes': {'ID': 'gene1'},
         }
@@ -105,7 +106,7 @@ class TestGff3IdGeneratorUtilities(unittest.TestCase):
             'start': 1,
             'end': 20,
             'score': '.',
-            'strand': '+',
+            'strand': '+', 'line_raw': 'raw',
             'phase': '.',
             'attributes': {'ID': 'tx1', 'Parent': ['gene1']},
         }
@@ -161,6 +162,129 @@ class TestGff3IdGeneratorUtilities(unittest.TestCase):
     def test_alphabets_suffix_generates_uppercase_suffixes(self):
         values = gff3_ID_generator.alphabets_suffix(3)
         self.assertEqual(values[:4], ['A', 'B', 'C', 'D'])
+
+    def test_main_exits_when_merge_report_given_without_out_merge_report(self):
+        fake_gff = DummyGff([])
+
+        with mock.patch.object(gff3_ID_generator, 'Gff3', return_value=fake_gff), \
+            self.assertRaises(SystemExit) as exc:
+            gff3_ID_generator.main(
+                in_gff='in.gff3',
+                merge_report='merge.tsv',
+                out_merge_report=None,
+                out_gff='out.gff3',
+                uuid_on=False,
+                prefix='MODEL',
+                digitlen=4,
+                report=None,
+                alias=False,
+            )
+
+        self.assertEqual(exc.exception.code, 1)
+
+    def test_main_uuid_mode_updates_ids_and_writes_report(self):
+        line1 = {
+            'line_type': 'feature',
+            'line_index': 0,
+            'attributes': {'ID': 'old1'},
+        }
+        line2 = {
+            'line_type': 'feature',
+            'line_index': 1,
+            'attributes': {'Parent': ['missing_parent']},
+        }
+        fake_gff = DummyGff([line1, line2])
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            report_path = os.path.join(tmpdir, 'id_report.tsv')
+            with mock.patch.object(gff3_ID_generator, 'Gff3', return_value=fake_gff), \
+                mock.patch.object(gff3_ID_generator, 'write_gff3', autospec=True) as write_gff3, \
+                mock.patch.object(
+                    gff3_ID_generator.uuid,
+                    'uuid1',
+                    side_effect=['uuid-1', 'uuid-2', 'uuid-3'],
+                ):
+                gff3_ID_generator.main(
+                    in_gff='in.gff3',
+                    merge_report=None,
+                    out_merge_report=None,
+                    out_gff='out.gff3',
+                    uuid_on=True,
+                    prefix='MODEL',
+                    digitlen=4,
+                    report=report_path,
+                    alias=True,
+                )
+
+            write_gff3.assert_called_once_with(fake_gff, 'out.gff3')
+            self.assertEqual(line1['attributes']['ID'], 'uuid-1')
+            self.assertEqual(line1['attributes']['Alias'], 'old1')
+            self.assertEqual(line2['attributes']['ID'], 'uuid-2')
+            self.assertEqual(line2['attributes']['Parent'], ['uuid-3'])
+
+            with open(report_path, 'r', encoding='utf-8') as handle:
+                report_text = handle.read()
+
+        self.assertIn('Old_ID\tNewID', report_text)
+        self.assertIn('old1\tuuid-1', report_text)
+        self.assertIn('missing\tuuid-2', report_text)
+
+    def test_main_non_uuid_generates_hierarchical_ids(self):
+        root = {
+            'line_type': 'feature',
+            'line_index': 0,
+            'type': 'gene',
+            'start': 1,
+            'end': 100,
+            'strand': '+', 'line_raw': 'raw',
+            'attributes': {'ID': 'gene_old'},
+            'children': [],
+        }
+        child = {
+            'line_type': 'feature',
+            'line_index': 1,
+            'type': 'mRNA',
+            'start': 1,
+            'end': 100,
+            'strand': '+', 'line_raw': 'raw',
+            'attributes': {'ID': 'tx_old', 'Parent': ['gene_old']},
+            'children': [],
+        }
+        exon = {
+            'line_type': 'feature',
+            'line_index': 2,
+            'type': 'exon',
+            'start': 1,
+            'end': 20,
+            'strand': '+', 'line_raw': 'raw',
+            'attributes': {'ID': 'exon_old', 'Parent': ['tx_old']},
+            'children': [],
+        }
+        child['children'] = [exon]
+        root['children'] = [child]
+        fake_gff = DummyGff([root, child, exon], descendants_map={'MODEL0001': [child, exon]})
+
+        with mock.patch.object(gff3_ID_generator, 'Gff3', return_value=fake_gff), \
+            mock.patch.object(gff3_ID_generator, 'write_gff3', autospec=True):
+            gff3_ID_generator.main(
+                in_gff='in.gff3',
+                merge_report=None,
+                out_merge_report=None,
+                out_gff='out.gff3',
+                uuid_on=False,
+                prefix='MODEL',
+                digitlen=4,
+                report=None,
+                alias=True,
+            )
+
+        self.assertEqual(root['attributes']['ID'], 'MODEL0001')
+        self.assertEqual(root['attributes']['Alias'], 'gene_old')
+        self.assertEqual(child['attributes']['ID'], 'MODEL0001-RA')
+        self.assertEqual(child['attributes']['Parent'], ['MODEL0001'])
+        self.assertEqual(child['attributes']['Alias'], 'tx_old')
+        self.assertEqual(exon['attributes']['ID'], 'MODEL0001-RA-exon001')
+        self.assertEqual(exon['attributes']['Parent'], ['MODEL0001-RA'])
 
 
 if __name__ == '__main__':

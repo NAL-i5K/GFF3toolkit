@@ -14,6 +14,9 @@ class FakeGff:
     def collect_descendants(self, parent):
         return self._descendants.get(id(parent), [])
 
+    def collect_roots(self, line):
+        return line.get("roots", [line])
+
 
 class FakeWritableGff(FakeGff):
     def __init__(self, lines, features=None, fasta_external=None, fasta_embedded=None):
@@ -150,6 +153,76 @@ class TestGff3FixEngine(unittest.TestCase):
         self.assertEqual(child["end"], 21)
         self.assertEqual(root["start"], 10)
         self.assertEqual(root["end"], 21)
+
+    def test_fix_boundary_skips_removed_lines_in_error_mode(self):
+        root = {
+            "line_status": "normal",
+            "children": [{"children": [{"start": 3, "end": 9}], "start": 0, "end": 0}],
+            "start": 1,
+            "end": 2,
+        }
+        line = {"line_status": "removed", "roots": [root]}
+        gff = FakeGff(lines=[line])
+
+        fix.fix_boundary(gff3=gff, error_list=[[1]], logger=mock.Mock())
+
+        self.assertEqual(root["start"], 1)
+        self.assertEqual(root["end"], 2)
+
+    def test_remove_duplicate_trans_removes_transcript_and_root_when_empty(self):
+        root = {"line_status": "normal", "roots": [], "children": []}
+        transcript = {"line_status": "normal", "roots": [root], "children": []}
+        exon = {"line_status": "normal", "roots": [root], "children": []}
+        root["children"] = [transcript]
+        gff = FakeGff(lines=[root, transcript, exon], descendants={id(transcript): [exon], id(root): [transcript, exon]})
+
+        fix.remove_duplicate_trans(gff3=gff, error_list=[[1, 2]], logger=mock.Mock())
+
+        self.assertEqual(transcript["line_status"], "removed")
+        self.assertEqual(exon["line_status"], "removed")
+        self.assertEqual(root["line_status"], "removed")
+
+    def test_delete_model_removes_root_and_all_descendants(self):
+        root = {"line_status": "normal", "roots": [], "children": []}
+        transcript = {"line_status": "normal", "roots": [root], "children": []}
+        cds = {"line_status": "normal", "roots": [root], "children": []}
+        root["children"] = [transcript]
+        gff = FakeGff(lines=[root, transcript, cds], descendants={id(root): [transcript, cds]})
+
+        fix.delete_model(gff3=gff, error_list=[[2]], logger=mock.Mock())
+
+        self.assertEqual(root["line_status"], "removed")
+        self.assertEqual(transcript["line_status"], "removed")
+        self.assertEqual(cds["line_status"], "removed")
+
+    def test_pseudogene_relabels_types_and_removes_cds_branch(self):
+        root = {"line_status": "normal", "type": "gene", "children": [], "roots": []}
+        child = {"line_status": "normal", "type": "mRNA", "children": []}
+        exon = {"line_status": "normal", "type": "exon", "children": []}
+        cds = {"line_status": "normal", "type": "CDS", "children": []}
+        cds_child = {"line_status": "normal", "type": "match_part", "children": []}
+        child["children"] = [exon, cds]
+        root["children"] = [child]
+        line = {"line_status": "normal", "roots": [root]}
+        gff = FakeGff(lines=[line], descendants={id(cds): [cds_child]})
+
+        fix.pseudogene(gff3=gff, error_list=[[1]], logger=mock.Mock())
+
+        self.assertEqual(root["type"], "pseudogene")
+        self.assertEqual(child["type"], "pseudogenic_transcript")
+        self.assertEqual(exon["type"], "pseudogenic_exon")
+        self.assertEqual(cds["line_status"], "removed")
+        self.assertEqual(cds_child["line_status"], "removed")
+
+    def test_connected_components_groups_pairs(self):
+        components = fix.connected_compoents(
+            ["tx1", "tx2", "tx3", "tx4"],
+            ["tx1 tx2", "tx2 tx3"],
+        )
+
+        as_sets = {frozenset(group) for group in components}
+        self.assertIn(frozenset(["tx1", "tx2", "tx3"]), as_sets)
+        self.assertIn(frozenset(["tx4"]), as_sets)
 
     def test_write_outputs_sequence_region_features_and_fasta(self):
         root = {

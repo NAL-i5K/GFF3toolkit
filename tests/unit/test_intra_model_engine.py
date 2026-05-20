@@ -30,6 +30,23 @@ def _cds(line_index, start, end):
 
 
 class TestIntraModelEngine(unittest.TestCase):
+    def test_check_redundant_length_reports_invalid_gene_coordinates(self):
+        root = {
+            "line_type": "feature",
+            "line_index": 0,
+            "type": "gene",
+            "start": "bad",
+            "end": 10,
+            "attributes": {"ID": "gene1"},
+            "children": [],
+        }
+        gff = DummyGff()
+
+        result = intra_model.check_redundant_length(gff, root)
+
+        self.assertIsNone(result)
+        self.assertTrue(any(err[1].get("eCode") == "Esf0017" for err in gff.line_errors))
+
     def test_check_incomplete_flags_gene_without_mrna(self):
         root = {
             "line_type": "feature",
@@ -44,6 +61,41 @@ class TestIntraModelEngine(unittest.TestCase):
 
         self.assertIsNotNone(result)
         self.assertEqual(result[0]["eCode"], "Ema0004")
+        self.assertEqual(len(gff.line_errors), 1)
+
+    def test_check_pseudo_child_type_flags_non_transcript_child(self):
+        root = {
+            "line_type": "feature",
+            "line_index": 0,
+            "type": "pseudogene",
+            "attributes": {"ID": "ps1"},
+            "children": [{"type": "mRNA"}],
+        }
+        gff = DummyGff()
+
+        result = intra_model.check_pseudo_child_type(gff, root)
+
+        self.assertIsNotNone(result)
+        self.assertEqual(result[0]["eCode"], "Ema0005")
+        self.assertEqual(len(gff.line_errors), 1)
+
+    def test_check_distinct_isoform_flags_non_overlapping_transcripts(self):
+        tx1 = {"line_index": 1, "start": 1, "end": 10, "attributes": {"ID": "tx1"}}
+        tx2 = {"line_index": 2, "start": 5, "end": 15, "attributes": {"ID": "tx2"}}
+        tx3 = {"line_index": 3, "start": 12, "end": 20, "attributes": {"ID": "tx3"}}
+        root = {
+            "line_type": "feature",
+            "line_index": 0,
+            "type": "gene",
+            "attributes": {"ID": "gene1"},
+            "children": [tx1, tx2, tx3],
+        }
+        gff = DummyGff()
+
+        result = intra_model.check_distinct_isoform(gff, root)
+
+        self.assertIsNotNone(result)
+        self.assertEqual(result[0]["eCode"], "Ema0008")
         self.assertEqual(len(gff.line_errors), 1)
 
     def test_check_merged_gene_parent_flags_non_overlapping_isoforms(self):
@@ -70,6 +122,46 @@ class TestIntraModelEngine(unittest.TestCase):
 
         self.assertIsNotNone(result)
         self.assertEqual(result[0]["eCode"], "Ema0009")
+        self.assertEqual(len(gff.line_errors), 1)
+
+    def test_check_internal_stop_reports_internal_stop_codons(self):
+        cds = {
+            "line_type": "feature",
+            "line_index": 2,
+            "type": "CDS",
+            "start": 1,
+            "end": 9,
+            "phase": 0,
+            "strand": "+",
+            "attributes": {"ID": "cds1"},
+        }
+        child = {
+            "line_type": "feature",
+            "line_index": 1,
+            "type": "mRNA",
+            "start": 1,
+            "end": 9,
+            "attributes": {"ID": "tx1"},
+            "children": [cds],
+        }
+        root = {
+            "line_type": "feature",
+            "line_index": 0,
+            "type": "gene",
+            "start": 1,
+            "end": 9,
+            "attributes": {"ID": "gene1"},
+            "children": [child],
+        }
+        gff = DummyGff()
+
+        with mock.patch.object(intra_model.function4gff, "featureSort", return_value=[cds]), \
+            mock.patch("gff3tool.bin.gff3_to_fasta.get_subseq", return_value="ATGTAGAAA"), \
+            mock.patch("gff3tool.bin.gff3_to_fasta.translator", return_value="M*K"):
+            result = intra_model.check_internal_stop(gff, root)
+
+        self.assertIsNotNone(result)
+        self.assertEqual(result[0]["eCode"], "Ema0002")
         self.assertEqual(len(gff.line_errors), 1)
 
     def test_main_noncanonical_skips_internal_stop_and_isoform_checks(self):
