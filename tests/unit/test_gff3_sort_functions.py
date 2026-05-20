@@ -41,6 +41,12 @@ class TestGff3SortFunctions(unittest.TestCase):
 
         self.assertEqual([line['line_raw'] for line in result], ['scafB', 'scafB_2', 'scafA'])
 
+    def test_position_sort_exits_when_seqid_lacks_numeric_suffix(self):
+        lines = [_feature('bad', 0, seqid='chrX', start=1)]
+
+        with self.assertRaises(SystemExit):
+            gff3_sort.PositionSort(lines, reference=False)
+
     def test_strand_sort_orders_plus_by_start(self):
         lines = [
             _feature('later', 1, start=9, end=12, strand='+'),
@@ -61,6 +67,16 @@ class TestGff3SortFunctions(unittest.TestCase):
 
         self.assertEqual([line['line_raw'] for line in result], ['large_end', 'small_end'])
 
+    def test_strand_sort_returns_none_for_mixed_strands(self):
+        lines = [
+            _feature('plus', 0, start=1, end=2, strand='+'),
+            _feature('minus', 1, start=3, end=4, strand='-'),
+        ]
+
+        result = gff3_sort.StrandSort(lines)
+
+        self.assertIsNone(result)
+
     def test_type_sort_uses_type_rank_then_coordinate(self):
         lines = [
             _feature('utr', 0, start=3, end=6, feature_type='UTR'),
@@ -71,6 +87,16 @@ class TestGff3SortFunctions(unittest.TestCase):
         result = gff3_sort.TypeSort(lines, {'CDS': 1, 'exon': 2})
 
         self.assertEqual([line['line_raw'] for line in result], ['cds', 'exon', 'utr'])
+
+    def test_type_sort_reverse_uses_end_position(self):
+        lines = [
+            _feature('cds', 0, start=2, end=10, feature_type='CDS'),
+            _feature('exon', 1, start=4, end=8, feature_type='exon'),
+        ]
+
+        result = gff3_sort.TypeSort(lines, {'CDS': 1, 'exon': 2}, reverse=True)
+
+        self.assertEqual([line['line_raw'] for line in result], ['cds', 'exon'])
 
     def test_two_parent_rewrites_parent_attribute(self):
         third = _feature('chr1\tsrc\texon\t1\t2\t.\t+\t.\tID=ex1;Parent=old\n', 0)

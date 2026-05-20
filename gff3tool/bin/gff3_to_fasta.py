@@ -418,15 +418,6 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         logger.error('Your sequence type is "{0:s}". Sequence type must be one of {1:s}!'.format(stype, str(type_set)))
         sys.exit(1)
 
-    if stype == 'all' and output_prefix:
-        pass
-    elif stype != 'all' and output_prefix:
-        logger.info('Specifying prefix of output file name: (%s)...', output_prefix)
-        fname = '{0:s}_{1:s}.fa'.format(output_prefix, stype)
-        report_fh = open(fname, 'w')
-    else:
-        print('[Error] Please specify the prefix of output file name...')
-        sys.exit(1)
     if stype == 'user_defined' and user_defined != None:
         if len(user_defined) != 2:
             logger.error('Please specify parent and child feature via the -u argument. Format: [parent feature type],[child feature type]')
@@ -435,6 +426,16 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         logger.warning('Your sequence type is "{0:s}", -u argument will be ignored.'.format(stype))
     elif stype == 'user_defined' and user_defined == None:
         logger.error('-u is needed in combination with -st user_defined.')
+        sys.exit(1)
+
+    if stype == 'all' and output_prefix:
+        pass
+    elif stype != 'all' and output_prefix:
+        logger.info('Specifying prefix of output file name: (%s)...', output_prefix)
+        fname = '{0:s}_{1:s}.fa'.format(output_prefix, stype)
+        report_fh = open(fname, 'w')
+    else:
+        print('[Error] Please specify the prefix of output file name...')
         sys.exit(1)
 
     logger.info('Reading files: {0:s}, {1:s}...'.format(gff_file, fasta_file))
