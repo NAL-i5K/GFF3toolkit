@@ -1,7 +1,7 @@
 # Handoff - Coverage Expansion Session
 
 Date: 2026-05-19
-Workspace: /Users/cchilders/git-repos/GFF3toolkit
+Workspace: <repo_root>
 
 ## Current State
 - Active branch: `feature/coverage-next-20260519`
