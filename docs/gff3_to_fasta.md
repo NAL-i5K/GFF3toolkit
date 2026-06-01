@@ -77,7 +77,7 @@ gff3_to_fasta [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d
 9. -o OUTPUT_PREFIX, --output_prefix OUTPUT_PREFIX
     - Prefix of output file name
 10. -noQC, --quality_control
-    - Specify this option if you do not want to excute quality control for gff file. (default: QC is executed)
+    - Specify this option if you do not want to execute quality control for gff file. (default: QC is executed)
 11. -v, --version
     - Show program version number and exit
 

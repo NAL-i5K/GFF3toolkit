@@ -125,6 +125,36 @@ class TestGff3ToFastaCli(unittest.TestCase):
             None,
         )
 
+    def test_script_main_passes_defline_attributes(self):
+        args = Namespace(
+            gff="input.gff3",
+            fasta="ref.fa",
+            embedded_fasta=False,
+            sequence_type="gene",
+            user_defined=None,
+            defline="custom",
+            defline_attributes="product|ID",
+            output_prefix="out",
+            quality_control=False,
+        )
+
+        with mock.patch("argparse.ArgumentParser.parse_args", return_value=args), \
+            mock.patch.object(gff3_to_fasta, "main", autospec=True) as main_mock:
+            gff3_to_fasta.script_main()
+
+        main_mock.assert_called_once_with(
+            "input.gff3",
+            "ref.fa",
+            False,
+            "gene",
+            None,
+            "custom",
+            False,
+            "out",
+            mock.ANY,
+            "product|ID",
+        )
+
 
 class TestGff3ToFastaMain(unittest.TestCase):
     def test_main_exits_for_invalid_sequence_type(self):
@@ -141,31 +171,49 @@ class TestGff3ToFastaMain(unittest.TestCase):
         self.assertEqual(exc.exception.code, 1)
 
     def test_main_exits_when_user_defined_missing_for_user_defined_type(self):
-        with self.assertRaises(SystemExit) as exc:
-            gff3_to_fasta.main(
-                gff_file="input.gff3",
-                fasta_file="ref.fa",
-                stype="user_defined",
-                user_defined=None,
-                dline="simple",
-                output_prefix="out",
-                qc=False,
-                logger=mock.Mock(),
-            )
+        with mock.patch("builtins.open", return_value=io.StringIO()):
+            with self.assertRaises(SystemExit) as exc:
+                gff3_to_fasta.main(
+                    gff_file="input.gff3",
+                    fasta_file="ref.fa",
+                    stype="user_defined",
+                    user_defined=None,
+                    dline="simple",
+                    output_prefix="out",
+                    qc=False,
+                    logger=mock.Mock(),
+                )
         self.assertEqual(exc.exception.code, 1)
 
     def test_main_exits_when_user_defined_has_wrong_shape(self):
-        with self.assertRaises(SystemExit) as exc:
-            gff3_to_fasta.main(
-                gff_file="input.gff3",
-                fasta_file="ref.fa",
-                stype="user_defined",
-                user_defined=["mRNA"],
-                dline="simple",
-                output_prefix="out",
-                qc=False,
-                logger=mock.Mock(),
-            )
+        with mock.patch("builtins.open", return_value=io.StringIO()):
+            with self.assertRaises(SystemExit) as exc:
+                gff3_to_fasta.main(
+                    gff_file="input.gff3",
+                    fasta_file="ref.fa",
+                    stype="user_defined",
+                    user_defined=["mRNA"],
+                    dline="simple",
+                    output_prefix="out",
+                    qc=False,
+                    logger=mock.Mock(),
+                )
+        self.assertEqual(exc.exception.code, 1)
+
+    def test_main_exits_for_custom_defline_without_attributes(self):
+        with mock.patch("builtins.open", return_value=io.StringIO()):
+            with self.assertRaises(SystemExit) as exc:
+                gff3_to_fasta.main(
+                    gff_file="input.gff3",
+                    fasta_file="ref.fa",
+                    stype="gene",
+                    dline="custom",
+                    output_prefix="out",
+                    qc=False,
+                    logger=mock.Mock(),
+                    defline_attributes=None,
+                )
+
         self.assertEqual(exc.exception.code, 1)
 
     def test_main_routes_cds_to_splicer_and_writes_output(self):
@@ -325,6 +373,121 @@ class TestGff3ToFastaHelpers(unittest.TestCase):
 
         self.assertEqual(gene_seq, {">gene1": "AAAA"})
         self.assertEqual(exon_seq, {">ex1": "CCCC"})
+
+    def test_normalize_defline_attributes_deduplicates_and_strips_assignments(self):
+        normalized = gff3_to_fasta._normalize_defline_attributes(" product |ID=tx1|product||Dbxref=GeneID:1 ")
+        self.assertEqual(normalized, ["product", "ID", "Dbxref"])
+
+    def test_stringify_attribute_value_handles_nested_list_and_dict(self):
+        value = {
+            "Dbxref": ["GeneID:1", "HGNC:2"],
+            "meta": {"source": "RefSeq"},
+        }
+
+        self.assertEqual(
+            gff3_to_fasta._stringify_attribute_value(value),
+            "Dbxref=GeneID:1,HGNC:2,meta=source=RefSeq",
+        )
+
+    def test_format_defline_attributes_supports_custom_and_append_modes(self):
+        record = {"attributes": {"product": "alcohol dehydrogenase", "ID": "tx1"}}
+
+        custom = gff3_to_fasta._format_defline_attributes(record, "product|ID", "custom")
+        appended = gff3_to_fasta._format_defline_attributes(record, ["product", "ID"], "simple")
+
+        self.assertEqual(custom, "product=alcohol dehydrogenase|ID=tx1")
+        self.assertEqual(appended, "|product=alcohol dehydrogenase|ID=tx1")
+
+    def test_extract_start_end_custom_defline_uses_requested_attributes(self):
+        root_gene = {
+            "line_type": "feature",
+            "attributes": {
+                "ID": "gene1",
+                "Name": "gene1",
+                "product": "dehydrogenase",
+            },
+            "line_index": 0,
+            "line_raw": "gene",
+            "type": "gene",
+            "seqid": "chr1",
+            "start": 1,
+            "end": 4,
+            "strand": "+",
+            "children": [],
+            "parents": [],
+        }
+        gff = _MiniGff(
+            lines=[root_gene],
+            fasta_external={"chr1": {"seq": "AAAACCCC"}},
+        )
+
+        gene_seq = gff3_to_fasta.extract_start_end(
+            gff,
+            "gene",
+            "custom",
+            embedded_fasta=False,
+            defline_attributes="product|ID",
+        )
+
+        self.assertEqual(gene_seq, {">product=dehydrogenase|ID=gene1": "AAAA"})
+
+    def test_splicer_custom_defline_for_cds_uses_mrna_attributes(self):
+        cds = {
+            "line_type": "feature",
+            "attributes": {"ID": "cds1", "Parent": ["tx1"]},
+            "line_index": 2,
+            "line_raw": "cds",
+            "type": "CDS",
+            "seqid": "chr1",
+            "start": 1,
+            "end": 3,
+            "strand": "+",
+            "phase": 0,
+            "children": [],
+            "parents": [],
+        }
+        mrna = {
+            "line_type": "feature",
+            "attributes": {"ID": "tx1", "Parent": ["gene1"], "product": "enzyme"},
+            "line_index": 1,
+            "line_raw": "mrna",
+            "type": "mRNA",
+            "seqid": "chr1",
+            "start": 1,
+            "end": 3,
+            "strand": "+",
+            "phase": 0,
+            "children": [cds],
+            "parents": [],
+        }
+        root_gene = {
+            "line_type": "feature",
+            "attributes": {"ID": "gene1"},
+            "line_index": 0,
+            "line_raw": "gene",
+            "type": "gene",
+            "seqid": "chr1",
+            "start": 1,
+            "end": 3,
+            "strand": "+",
+            "children": [mrna],
+            "parents": [],
+        }
+        gff = _MiniGff(
+            lines=[root_gene, mrna, cds],
+            fasta_external={"chr1": {"seq": "ATG"}},
+        )
+
+        seq = gff3_to_fasta.splicer(
+            gff,
+            ["CDS"],
+            "custom",
+            "cds",
+            embedded_fasta=False,
+            defline_attributes="product|ID",
+        )
+
+        self.assertEqual(seq, {">product=enzyme|ID=tx1": "ATG"})
 
 
 if __name__ == "__main__":
