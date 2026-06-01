@@ -122,6 +122,7 @@ class TestGff3ToFastaCli(unittest.TestCase):
             False,
             "out",
             mock.ANY,
+            None,
         )
 
 
@@ -184,7 +185,7 @@ class TestGff3ToFastaMain(unittest.TestCase):
                 logger=mock.Mock(),
             )
 
-        splicer_mock.assert_called_once_with(fake_gff, ["CDS"], "simple", "cds", False)
+        splicer_mock.assert_called_once_with(fake_gff, ["CDS"], "simple", "cds", False, [])
         self.assertIn(">tx1\nATG\n", output_handle.getvalue())
 
     def test_main_all_mode_calls_extract_and_splice_paths(self):
@@ -212,6 +213,27 @@ class TestGff3ToFastaMain(unittest.TestCase):
         self.assertEqual(splicer_mock.call_args_list[0].args[1], ["exon", "pseudogenic_exon"])
         self.assertEqual(splicer_mock.call_args_list[1].args[1], ["CDS"])
         self.assertEqual(splicer_mock.call_args_list[2].args[1], ["CDS"])
+
+    def test_main_can_append_selected_attributes_to_defline(self):
+        fake_gff = mock.Mock()
+        output_handle = io.StringIO()
+
+        with mock.patch.object(gff3_to_fasta, "Gff3", autospec=True, return_value=fake_gff), \
+            mock.patch.object(gff3_to_fasta, "extract_start_end", autospec=True, return_value={">product=alcohol dehydrogenase|ID=OFAS1234": "ATG"}) as extract_mock, \
+            mock.patch("builtins.open", return_value=output_handle):
+            gff3_to_fasta.main(
+                gff_file="input.gff3",
+                fasta_file="ref.fa",
+                stype="gene",
+                dline="custom",
+                defline_attributes="product|ID",
+                output_prefix="out",
+                qc=False,
+                logger=mock.Mock(),
+            )
+
+        extract_mock.assert_called_once_with(fake_gff, "gene", "custom", False, ["product", "ID"])
+        self.assertIn(">product=alcohol dehydrogenase|ID=OFAS1234\nATG\n", output_handle.getvalue())
 
 
 class _MiniGff:

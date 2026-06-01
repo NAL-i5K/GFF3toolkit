@@ -21,7 +21,7 @@ Extract sequences from specific regions of genome based on gff file.
 
 ## Usage
 
-gff3_to_fasta [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d DEFLINE] [-o OUTPUT_PREFIX] [-noQC] [-v]
+gff3_to_fasta [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d DEFLINE] [-da DEFLINE_ATTRIBUTES] [-o OUTPUT_PREFIX] [-noQC] [-v]
 
 ## Testing environment
 1. Python 3.9+
@@ -69,11 +69,15 @@ gff3_to_fasta [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d
 7. -d DEFLINE, --defline DEFLINE
     - Defline format in the output FASTA file:
         * "simple" - only ID is shown in the defline;
-        * "complete" - complete information of the feature is shown in the defline.
-8. -o OUTPUT_PREFIX, --output_prefix OUTPUT_PREFIX
+        * "complete" - complete information of the feature is shown in the defline;
+        * "custom" - include only the GFF3 attributes named with -da, formatted as attribute=value pairs.
+8. -da DEFLINE_ATTRIBUTES, --defline_attributes DEFLINE_ATTRIBUTES
+    - Pipe-separated list of GFF3 attribute names to include in the defline.
+        * Example: -d custom -da product|ID
+9. -o OUTPUT_PREFIX, --output_prefix OUTPUT_PREFIX
     - Prefix of output file name
-9. -noQC, --quality_control
+10. -noQC, --quality_control
     - Specify this option if you do not want to excute quality control for gff file. (default: QC is executed)
-10. -v, --version
+11. -v, --version
     - Show program version number and exit
 
