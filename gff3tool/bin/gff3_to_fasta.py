@@ -67,7 +67,47 @@ def translator(seq):
             peptide += amino_acid
     return peptide
 
-def splicer(gff, ftype, dline, stype, embedded_fasta=False):
+
+def _normalize_defline_attributes(defline_attributes):
+    if not defline_attributes:
+        return []
+    if isinstance(defline_attributes, str):
+        defline_attributes = [item.strip() for item in defline_attributes.split('|')]
+
+    attributes = []
+    for item in defline_attributes:
+        if not item:
+            continue
+        attribute_name = item.split('=', 1)[0].strip()
+        if attribute_name and attribute_name not in attributes:
+            attributes.append(attribute_name)
+    return attributes
+
+
+def _stringify_attribute_value(value):
+    # Model used: GPT-5.4 mini.
+    if isinstance(value, list):
+        return ','.join([_stringify_attribute_value(v) for v in value])
+    if isinstance(value, dict):
+        return ','.join(['{0:s}={1:s}'.format(key, _stringify_attribute_value(value[key])) for key in value])
+    return str(value)
+
+
+def _format_defline_attributes(record, defline_attributes, dline):
+    attributes = record.get('attributes', {})
+    formatted = []
+    for attribute_name in _normalize_defline_attributes(defline_attributes):
+        if attribute_name in attributes:
+            formatted.append('{0:s}={1:s}'.format(attribute_name, _stringify_attribute_value(attributes[attribute_name])))
+
+    if dline == 'custom':
+        return '|'.join(formatted)
+
+    if formatted:
+        return '|{0:s}'.format('|'.join(formatted))
+    return ''
+
+def splicer(gff, ftype, dline, stype, embedded_fasta=False, defline_attributes=None):
     seq=dict()
     segments_Set = set()
     sort_seg = []
@@ -108,6 +148,11 @@ def splicer(gff, ftype, dline, stype, embedded_fasta=False):
                         defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{6:s}|ID={4:s}|Name={5:s}'.format(u_parent['seqid'], u_parent['start'], u_parent['end'], u_parent['strand'], cid, cname, u_parent['type'])
                 except:
                     pass
+            custom_defline = _format_defline_attributes(u_parent, defline_attributes, dline)
+            if dline == 'custom' and custom_defline:
+                defline = '>{0:s}'.format(custom_defline)
+            elif custom_defline:
+                defline = '{0:s}{1:s}'.format(defline, custom_defline)
             u_children = u_parent['children']
             segments = []
             segments_Set = set()
@@ -206,6 +251,11 @@ def splicer(gff, ftype, dline, stype, embedded_fasta=False):
                         defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}({8:s})|Parent={5:s}|ID={6:s}|Name={7:s}'.format(child['seqid'], child['start'], child['end'], child['strand'], child['type'], rid, cid, cname, ftype[0])
                     except:
                         pass
+                custom_defline = _format_defline_attributes(child, defline_attributes, dline)
+                if dline == 'custom' and custom_defline:
+                    defline = '>{0:s}'.format(custom_defline)
+                elif custom_defline:
+                    defline = '{0:s}{1:s}'.format(defline, custom_defline)
                 segments = []
                 segments_Set = set()
                 gchildren = child['children']
@@ -298,7 +348,7 @@ def splicer(gff, ftype, dline, stype, embedded_fasta=False):
 
     return seq
 
-def extract_start_end(gff, stype, dline, embedded_fasta=False):
+def extract_start_end(gff, stype, dline, embedded_fasta=False, defline_attributes=None):
     '''Extract sequences for a feature only use the Start and End information. The relationship between parent and children would be ignored.'''
     seq=dict()
     roots = []
@@ -331,6 +381,11 @@ def extract_start_end(gff, stype, dline, embedded_fasta=False):
                         defline = '>{0:s}:{1:d}..{2:d}:{3:s}|genomic_sequence({4:s})|Parent={5:s}|ID={6:s}|Name={7:s}'.format(child['seqid'], child['start'], child['end'], child['strand'], child['type'], rid, cid, cname)
                     except:
                         pass
+                custom_defline = _format_defline_attributes(child, defline_attributes, dline)
+                if dline == 'custom' and custom_defline:
+                    defline = '>{0:s}'.format(custom_defline)
+                elif custom_defline:
+                    defline = '{0:s}{1:s}'.format(defline, custom_defline)
                 seq[defline] = get_subseq(gff, child, embedded_fasta)
     elif stype == 'gene':
         for root in roots:
@@ -344,6 +399,11 @@ def extract_start_end(gff, stype, dline, embedded_fasta=False):
                 defline='>{0:s}'.format(rid)
                 if dline == 'complete':
                     defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{6:s}|ID={4:s}|Name={5:s}'.format(root['seqid'], root['start'], root['end'], root['strand'], rid, rname, root['type'])
+                custom_defline = _format_defline_attributes(root, defline_attributes, dline)
+                if dline == 'custom' and custom_defline:
+                    defline = '>{0:s}'.format(custom_defline)
+                elif custom_defline:
+                    defline = '{0:s}{1:s}'.format(defline, custom_defline)
                 seq[defline] = get_subseq(gff, root, embedded_fasta)
             elif root['type'] == "":
                 print('WARNING  [Missing feature type] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(root['line_index']+1), root['line_raw']))
@@ -369,6 +429,11 @@ def extract_start_end(gff, stype, dline, embedded_fasta=False):
                 defline='>{0:s}'.format(eid)
                 if dline == 'complete':
                     defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|Parent={5:s}|ID={6:s}|Name={7:s}'.format(exon['seqid'], exon['start'], exon['end'], exon['strand'], exon['type'], pid, eid, ename)
+                custom_defline = _format_defline_attributes(exon, defline_attributes, dline)
+                if dline == 'custom' and custom_defline:
+                    defline = '>{0:s}'.format(custom_defline)
+                elif custom_defline:
+                    defline = '{0:s}{1:s}'.format(defline, custom_defline)
 
                 seq[defline] = get_subseq(gff, exon, embedded_fasta)
             except:
@@ -397,13 +462,18 @@ def extract_start_end(gff, stype, dline, embedded_fasta=False):
                         defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|Parent={5:s}|ID={6:s}|Name={7:s}'.format(user_defined['seqid'], user_defined['start'], user_defined['end'], user_defined['strand'], user_defined['type'], pid, uid, uname)
                     else:
                         defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}|ID={5:s}|Name={6:s}'.format(user_defined['seqid'], user_defined['start'], user_defined['end'], user_defined['strand'], user_defined['type'], uid, uname)
-                    seq[defline] = get_subseq(gff, user_defined, embedded_fasta)
+                custom_defline = _format_defline_attributes(user_defined, defline_attributes, dline)
+                if dline == 'custom' and custom_defline:
+                    defline = '>{0:s}'.format(custom_defline)
+                elif custom_defline:
+                    defline = '{0:s}{1:s}'.format(defline, custom_defline)
+                seq[defline] = get_subseq(gff, user_defined, embedded_fasta)
             except:
                 print('WARNING  [Missing Attributes] Program failed.\n\t\t- Line {0:s}: {1:s}'.format(str(user_defined['line_index']+1), user_defined['line_raw']))
 
     return seq
 
-def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_defined=None, dline=None, qc=True, output_prefix=None, logger=None):
+def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_defined=None, dline=None, qc=True, output_prefix=None, logger=None, defline_attributes=None):
     stderr_handler = logging.StreamHandler()
     stderr_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger_null = logging.getLogger(__name__+'null')
@@ -413,7 +483,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
     if not gff_file or (not fasta_file and not embedded_fasta) or not stype:
         print('Gff file, fasta file, and type of extracted sequences need to be specified')
         sys.exit(1)
-    type_set=['gene','exon','pre_trans', 'trans', 'cds', 'pep', 'all', 'user_defined']
+    type_set=['gene','exon','pre_trans', 'trans', 'cds', 'pep', 'all', 'user_defined', 'custom']
     if not stype in type_set:
         logger.error('Your sequence type is "{0:s}". Sequence type must be one of {1:s}!'.format(stype, str(type_set)))
         sys.exit(1)
@@ -435,6 +505,11 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         logger.warning('Your sequence type is "{0:s}", -u argument will be ignored.'.format(stype))
     elif stype == 'user_defined' and user_defined == None:
         logger.error('-u is needed in combination with -st user_defined.')
+        sys.exit(1)
+
+    defline_attributes = _normalize_defline_attributes(defline_attributes)
+    if dline == 'custom' and not defline_attributes:
+        logger.error('The custom defline mode requires at least one attribute name via the -da argument.')
         sys.exit(1)
 
     logger.info('Reading files: {0:s}, {1:s}...'.format(gff_file, fasta_file))
@@ -487,7 +562,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
 
         tmp_stype = 'pre_trans'
         logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
-        seq = extract_start_end(gff, tmp_stype, dline, embedded_fasta)
+        seq = extract_start_end(gff, tmp_stype, dline, embedded_fasta, defline_attributes)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
             report_fh = open(fname, 'w')
@@ -499,7 +574,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         seq=dict()
         tmp_stype = 'gene'
         logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
-        seq = extract_start_end(gff, tmp_stype, dline, embedded_fasta)
+        seq = extract_start_end(gff, tmp_stype, dline, embedded_fasta, defline_attributes)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
             report_fh = open(fname, 'w')
@@ -511,7 +586,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         seq=dict()
         tmp_stype = 'exon'
         logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
-        seq = extract_start_end(gff, tmp_stype, dline, embedded_fasta)
+        seq = extract_start_end(gff, tmp_stype, dline, embedded_fasta, defline_attributes)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
             report_fh = open(fname, 'w')
@@ -524,7 +599,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         tmp_stype = 'trans'
         feature_type = ['exon', 'pseudogenic_exon']
         logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
-        seq = splicer(gff, feature_type, dline, stype, embedded_fasta)
+        seq = splicer(gff, feature_type, dline, stype, embedded_fasta, defline_attributes)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
             report_fh = open(fname, 'w')
@@ -537,7 +612,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         tmp_stype = 'cds'
         feature_type = ['CDS']
         logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
-        seq = splicer(gff, feature_type, dline, stype, embedded_fasta)
+        seq = splicer(gff, feature_type, dline, stype, embedded_fasta, defline_attributes)
         if len(seq):
             fname = '{0:s}_{1:s}.fa'.format(output_prefix, tmp_stype)
             report_fh = open(fname, 'w')
@@ -550,7 +625,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         tmp_stype = 'pep'
         feature_type = ['CDS']
         logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
-        tmpseq = splicer(gff, feature_type, dline, tmp_stype, embedded_fasta)
+        tmpseq = splicer(gff, feature_type, dline, tmp_stype, embedded_fasta, defline_attributes)
         for k,v in tmpseq.items():
             k = k.replace("|mRNA(CDS)|", "|peptide|")
             v = translator(v)
@@ -564,7 +639,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
                     report_fh.write('{0:s}\n{1:s}\n'.format(k,v))
     elif stype == 'user_defined':
         feature_type = [user_defined[0],user_defined[1]]
-        seq = splicer(gff, feature_type,  dline, stype, embedded_fasta)
+        seq = splicer(gff, feature_type,  dline, stype, embedded_fasta, defline_attributes)
         if len(seq):
             logger.info('Print out extracted sequences: {0:s}_{1:s}.fa...'.format(output_prefix, stype))
             for k,v in seq.items():
@@ -573,16 +648,16 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
 
     else:
         if stype == 'pre_trans' or stype == 'gene' or stype == 'exon':
-            seq = extract_start_end(gff, stype, dline, embedded_fasta)
+            seq = extract_start_end(gff, stype, dline, embedded_fasta, defline_attributes)
         elif stype == 'trans':
             feature_type = ['exon', 'pseudogenic_exon']
-            seq = splicer(gff, feature_type,  dline, stype, embedded_fasta)
+            seq = splicer(gff, feature_type,  dline, stype, embedded_fasta, defline_attributes)
         elif stype == 'cds':
             feature_type = ['CDS']
-            seq = splicer(gff, feature_type,  dline, stype, embedded_fasta)
+            seq = splicer(gff, feature_type,  dline, stype, embedded_fasta, defline_attributes)
         elif stype == 'pep':
             feature_type = ['CDS']
-            tmpseq = splicer(gff, feature_type,  dline, stype, embedded_fasta)
+            tmpseq = splicer(gff, feature_type,  dline, stype, embedded_fasta, defline_attributes)
             for k,v in tmpseq.items():
                 k = k.replace("|mRNA(CDS)|", "|peptide|")
                 #k = re.sub(r'(.*-)(R)(.)',r'\1P\3',k)
@@ -628,7 +703,8 @@ def script_main():
     parser.add_argument('-embf', '--embedded_fasta', action='store_true', help='Specify this option if you want to extract sequence from embedded fasta.', default=False)
     parser.add_argument('-st', '--sequence_type', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}\n\t{3:s}\n\t{4:s}\n\t{5:s}\n\t{6:s}\n\t{7:s}\n\t{8:s}".format('Type of sequences you would like to extract: ','"all" - FASTA files for all types of sequences listed below, except user_defined;','"gene" - gene sequence for each record;', '"exon" - exon sequence for each record;', '"pre_trans" - genomic region of a transcript model (premature transcript);', '"trans" - spliced transcripts (only exons included);', '"cds" - coding sequences;', '"pep" - peptide sequences;', '"user_defined" - specify parent and child features via the -u argument.'))
     parser.add_argument('-u', '--user_defined', nargs='*', help="Specify parent and child features for fasta extraction, format: [parent feature type] [child feature type] (ex: -u mRNA CDS). Required if -st user_defined is given.")
-    parser.add_argument('-d', '--defline', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}".format('Defline format in the output FASTA file:','"simple" - only ID would be shown in the defline;', '"complete" - complete information of the feature would be shown in the defline.'))
+    parser.add_argument('-d', '--defline', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}\n\t{3:s}".format('Defline format in the output FASTA file:','"simple" - only ID would be shown in the defline;','"complete" - complete information of the feature would be shown in the defline;','"custom" - only the attributes requested with -da are written as attribute=value pairs.'))
+    parser.add_argument('-da', '--defline_attributes', type=str, help='Pipe-separated list of GFF3 attribute names to append to the defline, formatted as attribute=value (example: product|ID|Dbxref).')
     parser.add_argument('-o', '--output_prefix', type=str, help='Prefix of output file name')
     parser.add_argument('-noQC', '--quality_control', action='store_false', help='Specify this option if you do not want to execute quality control for gff file. (default: QC is executed)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
@@ -681,4 +757,4 @@ def script_main():
         sys.exit(1)
 
 
-    main(args.gff, args.fasta, args.embedded_fasta, args.sequence_type, args.user_defined, args.defline, args.quality_control, args.output_prefix, logger_stderr)
+    main(args.gff, args.fasta, args.embedded_fasta, args.sequence_type, args.user_defined, args.defline, args.quality_control, args.output_prefix, logger_stderr, getattr(args, 'defline_attributes', None))
