@@ -479,10 +479,15 @@ class Groups(object):
                             unique.add(root['line_raw'])
         # roots = [line for line in Mgff.lines if line['line_type'] == 'feature' and 'Parent' not in line['attributes']]
         mapName2ID = {}
-        tmp  = re.search(r'(.+?)(\d+)',roots[0]['attributes']['ID'])
-        idprefix = tmp.groups()[0]
+        idprefix = ''
         maxIDnumber = 0
         digitlen = 0
+        for root in roots:
+            root_id = root['attributes'].get('ID', '')
+            tmp = re.search(r'(.+?)(\d+)', root_id)
+            if tmp:
+                idprefix = tmp.groups()[0]
+                break
         id2name={}
         for root in roots:
             rootid = root['attributes']['ID']
