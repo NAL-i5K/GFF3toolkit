@@ -21,7 +21,7 @@ Extract sequences from specific regions of genome based on gff file.
 
 ## Usage
 
-gff3_to_fasta [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d DEFLINE] [-da DEFLINE_ATTRIBUTES] [-o OUTPUT_PREFIX] [-noQC] [-v]
+gff3_to_fasta [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d DEFLINE] [-da DEFLINE_ATTRIBUTES] [-r2p] [-o OUTPUT_PREFIX] [-noQC] [-v]
 
 ## Testing environment
 1. Python 3.9+
@@ -40,6 +40,8 @@ gff3_to_fasta [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d
 
 1. Specify the input, output file names and options using short arguments:
     - `gff3_to_fasta -g example_file/example.gff3 -f example_file/reference.fa -st all -d simple -o test_sequences`
+2. Convert peptide deflines from `-R*` IDs to `-P*` IDs when generating peptide output:
+    - `gff3_to_fasta -g example_file/example.gff3 -f example_file/reference.fa -st pep -d simple -r2p -o test_sequences`
 
 ## Optional arguments
 
@@ -74,10 +76,13 @@ gff3_to_fasta [-h] [-g GFF] [-f FASTA] [-st SEQUENCE_TYPE] [-u USER_DEFINED] [-d
 8. -da DEFLINE_ATTRIBUTES, --defline_attributes DEFLINE_ATTRIBUTES
     - Pipe-separated list of GFF3 attribute names to include in the defline.
         * Example: -d custom -da product|ID
-9. -o OUTPUT_PREFIX, --output_prefix OUTPUT_PREFIX
+9. -r2p, --replace_r2p
+    - For peptide deflines only, convert IDs from `-R*` to `-P*`.
+        * Valid only with `-st pep` or `-st all`.
+10. -o OUTPUT_PREFIX, --output_prefix OUTPUT_PREFIX
     - Prefix of output file name
-10. -noQC, --quality_control
+11. -noQC, --quality_control
     - Specify this option if you do not want to execute quality control for gff file. (default: QC is executed)
-11. -v, --version
+12. -v, --version
     - Show program version number and exit
 
