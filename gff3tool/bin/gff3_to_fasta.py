@@ -107,7 +107,7 @@ def _format_defline_attributes(record, defline_attributes, dline):
         return '|{0:s}'.format('|'.join(formatted))
     return ''
 
-def splicer(gff, ftype, dline, stype, embedded_fasta=False, defline_attributes=None):
+def splicer(gff, ftype, dline, stype, embedded_fasta=False, defline_attributes=None, r2p=False):
     seq=dict()
     segments_Set = set()
     sort_seg = []
@@ -240,13 +240,14 @@ def splicer(gff, ftype, dline, stype, embedded_fasta=False, defline_attributes=N
                         if 'protein_id' in grandchild['attributes']:
                             cid = grandchild['attributes']['protein_id']
 
-                    cid = re.sub(r'(.+-)(R)([a-zA-Z]+)', r'\1P\3', cid)#otherwise, if it has the -R[A-Z] format then modify that to -P[A-Z]
+                    if r2p:
+                        cid = re.sub(r'(.+-)(R)([a-zA-Z]+)', r'\1P\3', cid) # convert -R to -P only when requested
                     defline = '>{0:s}'.format(cid)
                 elif ftype[0] == 'CDS':
                     defline='>{0:s}-CDS'.format(cid)
                 if dline == 'complete':
                     try:
-                        if stype == 'pep':
+                        if stype == 'pep' and r2p:
                             cname = re.sub(r'(.+-)(R)([a-zA-Z]+)', r'\1P\3', cname)
                         defline = '>{0:s}:{1:d}..{2:d}:{3:s}|{4:s}({8:s})|Parent={5:s}|ID={6:s}|Name={7:s}'.format(child['seqid'], child['start'], child['end'], child['strand'], child['type'], rid, cid, cname, ftype[0])
                     except:
@@ -473,7 +474,7 @@ def extract_start_end(gff, stype, dline, embedded_fasta=False, defline_attribute
 
     return seq
 
-def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_defined=None, dline=None, qc=True, output_prefix=None, logger=None, defline_attributes=None):
+def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_defined=None, dline=None, qc=True, output_prefix=None, logger=None, defline_attributes=None, r2p=False):
     stderr_handler = logging.StreamHandler()
     stderr_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
     logger_null = logging.getLogger(__name__+'null')
@@ -486,6 +487,9 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
     type_set=['gene','exon','pre_trans', 'trans', 'cds', 'pep', 'all', 'user_defined', 'custom']
     if not stype in type_set:
         logger.error('Your sequence type is "{0:s}". Sequence type must be one of {1:s}!'.format(stype, str(type_set)))
+        sys.exit(1)
+    if r2p and stype not in ['pep', 'all']:
+        logger.error('The -r2p option is only valid when -st is "pep" or "all".')
         sys.exit(1)
 
     if stype == 'all' and output_prefix:
@@ -625,7 +629,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
         tmp_stype = 'pep'
         feature_type = ['CDS']
         logger.info('\t- Extract sequences for {0:s}...'.format(tmp_stype))
-        tmpseq = splicer(gff, feature_type, dline, tmp_stype, embedded_fasta, defline_attributes)
+        tmpseq = splicer(gff, feature_type, dline, tmp_stype, embedded_fasta, defline_attributes, r2p)
         for k,v in tmpseq.items():
             k = k.replace("|mRNA(CDS)|", "|peptide|")
             v = translator(v)
@@ -657,7 +661,7 @@ def main(gff_file=None, fasta_file=None, embedded_fasta=False, stype=None, user_
             seq = splicer(gff, feature_type,  dline, stype, embedded_fasta, defline_attributes)
         elif stype == 'pep':
             feature_type = ['CDS']
-            tmpseq = splicer(gff, feature_type,  dline, stype, embedded_fasta, defline_attributes)
+            tmpseq = splicer(gff, feature_type,  dline, stype, embedded_fasta, defline_attributes, r2p)
             for k,v in tmpseq.items():
                 k = k.replace("|mRNA(CDS)|", "|peptide|")
                 #k = re.sub(r'(.*-)(R)(.)',r'\1P\3',k)
@@ -705,6 +709,7 @@ def script_main():
     parser.add_argument('-u', '--user_defined', nargs='*', help="Specify parent and child features for fasta extraction, format: [parent feature type] [child feature type] (ex: -u mRNA CDS). Required if -st user_defined is given.")
     parser.add_argument('-d', '--defline', type=str, help="{0:s}\n\t{1:s}\n\t{2:s}\n\t{3:s}".format('Defline format in the output FASTA file:','"simple" - only ID would be shown in the defline;','"complete" - complete information of the feature would be shown in the defline;','"custom" - only the attributes requested with -da are written as attribute=value pairs.'))
     parser.add_argument('-da', '--defline_attributes', type=str, help='Pipe-separated list of GFF3 attribute names to append to the defline, formatted as attribute=value (example: product|ID|Dbxref).')
+    parser.add_argument('-r2p', '--replace_r2p', action='store_true', help='For peptide deflines only, convert IDs from -R* to -P*. This option is valid only with -st pep or -st all.', default=False)
     parser.add_argument('-o', '--output_prefix', type=str, help='Prefix of output file name')
     parser.add_argument('-noQC', '--quality_control', action='store_false', help='Specify this option if you do not want to execute quality control for gff file. (default: QC is executed)')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
@@ -738,6 +743,10 @@ def script_main():
                 parser.print_help()
                 logger_stderr.error('-u is needed in combination with -st user_defined. format: [parent feature type] [child feature type] (ex: -u mRNA CDS)')
                 sys.exit(1)
+        if args.replace_r2p and args.sequence_type not in ["pep", "all"]:
+            parser.print_help()
+            logger_stderr.error('The -r2p option is only valid when -st is "pep" or "all".')
+            sys.exit(1)
     elif not sys.stdin.isatty(): # if STDIN connected to pipe or file
         args.sequence_type = sys.stdin
         logger_stderr.info('Reading from STDIN...')
@@ -757,4 +766,4 @@ def script_main():
         sys.exit(1)
 
 
-    main(args.gff, args.fasta, args.embedded_fasta, args.sequence_type, args.user_defined, args.defline, args.quality_control, args.output_prefix, logger_stderr, getattr(args, 'defline_attributes', None))
+    main(args.gff, args.fasta, args.embedded_fasta, args.sequence_type, args.user_defined, args.defline, args.quality_control, args.output_prefix, logger_stderr, getattr(args, 'defline_attributes', None), getattr(args, 'replace_r2p', False))
