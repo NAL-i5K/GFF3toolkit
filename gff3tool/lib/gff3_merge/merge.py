@@ -18,11 +18,11 @@ def main(gff_file1, gff_file2, output_gff, report_fh, user_defined1=None, user_d
 
     if not logger:
         logger = logger_null
-    logger.info('Sorting the WA gff by following the order of Scaffold number and coordinates...')
-    gff3_sort.main(gff_file1, output='WA_sorted.gff', logger=logger)
+    logger.info('Sorting the WA gff by following the order of sequences in the gff3 file')
+    gff3_sort.main(gff_file1, output='WA_sorted.gff', logger=logger, reference=True)
 
-    logger.info('Sorting the other gff by following the order of Scaffold number and coordinates...')
-    gff3_sort.main(gff_file2, output='other_sorted.gff', logger=logger)
+    logger.info('Sorting the other gff by following the order of sequences in the gff3 file')
+    gff3_sort.main(gff_file2, output='other_sorted.gff', logger=logger, reference=True)
 
     logger.info('Reading WA gff3 file...')
     gff3 = Gff3(gff_file='WA_sorted.gff', logger=logger_null)

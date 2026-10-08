@@ -17,6 +17,7 @@ class TestGff3ToFastaCli(unittest.TestCase):
             defline="simple",
             output_prefix="out",
             quality_control=True,
+            replace_r2p=False,
         )
         stdin = mock.Mock()
         stdin.isatty.return_value = True
@@ -40,6 +41,7 @@ class TestGff3ToFastaCli(unittest.TestCase):
             defline="simple",
             output_prefix="out",
             quality_control=True,
+            replace_r2p=False,
         )
         stdin = mock.Mock()
         stdin.isatty.return_value = True
@@ -63,6 +65,7 @@ class TestGff3ToFastaCli(unittest.TestCase):
             defline="simple",
             output_prefix="out",
             quality_control=True,
+            replace_r2p=False,
         )
 
         with mock.patch("argparse.ArgumentParser.parse_args", return_value=args), \
@@ -83,6 +86,7 @@ class TestGff3ToFastaCli(unittest.TestCase):
             defline=None,
             output_prefix="out",
             quality_control=True,
+            replace_r2p=False,
         )
         stdin = mock.Mock()
         stdin.isatty.return_value = True
@@ -106,6 +110,7 @@ class TestGff3ToFastaCli(unittest.TestCase):
             defline="complete",
             output_prefix="out",
             quality_control=False,
+            replace_r2p=False,
         )
 
         with mock.patch("argparse.ArgumentParser.parse_args", return_value=args), \
@@ -123,6 +128,7 @@ class TestGff3ToFastaCli(unittest.TestCase):
             "out",
             mock.ANY,
             None,
+            False,
         )
 
     def test_script_main_passes_defline_attributes(self):
@@ -136,6 +142,7 @@ class TestGff3ToFastaCli(unittest.TestCase):
             defline_attributes="product|ID",
             output_prefix="out",
             quality_control=False,
+            replace_r2p=False,
         )
 
         with mock.patch("argparse.ArgumentParser.parse_args", return_value=args), \
@@ -153,7 +160,30 @@ class TestGff3ToFastaCli(unittest.TestCase):
             "out",
             mock.ANY,
             "product|ID",
+            False,
         )
+
+    def test_script_main_exits_when_r2p_used_with_non_pep_non_all(self):
+        args = Namespace(
+            gff="input.gff3",
+            fasta="ref.fa",
+            embedded_fasta=False,
+            sequence_type="cds",
+            user_defined=None,
+            defline="simple",
+            output_prefix="out",
+            quality_control=False,
+            replace_r2p=True,
+            defline_attributes=None,
+        )
+
+        with mock.patch("argparse.ArgumentParser.parse_args", return_value=args), \
+            mock.patch("argparse.ArgumentParser.print_help") as print_help, \
+            self.assertRaises(SystemExit) as exc:
+            gff3_to_fasta.script_main()
+
+        print_help.assert_called_once()
+        self.assertEqual(exc.exception.code, 1)
 
 
 class TestGff3ToFastaMain(unittest.TestCase):
@@ -167,6 +197,20 @@ class TestGff3ToFastaMain(unittest.TestCase):
                 output_prefix="out",
                 qc=False,
                 logger=mock.Mock(),
+            )
+        self.assertEqual(exc.exception.code, 1)
+
+    def test_main_exits_when_r2p_used_with_non_pep_non_all(self):
+        with self.assertRaises(SystemExit) as exc:
+            gff3_to_fasta.main(
+                gff_file="input.gff3",
+                fasta_file="ref.fa",
+                stype="cds",
+                dline="simple",
+                output_prefix="out",
+                qc=False,
+                logger=mock.Mock(),
+                r2p=True,
             )
         self.assertEqual(exc.exception.code, 1)
 
@@ -488,6 +532,121 @@ class TestGff3ToFastaHelpers(unittest.TestCase):
         )
 
         self.assertEqual(seq, {">product=enzyme|ID=tx1": "ATG"})
+
+    def test_splicer_pep_does_not_convert_r_to_p_by_default(self):
+        cds = {
+            "line_type": "feature",
+            "attributes": {"ID": "cds1", "Parent": ["tx1"]},
+            "line_index": 2,
+            "line_raw": "cds",
+            "type": "CDS",
+            "seqid": "chr1",
+            "start": 1,
+            "end": 3,
+            "strand": "+",
+            "phase": 0,
+            "children": [],
+            "parents": [],
+        }
+        mrna = {
+            "line_type": "feature",
+            "attributes": {"ID": "LOC0001-RA", "Parent": ["gene1"]},
+            "line_index": 1,
+            "line_raw": "mrna",
+            "type": "mRNA",
+            "seqid": "chr1",
+            "start": 1,
+            "end": 3,
+            "strand": "+",
+            "phase": 0,
+            "children": [cds],
+            "parents": [],
+        }
+        root_gene = {
+            "line_type": "feature",
+            "attributes": {"ID": "gene1"},
+            "line_index": 0,
+            "line_raw": "gene",
+            "type": "gene",
+            "seqid": "chr1",
+            "start": 1,
+            "end": 3,
+            "strand": "+",
+            "children": [mrna],
+            "parents": [],
+        }
+        gff = _MiniGff(
+            lines=[root_gene, mrna, cds],
+            fasta_external={"chr1": {"seq": "ATG"}},
+        )
+
+        seq = gff3_to_fasta.splicer(
+            gff,
+            ["CDS"],
+            "simple",
+            "pep",
+            embedded_fasta=False,
+        )
+
+        self.assertEqual(seq, {">LOC0001-RA": "ATG"})
+
+    def test_splicer_pep_converts_r_to_p_when_r2p_enabled(self):
+        cds = {
+            "line_type": "feature",
+            "attributes": {"ID": "cds1", "Parent": ["tx1"]},
+            "line_index": 2,
+            "line_raw": "cds",
+            "type": "CDS",
+            "seqid": "chr1",
+            "start": 1,
+            "end": 3,
+            "strand": "+",
+            "phase": 0,
+            "children": [],
+            "parents": [],
+        }
+        mrna = {
+            "line_type": "feature",
+            "attributes": {"ID": "LOC0001-RA", "Parent": ["gene1"]},
+            "line_index": 1,
+            "line_raw": "mrna",
+            "type": "mRNA",
+            "seqid": "chr1",
+            "start": 1,
+            "end": 3,
+            "strand": "+",
+            "phase": 0,
+            "children": [cds],
+            "parents": [],
+        }
+        root_gene = {
+            "line_type": "feature",
+            "attributes": {"ID": "gene1"},
+            "line_index": 0,
+            "line_raw": "gene",
+            "type": "gene",
+            "seqid": "chr1",
+            "start": 1,
+            "end": 3,
+            "strand": "+",
+            "children": [mrna],
+            "parents": [],
+        }
+        gff = _MiniGff(
+            lines=[root_gene, mrna, cds],
+            fasta_external={"chr1": {"seq": "ATG"}},
+        )
+
+        seq = gff3_to_fasta.splicer(
+            gff,
+            ["CDS"],
+            "simple",
+            "pep",
+            embedded_fasta=False,
+            r2p=True,
+        )
+
+        self.assertEqual(seq, {">LOC0001-PA": "ATG"})
 
 
 if __name__ == "__main__":
