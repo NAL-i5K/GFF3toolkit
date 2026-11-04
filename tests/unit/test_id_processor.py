@@ -71,7 +71,7 @@ class TestIdProcessor(unittest.TestCase):
         id_processor.simpleIDreplace(model, "LOC0007")
         self.assertEqual(model["attributes"]["ID"], "LOC0007gene")
 
-    def test_new_parent_model_sets_id_name_and_line_index(self):
+    def test_new_parent_model_updates_id_matched_name_and_line_index(self):
         oldmodel = {
             "attributes": {"ID": "old1", "Name": "old1"},
             "children": [{"attributes": {"ID": "child"}}],
@@ -84,6 +84,21 @@ class TestIdProcessor(unittest.TestCase):
         self.assertEqual(new_model["attributes"]["ID"], "new1")
         self.assertEqual(new_model["attributes"]["Name"], "new1")
         self.assertEqual(new_model["line_index"], 5)
+        self.assertEqual(new_model["children"], [])
+
+    def test_new_parent_model_does_not_add_missing_name(self):
+        oldmodel = {
+            "attributes": {"ID": "old1"},
+            "children": [{"attributes": {"ID": "child"}}],
+            "line_index": 3,
+        }
+        gff = DummyGFF(line_count=2)
+
+        new_model = id_processor.newParentModel(oldmodel, "new1", gff)
+
+        self.assertEqual(new_model["attributes"]["ID"], "new1")
+        self.assertNotIn("Name", new_model["attributes"])
+        self.assertEqual(new_model["line_index"], 2)
         self.assertEqual(new_model["children"], [])
 
     def test_new_child_model_resets_parent_links_and_children(self):
