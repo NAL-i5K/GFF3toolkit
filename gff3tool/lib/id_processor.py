@@ -45,8 +45,6 @@ def newParentModel(oldmodel, newid, gff):
     newmodel = copy.deepcopy(oldmodel)
     if 'Name' in oldmodel['attributes'] and oldmodel['attributes']['Name'] == oldmodel['attributes']['ID']:
         newmodel['attributes']['Name'] = newid
-    elif 'Name' not in oldmodel['attributes']:
-        newmodel['attributes']['Name'] = newid
     newmodel['attributes']['ID'] = newid
     eofindex = len(gff.lines)
     newmodel['line_index'] = eofindex
